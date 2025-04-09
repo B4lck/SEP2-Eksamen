@@ -1,28 +1,31 @@
 package model;
 
+import mediator.ChatClient;
+import mediator.ClientMessage;
+
 import java.util.ArrayList;
-import java.util.Random;
 
-public class ProfileManager {
-    private ArrayList<Profile> profiles;
-    private long currentUserId;
+public class ProfileManager implements BroadcastReceiver {
+    private ArrayList<Profile> profiles = new ArrayList<>();
+    private long currentUserId = -1;
+    private ChatClient client;
 
-    // TEMP
-    private Random random;
-
-    public ProfileManager() {
-        profiles = new ArrayList<>();
-        random = new Random();
-
-        currentUserId = -1;
+    public ProfileManager(ChatClient client) {
+        this.client = client;
     }
 
     public long signUp(String username, String password) {
-        profiles.add(new Profile(username, password, random.nextLong()));
+        try {
+            client.sendMessage(new ClientMessage<>("SIGN_UP", new SignUpMessage(username, password)));
 
-        long id = profiles.getLast().getUUID();
-        this.currentUserId = id;
-        return id;
+            ClientMessage<SignUpResponse> res = client.waitingForReply("SIGN_UP");
+
+            if (res.hasError()) throw new RuntimeException(res.getError());
+
+            return res.getObject().uuid();
+        } catch (Exception e) {
+            throw new RuntimeException("Det gik noget galt!");
+        }
     }
 
     public ArrayList<Profile> getAll() {
@@ -34,25 +37,66 @@ public class ProfileManager {
     }
 
     public long login(String username, String password) {
-        for (Profile profile : profiles) {
-            if (username.equalsIgnoreCase(profile.getUsername()) && password.equals(profile.getPassword())) {
-                this.currentUserId = profile.getUUID();
-                return currentUserId;
-            }
+        try {
+            client.sendMessage(new ClientMessage<>("LOG_IN", new LogInMessage(username, password)));
+
+            ClientMessage<LogInResponse> res = client.waitingForReply("LOG_IN");
+
+            if (res.hasError()) throw new RuntimeException(res.getError());
+
+            return res.getObject().uuid();
+        } catch (Exception e) {
+            throw new RuntimeException("Det gik noget galt!");
         }
-        throw new IllegalArgumentException("Brugernavn eller password er ikke gyldig");
     }
 
     public Profile getProfile(long id) {
-        for (Profile profile : profiles) {
-            if (profile.getUUID() == id) {
-                return profile;
-            }
+        try {
+            client.sendMessage(new ClientMessage<>("GET_PROFILE", new GetProfileMessage(id)));
+
+            ClientMessage<GetProfileResponse> res = client.waitingForReply("GET_PROFILE");
+
+            if (res.hasError()) throw new RuntimeException(res.getError());
+
+            return res.getObject().profile();
+        } catch (Exception e) {
+            throw new RuntimeException("Det gik noget galt!");
         }
-        throw new IllegalArgumentException("Profilen kan ikke findes");
     }
 
     public Profile getCurrentUser() {
-        return getProfile(currentUserId);
+        try {
+            client.sendMessage(new ClientMessage<>("GET_CURRENT_PROFILE"));
+
+            ClientMessage<GetProfileResponse> res = client.waitingForReply("GET_PROFILE");
+
+            if (res.hasError()) throw new RuntimeException(res.getError());
+
+            return res.getObject().profile();
+        } catch (Exception e) {
+            throw new RuntimeException("Det gik noget galt!");
+        }
     }
+
+    @Override
+    public void onBroadcast(ClientMessage message) {
+    }
+}
+
+record SignUpMessage(String username, String password) {
+}
+
+record SignUpResponse(long uuid) {
+}
+
+record LogInMessage(String username, String password) {
+}
+
+record LogInResponse(long uuid) {
+}
+
+record GetProfileMessage(long uuid) {
+}
+
+record GetProfileResponse(Profile profile) {
 }

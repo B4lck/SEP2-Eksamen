@@ -1,5 +1,7 @@
 package viewModel;
 
+import model.Model;
+
 public class ViewModelFactory {
 
     private LoggedInViewModel loggedInViewModel = null;

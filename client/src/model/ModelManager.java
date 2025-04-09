@@ -11,6 +11,8 @@ public class ModelManager implements Model, PropertyChangeListener {
     private PropertyChangeSupport property;
     private ChatClient client;
 
+    private ProfileManager profileManager = new ProfileManager(client);
+
     public ModelManager(ChatClient client) {
         this.property = new PropertyChangeSupport(this);
         this.client = client;
@@ -29,7 +31,7 @@ public class ModelManager implements Model, PropertyChangeListener {
 
     @Override
     public ProfileManager getProfiles() {
-        return null;
+        return profileManager;
     }
 
     @Override

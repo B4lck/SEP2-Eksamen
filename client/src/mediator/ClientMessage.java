@@ -30,4 +30,8 @@ public class ClientMessage<T> {
     public String getType() {
         return type;
     }
+
+    public boolean hasError() {
+        return error != null;
+    }
 }
