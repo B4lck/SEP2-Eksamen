@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.SignupViewController">
+   <children>
+      <ImageView fx:id="logo" fitHeight="82.0" fitWidth="327.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@viaLogo.png" />
+         </image>
+      </ImageView>
+      <PasswordField fx:id="Password" layoutX="236.0" layoutY="204.0" />
+      <PasswordField fx:id="PasswordCheck" layoutX="236.0" layoutY="247.0" />
+      <Label layoutX="150.0" layoutY="208.0" text="Password" />
+      <Label layoutX="128.0" layoutY="251.0" text="Bekræft Password" />
+      <TextField fx:id="ViaId" layoutX="236.0" layoutY="158.0" />
+      <Label fx:id="Viaid" layoutX="162.0" layoutY="162.0" text="Via ID" />
+      <Button fx:id="CreatUser" layoutX="385.0" layoutY="286.0" mnemonicParsing="false" onAction="#CreatUser" text="Opret Bruger" />
+      <Button fx:id="logInd" layoutX="14.0" layoutY="335.0" mnemonicParsing="false" onAction="#LogIn" text="Log ind" />
+   </children>
+</AnchorPane>

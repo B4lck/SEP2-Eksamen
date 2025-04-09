@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.LoggedinViewController">
+   <children>
+      <MenuButton layoutX="493.0" layoutY="41.0" mnemonicParsing="false" text="Brugernavn">
+        <items>
+          <MenuItem fx:id="Profile" mnemonicParsing="false" onAction="#Profile" text="Profile" />
+          <MenuItem fx:id="Logud" mnemonicParsing="false" onAction="#logud" text="Log ud" />
+        </items>
+      </MenuButton>
+      <ImageView fx:id="logo" fitHeight="82.0" fitWidth="327.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@viaLogo.png" />
+         </image>
+      </ImageView>
+   </children>
+</AnchorPane>
