@@ -15,15 +15,23 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
     private BufferedReader in;
     private PrintWriter out;
     private Gson gson;
+    private Model model;
+
+    private long currentUser = -1;
 
     public ClientHandler(Socket socket, Model model) throws IOException {
         this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.out = new PrintWriter(socket.getOutputStream(), true);
         this.gson = new Gson();
+        this.model = model;
     }
 
     public void setAuthenticatedUser(long userId) {
-        // IDK?!?
+        currentUser = userId;
+    }
+
+    public long getAuthenticatedUser() {
+        return currentUser;
     }
 
     @Override
@@ -31,22 +39,27 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
         while (true) {
             try {
                 String req = in.readLine();
-                switch (req.toUpperCase()) {
-                    case "LOG_IN":
-                    case "SIGN_UP":
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Forstod ikke en besked som blev modtaget");
-                }
 
+                ServerMessage message = gson.fromJson(req, ServerMessage.class);
+
+                message.setHandler(this);
+
+                // Giv videre til model
+                model.passClientMessage(message);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
+    public void sendMessage(ClientMessage message) {
+        message.setAuthenticatedUser(currentUser);
+        out.println(gson.toJson(message));
+    }
+
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-
+        // Broadcast
+        out.println(gson.toJson(new ServerMessage<>(evt.getPropertyName(), evt.getNewValue())));
     }
 }
