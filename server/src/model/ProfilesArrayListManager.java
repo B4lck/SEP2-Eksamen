@@ -1,5 +1,6 @@
 package model;
 
+import mediator.ClientMessage;
 import mediator.ServerMessage;
 
 import java.util.ArrayList;
@@ -42,5 +43,8 @@ public class ProfilesArrayListManager implements Profiles {
     @Override
     public void handleMessage(ServerMessage message) {
         // TODO
+        if (message.getType().equals("SIGN_UP")) {
+            // logik...
+        }
     }
 }
