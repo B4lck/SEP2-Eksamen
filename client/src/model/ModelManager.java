@@ -28,7 +28,7 @@ public class ModelManager implements Model, PropertyChangeListener {
     }
 
     @Override
-    public ArrayList<Profile> getProfiles() {
+    public ProfileManager getProfiles() {
         return null;
     }
 
