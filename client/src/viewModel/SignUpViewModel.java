@@ -3,6 +3,8 @@ package viewModel;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
+import model.Model;
+
 public class SignUpViewModel {
 
     private StringProperty userNameInputProperty = new SimpleStringProperty();
