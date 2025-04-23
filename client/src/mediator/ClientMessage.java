@@ -4,7 +4,7 @@ public class ClientMessage<T> {
     private String type;
     private String error;
     private T object;
-    private long authenticatedAsUser;
+    private Long authenticatedAsUser;
 
     public ClientMessage(String type, T object) {
         this.type = type;
@@ -19,7 +19,7 @@ public class ClientMessage<T> {
         return object;
     }
 
-    public long getAuthenticatedAsUser() {
+    public Long getAuthenticatedAsUser() {
         return authenticatedAsUser;
     }
 
