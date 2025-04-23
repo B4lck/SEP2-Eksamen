@@ -6,9 +6,9 @@ package mediator;
  * @param <T> Typen af objekt i beskeden
  */
 public class ServerMessage<T> {
-    private String type;
-    private T object;
-    private ClientHandler handler;
+    public String type;
+    public T object;
+    public ClientHandler handler;
 
     public ServerMessage(String type, T object) {
         this.type = type;

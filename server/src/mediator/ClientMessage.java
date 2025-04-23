@@ -1,10 +1,10 @@
 package mediator;
 
 public class ClientMessage<T> {
-    private String type;
-    private String error;
-    private T object;
-    private long authenticatedAsUser;
+    public String type;
+    public String error;
+    public T object;
+    public long authenticatedAsUser;
 
     public ClientMessage(String error) {
         this.type = "ERROR";

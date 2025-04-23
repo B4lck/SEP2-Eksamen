@@ -24,7 +24,7 @@ public class ProfileManager implements BroadcastReceiver {
 
             return res.getObject().uuid();
         } catch (Exception e) {
-            throw new RuntimeException("Det gik noget galt!");
+            throw new RuntimeException(e);
         }
     }
 
@@ -46,7 +46,7 @@ public class ProfileManager implements BroadcastReceiver {
 
             return res.getObject().uuid();
         } catch (Exception e) {
-            throw new RuntimeException("Det gik noget galt!");
+            throw new RuntimeException(e);
         }
     }
 
@@ -60,7 +60,7 @@ public class ProfileManager implements BroadcastReceiver {
 
             return res.getObject().profile();
         } catch (Exception e) {
-            throw new RuntimeException("Det gik noget galt!");
+            throw new RuntimeException(e);
         }
     }
 
@@ -74,7 +74,7 @@ public class ProfileManager implements BroadcastReceiver {
 
             return res.getObject().profile();
         } catch (Exception e) {
-            throw new RuntimeException("Det gik noget galt!");
+            throw new RuntimeException(e);
         }
     }
 

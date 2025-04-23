@@ -3,6 +3,7 @@ package view;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import viewmodel.SignUpViewModel;
@@ -13,18 +14,21 @@ public class SignupViewController extends ViewController<SignUpViewModel> {
         Password.textProperty().bindBidirectional(getViewModel().getPasswordInputProperty());
         PasswordCheck.textProperty().bindBidirectional(getViewModel().getVerifyPasswordInputProperty());
         ViaId.textProperty().bindBidirectional(getViewModel().getUserNameInputProperty());
+        error.textProperty().bind(getViewModel().getErrorProperty());
     }
 
     @FXML
-    public PasswordField Password;
+    private PasswordField Password;
     @FXML
-    public PasswordField PasswordCheck;
+    private PasswordField PasswordCheck;
     @FXML
-    public TextField ViaId;
+    private TextField ViaId;
     @FXML
-    public Button CreatUser;
+    private Button CreatUser;
     @FXML
-    public Button logInd;
+    private Button logInd;
+    @FXML
+    private Label error;
 
     @FXML
     public void CreatUser(ActionEvent evt) {

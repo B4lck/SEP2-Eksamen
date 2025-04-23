@@ -12,9 +12,9 @@ public class LoggedinViewController extends ViewController <LoggedInViewModel>{
     Profile.textProperty().bind(getViewModel().getUserNameProperty());
     }
     @FXML
-    public MenuItem Profile;
+    private MenuItem Profile;
     @FXML
-    public MenuItem Logud;
+    private MenuItem Logud;
 
     @FXML
     public void Profile(ActionEvent event) {

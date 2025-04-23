@@ -42,6 +42,7 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
 
                 System.out.println(req);
 
+                System.out.println(req);
                 ServerMessage message = gson.fromJson(req, ServerMessage.class);
 
                 message.setHandler(this);

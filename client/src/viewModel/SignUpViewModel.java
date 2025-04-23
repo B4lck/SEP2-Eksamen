@@ -40,7 +40,8 @@ public class SignUpViewModel {
 
     public void signUp() {
         try {
-            if (passwordInputProperty.getValue() != verifyPasswordInputProperty.getValue()) {
+            if (!passwordInputProperty.getValue().equals(verifyPasswordInputProperty.getValue())) {
+                System.out.println("TINGENE MATCHER IKKE GRR");
                 throw new IllegalArgumentException("Passwords do not match");
             }
             model.getProfiles().signUp(userNameInputProperty.getValue(), passwordInputProperty.getValue());

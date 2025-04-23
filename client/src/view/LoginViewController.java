@@ -17,15 +17,15 @@ public class LoginViewController extends ViewController<LogInViewModel> {
     Error.textProperty().bind(getViewModel().getErrorProperty());
     }
     @FXML
-    public TextField login;
+    private TextField login;
     @FXML
-    public Label Error;
+    private Label Error;
     @FXML
-    public PasswordField Password;
+    private PasswordField Password;
     @FXML
-    public Button logind;
+    private Button logind;
     @FXML
-    public Button SignUp;
+    private Button SignUp;
     @FXML
     public void Check(ActionEvent evt) {
         // tjekker om brugernavn og koden er rigtig, og  if true sender til profil siden, else ERROR!

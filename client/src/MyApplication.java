@@ -22,7 +22,6 @@ public class MyApplication extends Application {
             System.out.println(e.getMessage());
         }
 
-        System.out.println("Hello, World!");
         ViewModelFactory viewModelFactory = new ViewModelFactory(model);
         ViewHandler view = new ViewHandler(viewModelFactory);
         view.start(primaryStage);
