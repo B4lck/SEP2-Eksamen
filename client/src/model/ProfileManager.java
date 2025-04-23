@@ -4,6 +4,8 @@ import mediator.ChatClient;
 import mediator.ClientMessage;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Map;
 
 public class ProfileManager implements BroadcastReceiver {
     private ArrayList<Profile> profiles = new ArrayList<>();
@@ -16,13 +18,17 @@ public class ProfileManager implements BroadcastReceiver {
 
     public long signUp(String username, String password) {
         try {
-            client.sendMessage(new ClientMessage<>("SIGN_UP", new SignUpRequest(username, password)));
+            client.sendMessage(new ClientMessage("SIGN_UP", Map.of("username", username, "password", password)));
 
-            ClientMessage<SignUpResponse> res = client.waitingForReply("SIGN_UP");
+            System.out.println("En besked burde være sendt");
+
+            ClientMessage res = client.waitingForReply("SIGN_UP");
+
+            System.out.println("Kommer beskeden tilbage?");
 
             if (res.hasError()) throw new RuntimeException(res.getError());
 
-            return res.getObject().uuid();
+            return ((Double) res.getData().get("uuid")).longValue();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -38,13 +44,13 @@ public class ProfileManager implements BroadcastReceiver {
 
     public long login(String username, String password) {
         try {
-            client.sendMessage(new ClientMessage<>("LOG_IN", new LogInRequest(username, password)));
+            client.sendMessage(new ClientMessage("LOG_IN", Map.of("username", username, "password", password)));
 
-            ClientMessage<LogInResponse> res = client.waitingForReply("LOG_IN");
+            ClientMessage res = client.waitingForReply("LOG_IN");
 
             if (res.hasError()) throw new RuntimeException(res.getError());
 
-            return res.getObject().uuid();
+            return ((Double) res.getData().get("uuid")).longValue();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -52,13 +58,13 @@ public class ProfileManager implements BroadcastReceiver {
 
     public Profile getProfile(long id) {
         try {
-            client.sendMessage(new ClientMessage<>("GET_PROFILE", new GetProfileRequest(id)));
+            client.sendMessage(new ClientMessage("GET_PROFILE", Map.of("uuid", id)));
 
-            ClientMessage<GetProfileResponse> res = client.waitingForReply("GET_PROFILE");
+            ClientMessage res = client.waitingForReply("GET_PROFILE");
 
             if (res.hasError()) throw new RuntimeException(res.getError());
 
-            return res.getObject().profile();
+            return (Profile) res.getData().get("profile");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -66,13 +72,13 @@ public class ProfileManager implements BroadcastReceiver {
 
     public Profile getCurrentUser() {
         try {
-            client.sendMessage(new ClientMessage<>("GET_CURRENT_PROFILE"));
+            client.sendMessage(new ClientMessage("GET_CURRENT_PROFILE", Collections.emptyMap()));
 
-            ClientMessage<GetProfileResponse> res = client.waitingForReply("GET_PROFILE");
+            ClientMessage res = client.waitingForReply("GET_PROFILE");
 
             if (res.hasError()) throw new RuntimeException(res.getError());
 
-            return res.getObject().profile();
+            return (Profile) res.getData().get("profile");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -81,22 +87,4 @@ public class ProfileManager implements BroadcastReceiver {
     @Override
     public void onBroadcast(ClientMessage message) {
     }
-}
-
-record SignUpRequest(String username, String password) {
-}
-
-record SignUpResponse(long uuid) {
-}
-
-record LogInRequest(String username, String password) {
-}
-
-record LogInResponse(long uuid) {
-}
-
-record GetProfileRequest(long uuid) {
-}
-
-record GetProfileResponse(Profile profile) {
 }

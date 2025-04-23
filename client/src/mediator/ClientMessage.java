@@ -1,22 +1,24 @@
 package mediator;
 
-public class ClientMessage<T> {
+import java.util.Map;
+
+public class ClientMessage {
     private String type;
     private String error;
-    private T object;
+    private Map<String, Object> data;
     private Long authenticatedAsUser;
 
-    public ClientMessage(String type, T object) {
+    public ClientMessage(String type, Map<String, Object> data) {
         this.type = type;
-        this.object = object;
+        this.data = data;
     }
 
     public ClientMessage(String error) {
         this.error = error;
     }
 
-    public T getObject() {
-        return object;
+    public Map<String, Object> getData() {
+        return data;
     }
 
     public Long getAuthenticatedAsUser() {

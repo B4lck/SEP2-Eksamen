@@ -11,8 +11,6 @@ public class ServerMain {
 
 
     public static void main(String[] args) {
-
-
         Model model = new ChatModel();
 
         try {
@@ -27,7 +25,5 @@ public class ServerMain {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-
     }
 }

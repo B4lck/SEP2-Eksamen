@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Map;
 
 public class ClientHandler implements Runnable, PropertyChangeListener {
     private BufferedReader in;
@@ -42,8 +43,8 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
 
                 System.out.println(req);
 
-                System.out.println(req);
-                ServerMessage message = gson.fromJson(req, ServerMessage.class);
+                ClientMessage clmsg = gson.fromJson(req, ClientMessage.class);
+                ServerMessage message = new ServerMessage(clmsg.type, (Map<String, Object>) clmsg.data);
 
                 message.setHandler(this);
 
@@ -58,6 +59,7 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
     }
 
     public void sendMessage(ClientMessage message) {
+        System.out.println("sender besked til client");
         message.setAuthenticatedUser(currentUser);
         out.println(gson.toJson(message));
     }
@@ -65,6 +67,6 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         // Broadcast
-        out.println(gson.toJson(new ServerMessage<>(evt.getPropertyName(), evt.getNewValue())));
+        out.println(gson.toJson(new ServerMessage(evt.getPropertyName(), (Map<String, Object>) evt.getNewValue())));
     }
 }

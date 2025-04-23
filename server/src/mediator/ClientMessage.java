@@ -1,9 +1,11 @@
 package mediator;
 
-public class ClientMessage<T> {
+import java.util.Map;
+
+public class ClientMessage {
     public String type;
     public String error;
-    public T object;
+    public Map<String, Object> data;
     public long authenticatedAsUser;
 
     public ClientMessage(String error) {
@@ -11,9 +13,9 @@ public class ClientMessage<T> {
         this.error = error;
     }
 
-    public ClientMessage(String type, T object) {
+    public ClientMessage(String type, Map<String, Object> data) {
         this.type = type;
-        this.object = object;
+        this.data = data;
     }
 
     public void setAuthenticatedUser(long userId) {

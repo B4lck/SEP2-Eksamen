@@ -27,11 +27,14 @@ public class ChatClient implements PropertyChangeSubject {
         this.out = new PrintWriter(socket.getOutputStream(), true);
         this.receivedMessages = new ArrayList<>();
         this.receiver = new ChatClientReceiver(this, in);
+        var recieverThread = new Thread(receiver);
+        recieverThread.start();
         this.gson = new Gson();
         this.property = new PropertyChangeSupport(this);
     }
 
-    public void receive(String s) {
+    public synchronized void receive(String s) {
+        System.out.println("modtaget fra server");
         receivedMessages.add(gson.fromJson(s, ClientMessage.class));
         notify();
     }
@@ -43,6 +46,7 @@ public class ChatClient implements PropertyChangeSubject {
         while (!found) {
             while(!receivedMessages.isEmpty()) {
                 received = receivedMessages.removeLast();
+                System.out.println("recieved besked fra server : " + received.getType());
                 found = received.getType().equals(type);
                 if (found) break;
             }

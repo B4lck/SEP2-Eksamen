@@ -11,6 +11,7 @@ public class ChatModel implements Model {
 
     public ChatModel() {
         property = new PropertyChangeSupport(this);
+        profiles = new ProfilesArrayListManager();
     }
 
     @Override
