@@ -33,7 +33,7 @@ public class SignupViewController extends ViewController<SignUpViewModel> {
 
     @FXML
     public void LogIn(ActionEvent event) {
-        // skal sendes til logind siden
+        getViewHandler().openView(ViewID.LOGIN);
     }
     //mangler ERROR
 }
