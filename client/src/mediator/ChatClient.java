@@ -36,7 +36,7 @@ public class ChatClient implements PropertyChangeSubject {
         notify();
     }
 
-    public ClientMessage waitingForReply(String type) throws InterruptedException {
+    public synchronized ClientMessage waitingForReply(String type) throws InterruptedException {
         ClientMessage received = null;
         boolean found = false;
 
