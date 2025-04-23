@@ -11,20 +11,20 @@ import viewmodel.SignUpViewModel;
 public class SignupViewController extends ViewController<SignUpViewModel> {
     @Override
     protected void init() {
-        Password.textProperty().bindBidirectional(getViewModel().getPasswordInputProperty());
-        PasswordCheck.textProperty().bindBidirectional(getViewModel().getVerifyPasswordInputProperty());
-        ViaId.textProperty().bindBidirectional(getViewModel().getUserNameInputProperty());
+        passwordField.textProperty().bindBidirectional(getViewModel().getPasswordInputProperty());
+        passwordCheck.textProperty().bindBidirectional(getViewModel().getVerifyPasswordInputProperty());
+        viaId.textProperty().bindBidirectional(getViewModel().getUserNameInputProperty());
         error.textProperty().bind(getViewModel().getErrorProperty());
     }
 
     @FXML
-    private PasswordField Password;
+    private PasswordField passwordField;
     @FXML
-    private PasswordField PasswordCheck;
+    private PasswordField passwordCheck;
     @FXML
-    private TextField ViaId;
+    private TextField viaId;
     @FXML
-    private Button CreatUser;
+    private Button createUser;
     @FXML
     private Button logInd;
     @FXML

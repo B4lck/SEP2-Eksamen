@@ -8,8 +8,8 @@
    <children>
       <MenuButton layoutX="493.0" layoutY="41.0" mnemonicParsing="false" text="Brugernavn">
         <items>
-          <MenuItem fx:id="Profile" mnemonicParsing="false" onAction="#Profile" text="Profile" />
-          <MenuItem fx:id="Logud" mnemonicParsing="false" onAction="#logud" text="Log ud" />
+          <MenuItem fx:id="profile" mnemonicParsing="false" onAction="#profile" text="Profile" />
+          <MenuItem fx:id="logud" mnemonicParsing="false" onAction="#logud" text="Log ud" />
         </items>
       </MenuButton>
       <ImageView fx:id="logo" fitHeight="82.0" fitWidth="327.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">

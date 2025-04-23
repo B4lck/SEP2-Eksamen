@@ -12,20 +12,16 @@ public class LoginViewController extends ViewController<LogInViewModel> {
 
     @Override
     protected void init() {
-    login.textProperty().bindBidirectional(getViewModel().getUserNameInputProperty());
-    Password.textProperty().bindBidirectional(getViewModel().getPasswordInputProperty());
-    Error.textProperty().bind(getViewModel().getErrorProperty());
+    username.textProperty().bindBidirectional(getViewModel().getUserNameInputProperty());
+    password.textProperty().bindBidirectional(getViewModel().getPasswordInputProperty());
+    error.textProperty().bind(getViewModel().getErrorProperty());
     }
     @FXML
-    private TextField login;
+    private TextField username;
     @FXML
-    private Label Error;
+    private Label error;
     @FXML
-    private PasswordField Password;
-    @FXML
-    private Button logind;
-    @FXML
-    private Button SignUp;
+    private PasswordField password;
     @FXML
     public void Check(ActionEvent evt) {
         // tjekker om brugernavn og koden er rigtig, og  if true sender til profil siden, else ERROR!
