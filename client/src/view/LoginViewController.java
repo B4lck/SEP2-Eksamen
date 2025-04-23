@@ -6,7 +6,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import viewModel.LogInViewModel;
+import viewmodel.LogInViewModel;
 
 public class LoginViewController extends ViewController<LogInViewModel> {
 
@@ -34,5 +34,6 @@ public class LoginViewController extends ViewController<LogInViewModel> {
     @FXML
     public void SignUp(ActionEvent actionEvent) {
         //sendes til siden for opret profil
+        getViewHandler().openView(ViewID.SIGNUP);
     }
 }

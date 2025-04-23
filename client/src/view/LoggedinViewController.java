@@ -3,7 +3,7 @@ package view;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.MenuItem;
-import viewModel.LoggedInViewModel;
+import viewmodel.LoggedInViewModel;
 
 public class LoggedinViewController extends ViewController <LoggedInViewModel>{
 

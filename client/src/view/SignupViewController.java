@@ -5,7 +5,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import viewModel.SignUpViewModel;
+import viewmodel.SignUpViewModel;
 
 public class SignupViewController extends ViewController<SignUpViewModel> {
     @Override
@@ -33,7 +33,7 @@ public class SignupViewController extends ViewController<SignUpViewModel> {
 
     @FXML
     public void LogIn(ActionEvent event) {
-        // skal sendes til logind siden
+        getViewHandler().openView(ViewID.LOGIN);
     }
     //mangler ERROR
 }
