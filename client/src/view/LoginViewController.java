@@ -34,5 +34,6 @@ public class LoginViewController extends ViewController<LogInViewModel> {
     @FXML
     public void SignUp(ActionEvent actionEvent) {
         //sendes til siden for opret profil
+        getViewHandler().openView(ViewID.SIGNUP);
     }
 }
