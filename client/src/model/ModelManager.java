@@ -11,11 +11,12 @@ public class ModelManager implements Model, PropertyChangeListener {
     private PropertyChangeSupport property;
     private ChatClient client;
 
-    private ProfileManager profileManager = new ProfileManager(client);
+    private ProfileManager profileManager;
 
     public ModelManager(ChatClient client) {
         this.property = new PropertyChangeSupport(this);
         this.client = client;
+        profileManager = new ProfileManager(client);
         client.addListener(this);
     }
 
