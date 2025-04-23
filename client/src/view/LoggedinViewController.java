@@ -9,15 +9,15 @@ public class LoggedinViewController extends ViewController <LoggedInViewModel>{
 
     @Override
     protected void init() {
-    Profile.textProperty().bind(getViewModel().getUserNameProperty());
+    profile.textProperty().bind(getViewModel().getUserNameProperty());
     }
     @FXML
-    private MenuItem Profile;
+    private MenuItem profile;
     @FXML
     private MenuItem Logud;
 
     @FXML
-    public void Profile(ActionEvent event) {
+    public void profile(ActionEvent event) {
         // går til profil siden
     }
     @FXML
