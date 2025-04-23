@@ -4,7 +4,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.Region;
 import javafx.stage.Stage;
-import viewModel.ViewModelFactory;
+import viewmodel.ViewModelFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,16 +24,17 @@ public class ViewHandler {
 
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        //openView(ViewID.RECORD_LIST);
+        openView(ViewID.LOGIN);
     }
 
     public void openView(ViewID view) {
         Region root = null;
 
-        switch (view) {
-          /*  case RECORD_LIST -> root = getRoot(view, viewModelFactory.getRecordListViewModel(), this);
-            case MANAGE_RECORD -> root = getRoot(view, viewModelFactory.getManageRecordViewModel(), this); */
-        }
+        root = switch (view) {
+            case ViewID.LOGIN -> getRoot(view, viewModelFactory.getLogInViewModel(), this);
+            case ViewID.SIGNUP -> getRoot(view, viewModelFactory.getSignUpViewModel(), this);
+            case ViewID.LOGGED_IN -> getRoot(view, viewModelFactory.getLoggedInViewModel(), this);
+        };
 
         if (root == null) {
             throw new IllegalStateException("Bro siden findes ik din noob");
