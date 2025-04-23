@@ -16,7 +16,7 @@ public class ProfileManager implements BroadcastReceiver {
 
     public long signUp(String username, String password) {
         try {
-            client.sendMessage(new ClientMessage<>("SIGN_UP", new SignUpMessage(username, password)));
+            client.sendMessage(new ClientMessage<>("SIGN_UP", new SignUpRequest(username, password)));
 
             ClientMessage<SignUpResponse> res = client.waitingForReply("SIGN_UP");
 
@@ -38,7 +38,7 @@ public class ProfileManager implements BroadcastReceiver {
 
     public long login(String username, String password) {
         try {
-            client.sendMessage(new ClientMessage<>("LOG_IN", new LogInMessage(username, password)));
+            client.sendMessage(new ClientMessage<>("LOG_IN", new LogInRequest(username, password)));
 
             ClientMessage<LogInResponse> res = client.waitingForReply("LOG_IN");
 
@@ -52,7 +52,7 @@ public class ProfileManager implements BroadcastReceiver {
 
     public Profile getProfile(long id) {
         try {
-            client.sendMessage(new ClientMessage<>("GET_PROFILE", new GetProfileMessage(id)));
+            client.sendMessage(new ClientMessage<>("GET_PROFILE", new GetProfileRequest(id)));
 
             ClientMessage<GetProfileResponse> res = client.waitingForReply("GET_PROFILE");
 
@@ -83,19 +83,19 @@ public class ProfileManager implements BroadcastReceiver {
     }
 }
 
-record SignUpMessage(String username, String password) {
+record SignUpRequest(String username, String password) {
 }
 
 record SignUpResponse(long uuid) {
 }
 
-record LogInMessage(String username, String password) {
+record LogInRequest(String username, String password) {
 }
 
 record LogInResponse(long uuid) {
 }
 
-record GetProfileMessage(long uuid) {
+record GetProfileRequest(long uuid) {
 }
 
 record GetProfileResponse(Profile profile) {

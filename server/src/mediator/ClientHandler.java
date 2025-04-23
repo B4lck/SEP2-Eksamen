@@ -44,6 +44,8 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
 
                 message.setHandler(this);
 
+                System.out.println("Serveren modtog en besked af type " + message.getType());
+
                 // Giv videre til model
                 model.passClientMessage(message);
             } catch (Exception e) {
