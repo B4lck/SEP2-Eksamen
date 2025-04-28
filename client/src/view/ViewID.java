@@ -1,7 +1,7 @@
 package view;
 
 public enum ViewID {
-    LOGGED_IN("LoggedinView.fxml"),
+    CHATROOM("ChatRoomView.fxml"),
     LOGIN("LoginView.fxml"),
     SIGNUP("SignupView.fxml");
 
