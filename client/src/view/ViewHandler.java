@@ -4,7 +4,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.Region;
 import javafx.stage.Stage;
-import viewmodel.ViewModelFactory;
+import viewModel.ViewModelFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +33,7 @@ public class ViewHandler {
         root = switch (view) {
             case ViewID.LOGIN -> getRoot(view, viewModelFactory.getLogInViewModel(), this);
             case ViewID.SIGNUP -> getRoot(view, viewModelFactory.getSignUpViewModel(), this);
-            case ViewID.LOGGED_IN -> getRoot(view, viewModelFactory.getLoggedInViewModel(), this);
+            case ViewID.CHATROOM -> getRoot(view, viewModelFactory.getChatRoomViewModel(), this);
         };
 
         if (root == null) {

@@ -4,7 +4,7 @@ import mediator.ChatClient;
 import model.Model;
 import model.ModelManager;
 import view.ViewHandler;
-import viewmodel.ViewModelFactory;
+import viewModel.ViewModelFactory;
 
 public class MyApplication extends Application {
     public final static int PORT = 42069;

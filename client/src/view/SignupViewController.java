@@ -6,7 +6,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import viewmodel.SignUpViewModel;
+import viewModel.SignUpViewModel;
 
 public class SignupViewController extends ViewController<SignUpViewModel> {
     @Override
