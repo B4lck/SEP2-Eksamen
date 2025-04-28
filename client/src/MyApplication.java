@@ -15,12 +15,8 @@ public class MyApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        try {
-            this.client = ChatClient.getInstance();
-            this.model = new ModelManager(client);
-        } catch(Exception e) {
-            System.out.println(e.getMessage());
-        }
+        this.client = ChatClient.getInstance();
+        this.model = new ModelManager();
 
         ViewModelFactory viewModelFactory = new ViewModelFactory(model);
         ViewHandler view = new ViewHandler(viewModelFactory);

@@ -1,9 +1,6 @@
 package model;
 
-import util.PropertyChangeSubject;
-
-import java.util.ArrayList;
-
-public interface Model extends PropertyChangeSubject {
-    ProfileManager getProfiles();
+public interface Model {
+    ProfileManager getProfileManager();
+    ChatRoomManager getChatRoomManager();
 }

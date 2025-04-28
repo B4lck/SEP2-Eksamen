@@ -7,22 +7,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 
-public class ProfileManager implements BroadcastReceiver {
+public class ProfileManager {
     private ArrayList<Profile> profiles = new ArrayList<>();
     private long currentUserId = -1;
-    private ChatClient client;
 
-    public ProfileManager(ChatClient client) {
-        this.client = client;
+    public ProfileManager() {
+
     }
 
     public long signUp(String username, String password) {
         try {
-            client.sendMessage(new ClientMessage("SIGN_UP", Map.of("username", username, "password", password)));
+            ChatClient.getInstance().sendMessage(new ClientMessage("SIGN_UP", Map.of("username", username, "password", password)));
 
             System.out.println("En besked burde være sendt");
 
-            ClientMessage res = client.waitingForReply("SIGN_UP");
+            ClientMessage res = ChatClient.getInstance().waitingForReply("SIGN_UP");
 
             System.out.println("Kommer beskeden tilbage?");
 
@@ -44,9 +43,9 @@ public class ProfileManager implements BroadcastReceiver {
 
     public long login(String username, String password) {
         try {
-            client.sendMessage(new ClientMessage("LOG_IN", Map.of("username", username, "password", password)));
+            ChatClient.getInstance().sendMessage(new ClientMessage("LOG_IN", Map.of("username", username, "password", password)));
 
-            ClientMessage res = client.waitingForReply("LOG_IN");
+            ClientMessage res = ChatClient.getInstance().waitingForReply("LOG_IN");
 
             if (res.hasError()) throw new RuntimeException(res.getError());
 
@@ -58,9 +57,9 @@ public class ProfileManager implements BroadcastReceiver {
 
     public Profile getProfile(long id) {
         try {
-            client.sendMessage(new ClientMessage("GET_PROFILE", Map.of("uuid", id)));
+            ChatClient.getInstance().sendMessage(new ClientMessage("GET_PROFILE", Map.of("uuid", id)));
 
-            ClientMessage res = client.waitingForReply("GET_PROFILE");
+            ClientMessage res = ChatClient.getInstance().waitingForReply("GET_PROFILE");
 
             if (res.hasError()) throw new RuntimeException(res.getError());
 
@@ -72,9 +71,9 @@ public class ProfileManager implements BroadcastReceiver {
 
     public Profile getCurrentUser() {
         try {
-            client.sendMessage(new ClientMessage("GET_CURRENT_PROFILE", Collections.emptyMap()));
+            ChatClient.getInstance().sendMessage(new ClientMessage("GET_CURRENT_PROFILE", Collections.emptyMap()));
 
-            ClientMessage res = client.waitingForReply("GET_PROFILE");
+            ClientMessage res = ChatClient.getInstance().waitingForReply("GET_PROFILE");
 
             if (res.hasError()) throw new RuntimeException(res.getError());
 
@@ -82,9 +81,5 @@ public class ProfileManager implements BroadcastReceiver {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public void onBroadcast(ClientMessage message) {
     }
 }
