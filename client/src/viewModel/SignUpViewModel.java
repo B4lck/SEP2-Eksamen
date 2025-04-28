@@ -44,7 +44,7 @@ public class SignUpViewModel {
                 System.out.println("TINGENE MATCHER IKKE GRR");
                 throw new IllegalArgumentException("Passwords do not match");
             }
-            model.getProfiles().signUp(userNameInputProperty.getValue(), passwordInputProperty.getValue());
+            model.getProfileManager().signUp(userNameInputProperty.getValue(), passwordInputProperty.getValue());
             System.out.println("Du burde være oprettet"); // TODO, gør så man kommer ind på loggedInView
         } catch (Exception e) {
             errorProperty.set(e.getMessage());

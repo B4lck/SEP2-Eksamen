@@ -35,7 +35,7 @@ public class LogInViewModel {
 
     public void login() {
         try {
-            model.getProfiles().login(userNameInputProperty.getValue(), passwordInputProperty.getValue());
+            model.getProfileManager().login(userNameInputProperty.getValue(), passwordInputProperty.getValue());
             System.out.println("logget ind?");
         } catch (Exception e) {
             errorProperty.set(e.getMessage());

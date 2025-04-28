@@ -18,10 +18,10 @@ public class LoggedInViewModel {
     }
 
     public void reset() {
-        userNameProperty.set(model.getProfiles().getCurrentUser().getUsername());
+        userNameProperty.set(model.getProfileManager().getCurrentUser().getUsername());
     }
 
     public void logout() {
-        model.getProfiles().logout();
+        model.getProfileManager().logout();
     }
 }
