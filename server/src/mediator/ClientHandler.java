@@ -38,6 +38,8 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
         this.out = new PrintWriter(socket.getOutputStream(), true);
         this.gson = new Gson();
         this.model = model;
+
+        model.addListener(this);
     }
 
     /**

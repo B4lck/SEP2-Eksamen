@@ -1,6 +1,9 @@
 package viewModel;
 
+import javafx.application.Platform;
 import javafx.beans.property.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import model.Message;
 import model.Model;
 
@@ -10,7 +13,7 @@ import java.util.ArrayList;
 
 public class ChatRoomViewModel implements PropertyChangeListener {
 
-    private ListProperty<Message> messagesProperty;
+    private ObservableList<Message> messagesProperty;
     private StringProperty composeMessageProperty;
     private StringProperty errorMessageProperty;
     private Model model;
@@ -19,7 +22,7 @@ public class ChatRoomViewModel implements PropertyChangeListener {
         this.model = model;
 
         this.composeMessageProperty = new SimpleStringProperty();
-        this.messagesProperty = new SimpleListProperty<>();
+        this.messagesProperty = FXCollections.observableArrayList();
         this.errorMessageProperty = new SimpleStringProperty();
 
         model.getChatRoomManager().addListener(this);
@@ -27,12 +30,18 @@ public class ChatRoomViewModel implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals("MESSAGES")) {
-            messagesProperty.setAll((ArrayList<Message>) evt.getNewValue());
-        }
+        Platform.runLater(() -> {
+            if (evt.getPropertyName().equals("MESSAGES")) {
+                messagesProperty.clear();
+                System.out.println(evt.getNewValue());
+                for (Message m : (ArrayList<Message>) evt.getNewValue()) {
+                    messagesProperty.add(m);
+                }
+            }
+        });
     }
 
-    public ListProperty<Message> getMessagesProperty() {
+    public ObservableList<Message> getMessagesProperty() {
         return messagesProperty;
     }
 
@@ -49,7 +58,7 @@ public class ChatRoomViewModel implements PropertyChangeListener {
     }
 
     public void reset() {
-        messagesProperty.setAll(model.getChatRoomManager().getMessages(0, 10));
+        model.getChatRoomManager().getMessages(0, 10);
     }
 
     public void logout() {

@@ -27,6 +27,7 @@ public class ChatModel implements Model, PropertyChangeListener {
     @Override
     public void passClientMessage(ServerMessage message) {
         profiles.handleMessage(message);
+        chatRooms.handleMessage(message);
     }
 
     @Override

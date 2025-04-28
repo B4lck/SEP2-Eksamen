@@ -1,5 +1,7 @@
 package model;
 
+import java.util.Map;
+
 public class Message {
     private long sentBy;
     private String body;
@@ -9,6 +11,10 @@ public class Message {
         this.sentBy = sentBy;
         this.body = body;
         this.dateTime = dateTime;
+    }
+
+    public static Message fromData(Map<String, Object> message) {
+        return new Message(((Double) message.get("sentBy")).longValue(), (String) message.get("body"), ((Double) message.get("dateTime")).longValue());
     }
 
     public long getSentBy() {

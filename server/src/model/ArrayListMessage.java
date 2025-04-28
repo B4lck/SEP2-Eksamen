@@ -1,5 +1,7 @@
 package model;
 
+import java.util.Map;
+
 public class ArrayListMessage implements Message {
     private long sentBy;
     private String body;
@@ -24,5 +26,10 @@ public class ArrayListMessage implements Message {
     @Override
     public long getDateTime() {
         return this.dateTime;
+    }
+
+    @Override
+    public Map<String, Object> getData() {
+        return Map.of("sentBy", sentBy, "body", body, "dateTime", dateTime);
     }
 }

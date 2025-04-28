@@ -1,5 +1,6 @@
 package view;
 
+import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
@@ -12,12 +13,19 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
     @Override
     protected void init() {
         message.textProperty().bindBidirectional(getViewModel().getComposeMessageProperty());
-        getViewModel().getMessagesProperty().addListener((observable, oldValue, newValue) -> {
-            beskeder.clear();
-            for (Message m : newValue) {
-                beskeder.textProperty().setValue(beskeder.textProperty().getValue() + m.getBody() + "\n");
-            }
+
+        getViewModel().getMessagesProperty().addListener((ListChangeListener<Message>) change -> {
+            beskeder.setText("");
+            change.getList().forEach(m -> {
+                beskeder.setText(beskeder.getText() + m.getBody() + "\n");
+            });
         });
+    }
+
+    @Override
+    public void reset() {
+        super.reset();
+        getViewModel().reset();
     }
 
     @FXML

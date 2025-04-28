@@ -1,11 +1,6 @@
 package model;
 
-import mediator.ChatClient;
-
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
-public class ModelManager implements Model, PropertyChangeListener {
+public class ModelManager implements Model {
 
     private ProfileManager profileManager;
     private ChatRoomManager chatRoomManager;
@@ -13,7 +8,6 @@ public class ModelManager implements Model, PropertyChangeListener {
     public ModelManager() {
         profileManager = new ProfileManager();
         chatRoomManager = new ChatRoomManager();
-        ChatClient.getInstance().addListener(this);
     }
 
     @Override
@@ -24,10 +18,5 @@ public class ModelManager implements Model, PropertyChangeListener {
     @Override
     public ChatRoomManager getChatRoomManager() {
         return chatRoomManager;
-    }
-
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-
     }
 }

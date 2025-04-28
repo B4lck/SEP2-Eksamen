@@ -12,7 +12,7 @@ import java.util.Map;
 public class ChatRoomsArrayListManager implements ChatRooms {
     private ArrayList<Message> messages = new ArrayList<>();
 
-    private PropertyChangeSupport property;
+    private PropertyChangeSupport property = new PropertyChangeSupport(this);
 
     @Override
     public void sendMessage(long ChatRoomID, String messageBody, long senderID) {
@@ -25,7 +25,13 @@ public class ChatRoomsArrayListManager implements ChatRooms {
 
     @Override
     public ArrayList<Message> getMessages(long ChatRoomID, int amount) {
-        return (ArrayList<Message>) messages.subList(0, amount);
+        ArrayList<Message> list = new ArrayList<>();
+
+        for (int i = 0; i < Math.min(amount, messages.size()); i++) {
+            list.add(messages.get(messages.size() - 1 - i));
+        }
+
+        return list;
     }
 
     @Override
@@ -49,7 +55,7 @@ public class ChatRoomsArrayListManager implements ChatRooms {
             switch (message.getType()) {
                 // Send besked
                 case "SEND_MESSAGE":
-                    chatRoom = (long) message.getData().get("chatroom");
+                    chatRoom = ((Double) message.getData().get("chatroom")).longValue();
                     String messageBody = (String) message.getData().get("body");
 
                     sendMessage(chatRoom, messageBody, message.getUser());
@@ -57,14 +63,14 @@ public class ChatRoomsArrayListManager implements ChatRooms {
                     break;
                 // Hent antal beskeder
                 case "RECEIVE_MESSAGES":
-                    chatRoom = (long) message.getData().get("chatroom");
-                    int amount = (int) message.getData().get("amount");
+                    chatRoom = ((Double) message.getData().get("chatroom")).longValue();
+                    int amount = ((Double) message.getData().get("amount")).intValue();
 
                     message.respond(new ClientMessage("RECEIVE_MESSAGES", Map.of("messages", getMessages(chatRoom, amount).toArray())));
                     break;
                 // Hent antal beskeder
                 case "RECEIVE_MESSAGES_SINCE":
-                    chatRoom = (long) message.getData().get("chatroom");
+                    chatRoom = ((Double) message.getData().get("chatroom")).longValue();
                     long since = (int) message.getData().get("since");
 
                     message.respond(new ClientMessage("RECEIVE_MESSAGES", Map.of("messages", getMessagesSince(chatRoom, since).toArray())));

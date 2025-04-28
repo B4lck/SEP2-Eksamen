@@ -54,6 +54,7 @@ public class ChatClient implements PropertyChangeSubject {
 
     public synchronized void receive(String s) {
         System.out.println("modtaget fra server");
+        System.out.println(s);
         ClientMessage message = gson.fromJson(s, ClientMessage.class);
         if (message.isBroadcast()) {
             property.firePropertyChange("broadcast", null, message);

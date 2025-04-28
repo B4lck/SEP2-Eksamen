@@ -33,6 +33,7 @@ public class SignupViewController extends ViewController<SignUpViewModel> {
     @FXML
     public void CreatUser(ActionEvent evt) {
         getViewModel().signUp();
+        getViewHandler().openView(ViewID.CHATROOM);
     }
 
     @FXML

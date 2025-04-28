@@ -101,7 +101,7 @@ public class ProfilesArrayListManager implements Profiles {
                     break;
                 // Get profile
                 case "GET_PROFILE":
-                    message.respond(new ClientMessage("GET_PROFILE", Map.of("profile", getProfile((long) message.getData().get("uuid")))));
+                    message.respond(new ClientMessage("GET_PROFILE", Map.of("profile", getProfile(((Double) message.getData().get("uuid")).longValue()))));
                     break;
             }
         } catch (Exception e) {
