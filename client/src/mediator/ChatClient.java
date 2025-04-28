@@ -21,7 +21,10 @@ public class ChatClient implements PropertyChangeSubject {
     private Gson gson;
     private PropertyChangeSupport property;
 
-    public ChatClient(String host, int port) throws IOException {
+    private static ChatClient instance;
+    private static Object lock = new Object();
+
+    private ChatClient(String host, int port) throws IOException {
         this.socket = new Socket(host, port);
         this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.out = new PrintWriter(socket.getOutputStream(), true);
@@ -31,6 +34,22 @@ public class ChatClient implements PropertyChangeSubject {
         recieverThread.start();
         this.gson = new Gson();
         this.property = new PropertyChangeSupport(this);
+    }
+
+    public static ChatClient getInstance() {
+        if (instance == null) {
+            synchronized (lock) {
+                if (instance == null) {
+                    try {
+                        // Hent data fra MyApplication på en eller anden måde
+                        instance = new ChatClient("localhost", 42069);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
+        return instance;
     }
 
     public synchronized void receive(String s) {

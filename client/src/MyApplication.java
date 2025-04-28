@@ -16,7 +16,7 @@ public class MyApplication extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            this.client = new ChatClient(HOST, PORT);
+            this.client = ChatClient.getInstance();
             this.model = new ModelManager(client);
         } catch(Exception e) {
             System.out.println(e.getMessage());
