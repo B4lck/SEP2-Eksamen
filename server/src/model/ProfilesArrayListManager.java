@@ -61,11 +61,10 @@ public class ProfilesArrayListManager implements Profiles {
             switch (message.getType()) {
                 // Sign up
                 case "SIGN_UP":
-                    ServerMessage signUpRequest = message;
                     System.out.println("sign up");
                     // Check if username is taken
                     try {
-                        getProfileByUsername((String) signUpRequest.getData().get("username"));
+                        getProfileByUsername((String) message.getData().get("username"));
                         System.out.println("sendt fejl til bruger");
                         message.respond(new ClientMessage("Username is already taken"));
                         return;
@@ -74,7 +73,7 @@ public class ProfilesArrayListManager implements Profiles {
                     }
                     System.out.println("a");
                     // Create user
-                    user = new ArrayListProfile((String) signUpRequest.getData().get("username"), (String) signUpRequest.getData().get("password"));
+                    user = new ArrayListProfile((String) message.getData().get("username"), (String) message.getData().get("password"));
                     addProfile(user);
                     System.out.println("b");
                     // Log user in
@@ -85,16 +84,15 @@ public class ProfilesArrayListManager implements Profiles {
                     break;
                 // Log in
                 case "LOG_IN":
-                    ServerMessage logInRequest = message;
                     // Check if user exists
                     try {
-                        user = getProfileByUsername((String) logInRequest.getData().get("username"));
+                        user = getProfileByUsername((String) message.getData().get("username"));
                     } catch (IllegalArgumentException e) {
                         message.respond(new ClientMessage("Wrong username or password"));
                         return;
                     }
                     // Check password
-                    if (user.checkPassword((String) logInRequest.getData().get("password"))) {
+                    if (user.checkPassword((String) message.getData().get("password"))) {
                         message.setUser(user.getUUID());
                         message.respond(new ClientMessage("LOG_IN", Map.of("uuid", user.getUUID())));
                     } else {
@@ -103,8 +101,7 @@ public class ProfilesArrayListManager implements Profiles {
                     break;
                 // Get profile
                 case "GET_PROFILE":
-                    ServerMessage getProfileRequest = message;
-                    message.respond(new ClientMessage("GET_PROFILE", Map.of("profile", getProfile((long) getProfileRequest.getData().get("uuid")))));
+                    message.respond(new ClientMessage("GET_PROFILE", Map.of("profile", getProfile((long) message.getData().get("uuid")))));
                     break;
             }
         } catch (Exception e) {
