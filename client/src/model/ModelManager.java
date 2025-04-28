@@ -22,7 +22,9 @@ public class ModelManager implements Model, PropertyChangeListener {
     }
 
     @Override
-    public ChatRoomManager getChatRoomManager() {return chatRoomManager;}
+    public ChatRoomManager getChatRoomManager() {
+        return chatRoomManager;
+    }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {

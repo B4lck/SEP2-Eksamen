@@ -30,7 +30,15 @@ public class ChatRoomsArrayListManager implements ChatRooms {
 
     @Override
     public ArrayList<Message> getMessagesSince(long ChatRoomID, long timestamp) {
-        return (ArrayList<Message>) messages.subList(0, messages.indexOf(new ArrayListMessage(0, "", timestamp)));
+        var messages = new ArrayList<Message>();
+
+        for (Message message : this.messages) {
+            if (message.getDateTime() >= timestamp) {
+                messages.add(message);
+            }
+        }
+
+        return messages;
     }
 
     @Override
