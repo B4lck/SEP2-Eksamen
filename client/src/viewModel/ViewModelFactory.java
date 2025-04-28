@@ -4,17 +4,17 @@ import model.Model;
 
 public class ViewModelFactory {
 
-    private LoggedInViewModel loggedInViewModel = null;
+    private ChatRoomViewModel loggedInViewModel = null;
     private SignUpViewModel signUpViewModel = null;
     private LogInViewModel logInViewModel = null;
 
     public ViewModelFactory(Model model) {
-        loggedInViewModel = new LoggedInViewModel(model);
+        loggedInViewModel = new ChatRoomViewModel(model);
         signUpViewModel = new SignUpViewModel(model);
         logInViewModel = new LogInViewModel(model);
     }
 
-    public LoggedInViewModel getLoggedInViewModel() {
+    public ChatRoomViewModel getLoggedInViewModel() {
         return loggedInViewModel;
     }
 

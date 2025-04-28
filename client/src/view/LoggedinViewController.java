@@ -3,9 +3,9 @@ package view;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.MenuItem;
-import viewmodel.LoggedInViewModel;
+import viewmodel.ChatRoomViewModel;
 
-public class LoggedinViewController extends ViewController <LoggedInViewModel>{
+public class LoggedinViewController extends ViewController <ChatRoomViewModel>{
 
     @Override
     protected void init() {
