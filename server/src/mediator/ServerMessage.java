@@ -3,7 +3,8 @@ package mediator;
 import java.util.Map;
 
 /**
- * En server message, er en besked fra klienten til serveren.
+ * I forskel til client message, har server message metoder til at svare klienten med en klient message.
+ * Server message bliver oprettet når serveren modtager en besked fra clienten.
  */
 public class ServerMessage {
     private String type;
@@ -15,31 +16,50 @@ public class ServerMessage {
         this.data = data;
     }
 
+    /**
+     * Hent beskedens type
+     */
     public String getType() {
         return type;
     }
 
+    /**
+     * Hent beskedens data
+     */
     public Map<String, Object> getData() {
         return data;
     }
 
+    /**
+     * Bruges af client handleren, til at binde sig selv til beskeden.
+     */
     public void setHandler(ClientHandler handler) {
         if (this.handler != null) throw new IllegalStateException("Handleren er allerede sat");
         this.handler = handler;
     }
 
+    /**
+     * Henter ID'et den bruger som har sendt beskeden, eller -1, hvis brugeren er logget ud.
+     */
     public long getUser() {
         return handler.getAuthenticatedUser();
     }
 
+    /**
+     * Set brugeren, som har logget ind på den her forbindelse
+     * Burde kun kaldes efter authentication
+     * @param userId ID'et på den bruger der skal logges ind
+     */
     public void setUser(long userId) {
         handler.setAuthenticatedUser(userId);
     }
 
+    /**
+     * Svar klienten med en ClientMessage
+     * @param message
+     */
     public void respond(ClientMessage message) {
-        System.out.println(handler);
-        if (handler == null) throw new IllegalStateException("Du kan kun køre respond på server messages modtager fra klienten.");
-
+        if (handler == null) throw new IllegalStateException("Du kan kun køre respond på server messages modtaget fra klienten.");
         handler.sendMessage(message);
     }
 }

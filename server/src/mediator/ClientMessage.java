@@ -2,11 +2,15 @@ package mediator;
 
 import java.util.Map;
 
+/**
+ * En client message, har samme instans-variabler som klassen på klient-siden
+ */
 public class ClientMessage {
     public String type;
     public String error;
     public Map<String, Object> data;
     public long authenticatedAsUser;
+    public boolean broadcast = false;
 
     public ClientMessage(String error) {
         this.type = "ERROR";

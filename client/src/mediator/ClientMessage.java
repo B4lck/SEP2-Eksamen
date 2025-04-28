@@ -7,6 +7,7 @@ public class ClientMessage {
     private String error;
     private Map<String, Object> data;
     private Long authenticatedAsUser;
+    private boolean broadcast = false;
 
     public ClientMessage(String type, Map<String, Object> data) {
         this.type = type;
@@ -35,5 +36,9 @@ public class ClientMessage {
 
     public boolean hasError() {
         return error != null;
+    }
+
+    public boolean isBroadcast() {
+        return broadcast;
     }
 }
