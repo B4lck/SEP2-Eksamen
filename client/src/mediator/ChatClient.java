@@ -54,8 +54,13 @@ public class ChatClient implements PropertyChangeSubject {
 
     public synchronized void receive(String s) {
         System.out.println("modtaget fra server");
-        receivedMessages.add(gson.fromJson(s, ClientMessage.class));
-        notify();
+        ClientMessage message = gson.fromJson(s, ClientMessage.class);
+        if (message.isBroadcast()) {
+            property.firePropertyChange("broadcast", null, message);
+        } else {
+            receivedMessages.add(message);
+            notify();
+        }
     }
 
     public synchronized ClientMessage waitingForReply(String type) throws InterruptedException {

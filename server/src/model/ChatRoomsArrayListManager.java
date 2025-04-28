@@ -2,16 +2,25 @@ package model;
 
 import mediator.ClientMessage;
 import mediator.ServerMessage;
+import util.PropertyChangeSubject;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class ChatRoomsArrayListManager implements ChatRooms, ClientMessageHandler {
+public class ChatRoomsArrayListManager implements ChatRooms {
     private ArrayList<Message> messages = new ArrayList<>();
+
+    private PropertyChangeSupport property;
 
     @Override
     public void sendMessage(long ChatRoomID, String messageBody, long senderID) {
-        messages.add(new ArrayListMessage(senderID, messageBody, System.currentTimeMillis()));
+        var message = new ArrayListMessage(senderID, messageBody, System.currentTimeMillis());
+
+        messages.add(message);
+
+        property.firePropertyChange("RECEIVE_MESSAGE", null, Map.of("message", message));
     }
 
     @Override
@@ -57,5 +66,15 @@ public class ChatRoomsArrayListManager implements ChatRooms, ClientMessageHandle
             e.printStackTrace();
             message.respond(new ClientMessage(e.getMessage()));
         }
+    }
+
+    @Override
+    public void addListener(PropertyChangeListener listener) {
+        property.addPropertyChangeListener(listener);
+    }
+
+    @Override
+    public void removeListener(PropertyChangeListener listener) {
+        property.removePropertyChangeListener(listener);
     }
 }

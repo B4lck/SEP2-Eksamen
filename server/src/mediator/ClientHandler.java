@@ -98,6 +98,8 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         // Broadcast
-        out.println(gson.toJson(new ServerMessage(evt.getPropertyName(), (Map<String, Object>) evt.getNewValue())));
+        ClientMessage message = new ClientMessage(evt.getPropertyName(), (Map<String, Object>) evt.getNewValue());
+        message.broadcast = true;
+        out.println(gson.toJson(message));
     }
 }

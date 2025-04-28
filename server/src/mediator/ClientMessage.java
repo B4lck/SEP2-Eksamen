@@ -10,6 +10,7 @@ public class ClientMessage {
     public String error;
     public Map<String, Object> data;
     public long authenticatedAsUser;
+    public boolean broadcast = false;
 
     public ClientMessage(String error) {
         this.type = "ERROR";
