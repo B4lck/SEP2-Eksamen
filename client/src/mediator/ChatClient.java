@@ -71,8 +71,7 @@ public class ChatClient implements PropertyChangeSubject {
         while (!found) {
             while(!receivedMessages.isEmpty()) {
                 received = receivedMessages.removeLast();
-                System.out.println("recieved besked fra server : " + received.getType());
-                found = received.getType().equals(type);
+                found = received.getType().equals(type) || received.hasError();
                 if (found) break;
             }
             if (!found) wait();

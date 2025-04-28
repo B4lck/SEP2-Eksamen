@@ -24,21 +24,16 @@ public class SignupViewController extends ViewController<SignUpViewModel> {
     @FXML
     private TextField viaId;
     @FXML
-    private Button createUser;
-    @FXML
-    private Button logInd;
-    @FXML
     private Label error;
 
     @FXML
-    public void CreatUser(ActionEvent evt) {
+    public void signUp(ActionEvent evt) {
         getViewModel().signUp();
         getViewHandler().openView(ViewID.CHATROOM);
     }
 
     @FXML
-    public void LogIn(ActionEvent event) {
+    public void logIn(ActionEvent event) {
         getViewHandler().openView(ViewID.LOGIN);
     }
-    //mangler ERROR
 }

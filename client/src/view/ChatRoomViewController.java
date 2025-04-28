@@ -17,7 +17,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
         getViewModel().getMessagesProperty().addListener((ListChangeListener<Message>) change -> {
             beskeder.setText("");
             change.getList().forEach(m -> {
-                beskeder.setText(beskeder.getText() + m.getBody() + "\n");
+                beskeder.setText(beskeder.getText() + m.getSentBy() + ">" + m.getBody() + "\n");
             });
         });
     }
