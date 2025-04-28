@@ -1,17 +1,16 @@
-package viewmodel;
+package viewModel;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import model.Message;
 import model.Model;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 
-public class ChatRoomViewModel {
+public class ChatRoomViewModel implements PropertyChangeListener {
 
-    private ObjectProperty<ArrayList<Message>> messagesProperty;
+    private ListProperty<Message> messagesProperty;
     private StringProperty composeMessageProperty;
     private StringProperty errorMessageProperty;
     private Model model;
@@ -20,11 +19,20 @@ public class ChatRoomViewModel {
         this.model = model;
 
         this.composeMessageProperty = new SimpleStringProperty();
-        this.messagesProperty = new SimpleObjectProperty<>();
+        this.messagesProperty = new SimpleListProperty<>();
         this.errorMessageProperty = new SimpleStringProperty();
+
+        model.getChatRoomManager().addListener(this);
     }
 
-    public ObjectProperty<ArrayList<Message>> getMessagesProperty() {
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals("MESSAGES")) {
+            messagesProperty.setAll((ArrayList<Message>) evt.getNewValue());
+        }
+    }
+
+    public ListProperty<Message> getMessagesProperty() {
         return messagesProperty;
     }
 
@@ -41,7 +49,7 @@ public class ChatRoomViewModel {
     }
 
     public void reset() {
-        messagesProperty.set(model.getChatRoomManager().getMessages(0, 10));
+        messagesProperty.setAll(model.getChatRoomManager().getMessages(0, 10));
     }
 
     public void logout() {
