@@ -6,6 +6,8 @@ import util.PropertyChangeSubject;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +19,7 @@ public class ChatRoomsArrayListManager implements ChatRooms {
 
     @Override
     public void sendMessage(long ChatRoomID, String messageBody, long senderID) {
-        var message = new ArrayListMessage(senderID, messageBody, System.currentTimeMillis());
+        var message = new ArrayListMessage(senderID, messageBody, LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000L);
 
         if (senderID == -1) throw new IllegalStateException("Du skal være logget ind for at sende en besked i et chatroom");
 
