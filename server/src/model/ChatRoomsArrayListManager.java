@@ -7,6 +7,7 @@ import util.PropertyChangeSubject;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ChatRoomsArrayListManager implements ChatRooms {
@@ -18,9 +19,11 @@ public class ChatRoomsArrayListManager implements ChatRooms {
     public void sendMessage(long ChatRoomID, String messageBody, long senderID) {
         var message = new ArrayListMessage(senderID, messageBody, System.currentTimeMillis());
 
+        if (senderID == -1) throw new IllegalStateException("Du skal være logget ind for at sende en besked i et chatroom");
+
         messages.add(message);
 
-        property.firePropertyChange("RECEIVE_MESSAGE", null, Map.of("message", message));
+        property.firePropertyChange("RECEIVE_MESSAGE", null, Map.of("message", message.getData()));
     }
 
     @Override
@@ -55,7 +58,7 @@ public class ChatRoomsArrayListManager implements ChatRooms {
             switch (message.getType()) {
                 // Send besked
                 case "SEND_MESSAGE":
-                    chatRoom = ((Double) message.getData().get("chatroom")).longValue();
+                    chatRoom = Long.parseLong((String) message.getData().get("chatroom"));
                     String messageBody = (String) message.getData().get("body");
 
                     sendMessage(chatRoom, messageBody, message.getUser());
@@ -63,23 +66,34 @@ public class ChatRoomsArrayListManager implements ChatRooms {
                     break;
                 // Hent antal beskeder
                 case "RECEIVE_MESSAGES":
-                    chatRoom = ((Double) message.getData().get("chatroom")).longValue();
+                    chatRoom = Long.parseLong((String) message.getData().get("chatroom"));
                     int amount = ((Double) message.getData().get("amount")).intValue();
 
-                    message.respond(new ClientMessage("RECEIVE_MESSAGES", Map.of("messages", getMessages(chatRoom, amount).toArray())));
+                    message.respond(new ClientMessage("RECEIVE_MESSAGES", Map.of("messages", toSendableData(getMessages(chatRoom, amount)))));
                     break;
                 // Hent antal beskeder
                 case "RECEIVE_MESSAGES_SINCE":
                     chatRoom = ((Double) message.getData().get("chatroom")).longValue();
                     long since = (int) message.getData().get("since");
 
-                    message.respond(new ClientMessage("RECEIVE_MESSAGES", Map.of("messages", getMessagesSince(chatRoom, since).toArray())));
+                    message.respond(new ClientMessage("RECEIVE_MESSAGES", Map.of("messages", toSendableData(getMessagesSince(chatRoom, since)))));
                     break;
             }
         } catch (Exception e) {
             e.printStackTrace();
             message.respond(new ClientMessage(e.getMessage()));
         }
+    }
+
+    private Map<String, Object>[] toSendableData(ArrayList<Message> messages) {
+        Map<String, Object>[] sendableData = new Map[messages.size()];
+
+        for (int i = 0; i < messages.size(); i++ ) {
+            var message = messages.get(i);
+            sendableData[i] = message.getData();
+        }
+
+        return sendableData;
     }
 
     @Override

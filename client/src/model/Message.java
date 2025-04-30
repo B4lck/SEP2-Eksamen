@@ -14,7 +14,7 @@ public class Message {
     }
 
     public static Message fromData(Map<String, Object> message) {
-        return new Message(((Double) message.get("sentBy")).longValue(), (String) message.get("body"), ((Double) message.get("dateTime")).longValue());
+        return new Message(Long.parseLong((String) message.get("sentBy")), (String) message.get("body"), Long.parseLong((String) message.get("dateTime")));
     }
 
     public long getSentBy() {

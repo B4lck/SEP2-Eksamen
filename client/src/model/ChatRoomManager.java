@@ -34,7 +34,7 @@ public class ChatRoomManager implements PropertyChangeSubject, PropertyChangeLis
     }
 
     public void getMessages(long chatroom, int amount) {
-        chatClient.sendMessage(new ClientMessage("RECEIVE_MESSAGES", Map.of("chatroom", chatroom, "amount", amount)));
+        chatClient.sendMessage(new ClientMessage("RECEIVE_MESSAGES", Map.of("chatroom", Long.toString(chatroom), "amount", amount)));
 
         try {
             var reply = chatClient.waitingForReply("RECEIVE_MESSAGES");
@@ -50,7 +50,7 @@ public class ChatRoomManager implements PropertyChangeSubject, PropertyChangeLis
     }
 
     public ArrayList<Message> getMessagesSince(long chatroom, long since) {
-        chatClient.sendMessage(new ClientMessage("RECEIVE_MESSAGES_SINCE", Map.of("chatroom", chatroom, "since", since)));
+        chatClient.sendMessage(new ClientMessage("RECEIVE_MESSAGES_SINCE", Map.of("chatroom", Long.toString(chatroom), "since", since)));
 
         try {
             var reply = chatClient.waitingForReply("RECEIVE_MESSAGES");
@@ -66,7 +66,7 @@ public class ChatRoomManager implements PropertyChangeSubject, PropertyChangeLis
 
     public void sendMessage(long chatroom, String body) {
         try {
-            ChatClient.getInstance().sendMessage(new ClientMessage("SEND_MESSAGE", Map.of("chatroom", chatroom, "body", body)));
+            ChatClient.getInstance().sendMessage(new ClientMessage("SEND_MESSAGE", Map.of("chatroom", Long.toString(chatroom), "body", body)));
         } catch (RuntimeException e) {
             throw new RuntimeException(e);
         }

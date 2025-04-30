@@ -30,6 +30,6 @@ public class ArrayListMessage implements Message {
 
     @Override
     public Map<String, Object> getData() {
-        return Map.of("sentBy", sentBy, "body", body, "dateTime", dateTime);
+        return Map.of("sentBy", Long.toString(sentBy), "body", body, "dateTime", Long.toString(dateTime));
     }
 }

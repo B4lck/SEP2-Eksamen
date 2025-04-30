@@ -4,7 +4,6 @@ import mediator.ClientMessage;
 import mediator.ServerMessage;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 public class ProfilesArrayListManager implements Profiles {
@@ -79,7 +78,7 @@ public class ProfilesArrayListManager implements Profiles {
                     // Log user in
                     message.setUser(user.getUUID());
                     // Respond with uuid
-                    message.respond(new ClientMessage("SIGN_UP", Map.of("uuid", user.getUUID())));
+                    message.respond(new ClientMessage("SIGN_UP", Map.of("uuid", Long.toString(user.getUUID()))));
                     System.out.println("sendt svar til bruger");
                     break;
                 // Log in
@@ -94,14 +93,14 @@ public class ProfilesArrayListManager implements Profiles {
                     // Check password
                     if (user.checkPassword((String) message.getData().get("password"))) {
                         message.setUser(user.getUUID());
-                        message.respond(new ClientMessage("LOG_IN", Map.of("uuid", user.getUUID())));
+                        message.respond(new ClientMessage("LOG_IN", Map.of("uuid", Long.toString(user.getUUID()))));
                     } else {
                         message.respond(new ClientMessage("Wrong username or password"));
                     }
                     break;
                 // Get profile
                 case "GET_PROFILE":
-                    message.respond(new ClientMessage("GET_PROFILE", Map.of("profile", getProfile(((Double) message.getData().get("uuid")).longValue()))));
+                    message.respond(new ClientMessage("GET_PROFILE", Map.of("profile", getProfile(Long.parseLong((String) message.getData().get("uuid"))).getData())));
                     break;
             }
         } catch (Exception e) {

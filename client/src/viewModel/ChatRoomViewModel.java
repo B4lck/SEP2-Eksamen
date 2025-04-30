@@ -9,11 +9,13 @@ import model.Model;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 
 public class ChatRoomViewModel implements PropertyChangeListener {
 
-    private ObservableList<Message> messagesProperty;
+    private ObservableList<ViewMessage> messagesProperty;
     private StringProperty composeMessageProperty;
     private StringProperty errorMessageProperty;
     private Model model;
@@ -35,13 +37,17 @@ public class ChatRoomViewModel implements PropertyChangeListener {
                 messagesProperty.clear();
                 System.out.println(evt.getNewValue());
                 for (Message m : (ArrayList<Message>) evt.getNewValue()) {
-                    messagesProperty.add(m);
+                    messagesProperty.add(new ViewMessage() {{
+                        sender = model.getProfileManager().getProfile(m.getSentBy()).getUsername();
+                        body = m.getBody();
+                        DateTime = LocalDateTime.ofEpochSecond(m.getDateTime() / 1000, (int) (m.getDateTime() % 1000 * 1000), ZoneOffset.UTC);
+                    }});
                 }
             }
         });
     }
 
-    public ObservableList<Message> getMessagesProperty() {
+    public ObservableList<ViewMessage> getMessagesProperty() {
         return messagesProperty;
     }
 

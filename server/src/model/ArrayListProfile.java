@@ -1,8 +1,9 @@
 package model;
 
+import java.util.Map;
 import java.util.Random;
 
-public class ArrayListProfile implements Profile{
+public class ArrayListProfile implements Profile {
     private String username;
     private String password;
     private long uuid;
@@ -37,5 +38,10 @@ public class ArrayListProfile implements Profile{
     @Override
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    @Override
+    public Map<String, Object> getData() {
+        return Map.of("username", username, "uuid", Long.toString(uuid));
     }
 }

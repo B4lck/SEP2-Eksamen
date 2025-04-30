@@ -9,7 +9,7 @@ public class ClientMessage {
     public String type;
     public String error;
     public Map<String, Object> data;
-    public long authenticatedAsUser;
+    public String authenticatedAsUser;
     public boolean broadcast = false;
 
     public ClientMessage(String error) {
@@ -23,6 +23,6 @@ public class ClientMessage {
     }
 
     public void setAuthenticatedUser(long userId) {
-        authenticatedAsUser = userId;
+        authenticatedAsUser = Long.toString(userId);
     }
 }

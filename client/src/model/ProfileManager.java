@@ -27,7 +27,7 @@ public class ProfileManager {
 
             if (res.hasError()) throw new RuntimeException(res.getError());
 
-            return ((Double) res.getData().get("uuid")).longValue();
+            return Long.parseLong((String) res.getData().get("uuid"));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -49,7 +49,7 @@ public class ProfileManager {
 
             if (res.hasError()) throw new RuntimeException(res.getError());
 
-            return ((Double) res.getData().get("uuid")).longValue();
+            return Long.parseLong((String) res.getData().get("uuid"));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -57,13 +57,13 @@ public class ProfileManager {
 
     public Profile getProfile(long id) {
         try {
-            ChatClient.getInstance().sendMessage(new ClientMessage("GET_PROFILE", Map.of("uuid", id)));
+            ChatClient.getInstance().sendMessage(new ClientMessage("GET_PROFILE", Map.of("uuid", Long.toString(id))));
 
             ClientMessage res = ChatClient.getInstance().waitingForReply("GET_PROFILE");
 
             if (res.hasError()) throw new RuntimeException(res.getError());
 
-            return (Profile) res.getData().get("profile");
+            return Profile.fromData((Map<String, Object>) res.getData().get("profile"));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

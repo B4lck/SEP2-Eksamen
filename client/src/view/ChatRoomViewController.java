@@ -5,7 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import model.Message;
+import viewModel.ViewMessage;
 
 public class ChatRoomViewController extends ViewController<viewModel.ChatRoomViewModel> {
 
@@ -14,10 +14,10 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
     protected void init() {
         message.textProperty().bindBidirectional(getViewModel().getComposeMessageProperty());
 
-        getViewModel().getMessagesProperty().addListener((ListChangeListener<Message>) change -> {
+        getViewModel().getMessagesProperty().addListener((ListChangeListener<ViewMessage>) change -> {
             beskeder.setText("");
             change.getList().forEach(m -> {
-                beskeder.setText(beskeder.getText() + m.getSentBy() + ">" + m.getBody() + "\n");
+                beskeder.setText("%s(%02d:%02d) %s>%s\n".formatted(beskeder.getText(), m.DateTime.getHour(), m.DateTime.getMinute(), m.sender, m.body));
             });
         });
     }
