@@ -3,11 +3,11 @@ package model;
 public class ModelManager implements Model {
 
     private ProfileManager profileManager;
-    private ChatRoomManager chatRoomManager;
+    private ChatManager chatManager;
 
     public ModelManager() {
         profileManager = new ProfileManager();
-        chatRoomManager = new ChatRoomManager();
+        chatManager = new ChatManager();
     }
 
     @Override
@@ -16,7 +16,7 @@ public class ModelManager implements Model {
     }
 
     @Override
-    public ChatRoomManager getChatRoomManager() {
-        return chatRoomManager;
+    public ChatManager getChatRoomManager() {
+        return chatManager;
     }
 }

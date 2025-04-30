@@ -30,8 +30,10 @@ public class ChatRoomsArrayListManager implements ChatRooms {
     public ArrayList<Message> getMessages(long ChatRoomID, int amount) {
         ArrayList<Message> list = new ArrayList<>();
 
-        for (int i = 0; i < Math.min(amount, messages.size()); i++) {
-            list.add(messages.get(messages.size() - 1 - i));
+        amount = Math.min(amount, messages.size());
+
+        for (int i = 0; i < amount; i++) {
+            list.add(messages.get(messages.size() - amount + i));
         }
 
         return list;

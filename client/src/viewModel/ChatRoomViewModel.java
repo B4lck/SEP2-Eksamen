@@ -18,7 +18,6 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
     private ObservableList<ViewMessage> messagesProperty;
     private StringProperty composeMessageProperty;
-    private StringProperty errorProperty;
     private Model model;
 
     public ChatRoomViewModel(Model model) {
@@ -26,7 +25,6 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
         this.composeMessageProperty = new SimpleStringProperty();
         this.messagesProperty = FXCollections.observableArrayList();
-        this.errorProperty = new SimpleStringProperty();
 
         model.getChatRoomManager().addListener(this);
     }
@@ -58,10 +56,6 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
     public StringProperty getComposeMessageProperty() {
         return composeMessageProperty;
-    }
-
-    public StringProperty getErrorProperty() {
-        return errorProperty;
     }
 
     @Override

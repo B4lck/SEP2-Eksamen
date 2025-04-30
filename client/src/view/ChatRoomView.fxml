@@ -3,25 +3,24 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.ChatRoomViewController">
-   <children>
-       <HBox alignment="CENTER_RIGHT" prefHeight="60.0" prefWidth="600.0">
-           <MenuButton id="UserInfo" mnemonicParsing="false" text="Hello User">
-               <items>
-                   <MenuItem mnemonicParsing="false" onAction="#logud" text="log ud" />
-               </items>
-           </MenuButton>
-       </HBox>
-      <HBox alignment="CENTER" layoutY="334.0" prefHeight="52.0" prefWidth="600.0">
-         <children>
-            <TextField fx:id="message" prefHeight="26.0" prefWidth="385.0" promptText="Aa" />
-            <Button mnemonicParsing="false" onAction="#send" text="Send" />
-         </children>
-      </HBox>
-      <Pane layoutX="100.0" layoutY="56.0" prefHeight="278.0" prefWidth="385.0">
-         <children>
-            <TextArea fx:id="beskeder" layoutX="14.0" layoutY="14.0" prefHeight="259.0" prefWidth="364.0" />
-         </children>
-      </Pane>
-   </children>
+<AnchorPane prefHeight="400.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.ChatRoomViewController" stylesheets="@ChatMessages.css">
+    <HBox alignment="CENTER" layoutY="334.0" prefHeight="52.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0"
+          AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+        <TextField fx:id="message" prefHeight="26.0" prefWidth="300.0" promptText="Aa"/>
+        <Button mnemonicParsing="false" onAction="#send" text="Send"/>
+    </HBox>
+
+    <ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="ALWAYS"
+                AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                AnchorPane.topAnchor="0.0">
+        <VBox fx:id="messages" alignment="BOTTOM_LEFT"/>
+    </ScrollPane>
+
+    <MenuButton id="UserInfo" mnemonicParsing="false" text="Hello User" AnchorPane.leftAnchor="20.0"
+                AnchorPane.topAnchor="10.0">
+        <items>
+            <MenuItem mnemonicParsing="false" onAction="#logud" text="log ud"/>
+        </items>
+    </MenuButton>
 </AnchorPane>

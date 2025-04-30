@@ -1,0 +1,18 @@
+.message-container {
+
+}
+
+.message-time {
+  -fx-text-fill: gray;
+  /*Til fremtidig reference, så er det TOP, RIGHT, BOTTOM, LEFT*/
+  -fx-label-padding: 1px 4px 1px 4px;
+}
+
+.message-sender {
+  -fx-font-weight: bold;
+  -fx-label-padding: 1px 4px 1px 4px;
+}
+
+.message-body {
+  -fx-label-padding: 1px 4px 1px 4px;
+}

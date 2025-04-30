@@ -9,15 +9,14 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-public class ChatRoomManager implements PropertyChangeSubject, PropertyChangeListener {
+public class ChatManager implements PropertyChangeSubject, PropertyChangeListener {
     private ArrayList<ChatMessage> messages;
     private PropertyChangeSupport property;
     private ChatClient chatClient = ChatClient.getInstance();
 
-    public ChatRoomManager() {
+    public ChatManager() {
         this.messages = new ArrayList<>();
         property = new PropertyChangeSupport(this);
 
@@ -41,8 +40,12 @@ public class ChatRoomManager implements PropertyChangeSubject, PropertyChangeLis
         var newMessages = new ArrayList<ChatMessage>();
 
         for (Map<String, Object> message : (ArrayList<Map<String, Object>>) reply.getData().get("messages")) {
-            messages.add(ChatMessage.fromData(message));
-            newMessages.add(ChatMessage.fromData(message));
+            var msg = ChatMessage.fromData(message);
+            // Undgå duplikeringer
+            if (messages.stream().filter(m -> m.getMessageId() == msg.getMessageId()).findAny().isEmpty()) {
+                messages.add(msg);
+                newMessages.add(msg);
+            }
         }
 
         property.firePropertyChange("MESSAGES", null, messages);
