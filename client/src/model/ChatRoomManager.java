@@ -38,14 +38,16 @@ public class ChatRoomManager implements PropertyChangeSubject, PropertyChangeLis
 
         try {
             var reply = chatClient.waitingForReply("RECEIVE_MESSAGES");
+            var newMessages = new ArrayList<ChatMessage>();
 
             for (Map<String, Object> message : (ArrayList<Map<String, Object>>) reply.getData().get("messages")) {
                 messages.add(ChatMessage.fromData(message));
+                newMessages.add(ChatMessage.fromData(message));
             }
 
             property.firePropertyChange("MESSAGES", null, messages);
 
-            return new ArrayList<>(List.of((ChatMessage[]) reply.getData().get("messages")));
+            return newMessages;
         } catch (InterruptedException e) {
             e.printStackTrace();
             // TODO: Håndter fejl
@@ -58,14 +60,16 @@ public class ChatRoomManager implements PropertyChangeSubject, PropertyChangeLis
 
         try {
             var reply = chatClient.waitingForReply("RECEIVE_MESSAGES");
+            var newMessages = new ArrayList<ChatMessage>();
 
             for (Map<String, Object> message : (ArrayList<Map<String, Object>>) reply.getData().get("messages")) {
                 messages.add(ChatMessage.fromData(message));
+                newMessages.add(ChatMessage.fromData(message));
             }
 
             property.firePropertyChange("MESSAGES", null, messages);
 
-            return new ArrayList<>(List.of((ChatMessage[]) reply.getData().get("messages")));
+            return newMessages;
         } catch (InterruptedException e) {
             e.printStackTrace();
             // TODO: Håndter fejl
