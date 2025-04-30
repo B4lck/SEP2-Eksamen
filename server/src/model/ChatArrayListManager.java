@@ -10,7 +10,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class ChatRoomsArrayListManager implements ChatRooms {
+public class ChatArrayListManager implements Chat {
     private ArrayList<Message> messages = new ArrayList<>();
 
     private PropertyChangeSupport property = new PropertyChangeSupport(this);

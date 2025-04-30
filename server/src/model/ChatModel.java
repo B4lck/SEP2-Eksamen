@@ -8,13 +8,13 @@ import java.beans.PropertyChangeSupport;
 
 public class ChatModel implements Model, PropertyChangeListener {
     private Profiles profiles;
-    private ChatRooms chatRooms;
+    private Chat chatRooms;
     private PropertyChangeSupport property;
 
     public ChatModel() {
         property = new PropertyChangeSupport(this);
         profiles = new ProfilesArrayListManager();
-        chatRooms = new ChatRoomsArrayListManager();
+        chatRooms = new ChatArrayListManager();
 
         chatRooms.addListener(this);
     }
