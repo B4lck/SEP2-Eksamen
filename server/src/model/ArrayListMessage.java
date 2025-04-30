@@ -30,6 +30,7 @@ public class ArrayListMessage implements Message {
 
     @Override
     public Map<String, Object> getData() {
+        if (true) throw new RuntimeException("Wow, det gik helt galt her");
         return Map.of("sentBy", Long.toString(sentBy), "body", body, "dateTime", Long.toString(dateTime));
     }
 }

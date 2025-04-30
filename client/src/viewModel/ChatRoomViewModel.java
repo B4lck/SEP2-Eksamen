@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.ChatMessage;
 import model.Model;
+import util.ServerError;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -33,16 +34,20 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         Platform.runLater(() -> {
-            if (evt.getPropertyName().equals("MESSAGES")) {
-                messagesProperty.clear();
-                System.out.println(evt.getNewValue());
-                for (ChatMessage m : (ArrayList<ChatMessage>) evt.getNewValue()) {
-                    messagesProperty.add(new ViewMessage() {{
-                        sender = model.getProfileManager().getProfile(m.getSentBy()).getUsername();
-                        body = m.getBody();
-                        dateTime = LocalDateTime.ofEpochSecond(m.getDateTime() / 1000, (int) (m.getDateTime() % 1000 * 1000), ZoneOffset.UTC);
-                    }});
+            try {
+                if (evt.getPropertyName().equals("MESSAGES")) {
+                    messagesProperty.clear();
+                    System.out.println(evt.getNewValue());
+                    for (ChatMessage m : (ArrayList<ChatMessage>) evt.getNewValue()) {
+                        messagesProperty.add(new ViewMessage() {{
+                            sender = model.getProfileManager().getProfile(m.getSentBy()).getUsername();
+                            body = m.getBody();
+                            dateTime = LocalDateTime.ofEpochSecond(m.getDateTime() / 1000, (int) (m.getDateTime() % 1000 * 1000), ZoneOffset.UTC);
+                        }});
+                    }
                 }
+            } catch (ServerError e) {
+                e.showAlert();
             }
         });
     }
@@ -61,10 +66,20 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
     @Override
     public void reset() {
-        model.getChatRoomManager().getMessages(0, 10);
+        try {
+            model.getChatRoomManager().getMessages(0, 10);
+        }
+        catch (ServerError e) {
+            e.showAlert();
+        }
     }
 
     public void sendMessage() {
-        model.getChatRoomManager().sendMessage(0, composeMessageProperty.getValue());
+        try {
+            model.getChatRoomManager().sendMessage(0, composeMessageProperty.getValue());
+        }
+        catch (ServerError e) {
+            e.showAlert();
+        }
     }
 }

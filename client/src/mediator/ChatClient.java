@@ -2,6 +2,7 @@ package mediator;
 
 import com.google.gson.Gson;
 import util.PropertyChangeSubject;
+import util.ServerError;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -64,17 +65,27 @@ public class ChatClient implements PropertyChangeSubject {
         }
     }
 
-    public synchronized ClientMessage waitingForReply(String type) throws InterruptedException {
+    public synchronized ClientMessage waitingForReply(String type) throws ServerError {
         ClientMessage received = null;
         boolean found = false;
 
         while (!found) {
             while(!receivedMessages.isEmpty()) {
                 received = receivedMessages.removeLast();
-                found = received.getType().equals(type) || received.hasError();
+                if (received.hasError()) {
+                    System.out.println("SERVER FEJL:");
+                    System.out.println(received.getError());
+                    throw new ServerError(received.getError());
+                }
+                found = received.getType().equals(type);
                 if (found) break;
             }
-            if (!found) wait();
+            try {
+                if (!found) wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                break;
+            }
         }
 
         return received;

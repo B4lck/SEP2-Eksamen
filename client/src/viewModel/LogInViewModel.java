@@ -3,6 +3,7 @@ package viewModel;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import model.Model;
+import util.ServerError;
 
 public class LogInViewModel implements ViewModel {
 
@@ -34,12 +35,17 @@ public class LogInViewModel implements ViewModel {
         errorProperty.set("");
     }
 
-    public void login() {
+    /**
+     * Forsøg at logge ind
+     * @return Om brugeren blev logget ind.
+     */
+    public boolean login() {
         try {
             model.getProfileManager().login(userNameInputProperty.getValue(), passwordInputProperty.getValue());
-        } catch (Exception e) {
-            System.out.println("Test, forkert login");
+            return true;
+        } catch (ServerError e) {
             errorProperty.set(e.getMessage());
+            return false;
         }
     }
 

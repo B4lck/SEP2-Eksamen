@@ -28,8 +28,9 @@ public class SignupViewController extends ViewController<SignUpViewModel> {
 
     @FXML
     public void signUp(ActionEvent evt) {
-        getViewModel().signUp();
-        getViewHandler().openView(ViewID.CHATROOM);
+        if (getViewModel().signUp()) {
+            getViewHandler().openView(ViewID.CHATROOM);
+        }
     }
 
     @FXML

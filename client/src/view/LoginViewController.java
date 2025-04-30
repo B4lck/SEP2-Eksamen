@@ -25,12 +25,14 @@ public class LoginViewController extends ViewController<LogInViewModel> {
 
     @FXML
     public void login(ActionEvent evt) {
-        getViewModel().login();
-        getViewHandler().openView(ViewID.CHATROOM);
+        if (getViewModel().login()) {
+            getViewHandler().openView(ViewID.CHATROOM);
+        }
     }
+
     @FXML
-    public void signUp(ActionEvent actionEvent) {
-        //sendes til siden for opret profil
+    public void signUp(ActionEvent evt) {
+        // Sendes til siden for opret profil
         getViewHandler().openView(ViewID.SIGNUP);
     }
 }

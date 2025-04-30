@@ -3,6 +3,7 @@ package viewModel;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import model.Model;
+import util.ServerError;
 
 public class SignUpViewModel implements ViewModel {
 
@@ -39,16 +40,16 @@ public class SignUpViewModel implements ViewModel {
         errorProperty.set("");
     }
 
-    public void signUp() {
+    public boolean signUp() {
         try {
             if (!passwordInputProperty.getValue().equals(verifyPasswordInputProperty.getValue())) {
-                System.out.println("TINGENE MATCHER IKKE GRR");
-                throw new IllegalArgumentException("Passwords do not match");
+                errorProperty.set("Passordene er ikke ens");
             }
             model.getProfileManager().signUp(userNameInputProperty.getValue(), passwordInputProperty.getValue());
-            System.out.println("Du burde være oprettet"); // TODO, gør så man kommer ind på loggedInView
-        } catch (Exception e) {
+            return true;
+        } catch (ServerError e) {
             errorProperty.set(e.getMessage());
+            return false;
         }
     }
 
