@@ -65,12 +65,13 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
     public void run() {
         while (true) {
             try {
+                // Håndter indgående beskeder
                 String req = in.readLine();
 
                 System.out.println(req);
 
                 ClientMessage clmsg = gson.fromJson(req, ClientMessage.class);
-                ServerMessage message = new ServerMessage(clmsg.type, (Map<String, Object>) clmsg.data);
+                ServerRequest message = new ServerRequest(clmsg.type, clmsg.data);
 
                 message.setHandler(this);
 

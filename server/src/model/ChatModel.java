@@ -1,6 +1,6 @@
 package model;
 
-import mediator.ServerMessage;
+import mediator.ServerRequest;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -25,7 +25,7 @@ public class ChatModel implements Model, PropertyChangeListener {
     }
 
     @Override
-    public void passClientMessage(ServerMessage message) {
+    public void passClientMessage(ServerRequest message) {
         profiles.handleMessage(message);
         chatRooms.handleMessage(message);
     }

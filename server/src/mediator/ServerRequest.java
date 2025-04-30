@@ -3,15 +3,15 @@ package mediator;
 import java.util.Map;
 
 /**
- * I forskel til client message, har server message metoder til at svare klienten med en klient message.
- * Server message bliver oprettet når serveren modtager en besked fra clienten.
+ * ServerRequest objektet bliver oprettet og delt til modellen når en klient anmoder serveren om en ressource.
+ * Klassen har server message metoder til at svare klienten med en ClientMessage.
  */
-public class ServerMessage {
+public class ServerRequest {
     private String type;
     private Map<String, Object> data;
     private ClientHandler handler;
 
-    public ServerMessage(String type, Map<String, Object> data) {
+    public ServerRequest(String type, Map<String, Object> data) {
         this.type = type;
         this.data = data;
     }

@@ -1,15 +1,13 @@
 package model;
 
 import mediator.ClientMessage;
-import mediator.ServerMessage;
-import util.PropertyChangeSubject;
+import mediator.ServerRequest;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 public class ChatRoomsArrayListManager implements ChatRooms {
@@ -53,7 +51,7 @@ public class ChatRoomsArrayListManager implements ChatRooms {
     }
 
     @Override
-    public void handleMessage(ServerMessage message) {
+    public void handleMessage(ServerRequest message) {
         long chatRoom;
 
         try {

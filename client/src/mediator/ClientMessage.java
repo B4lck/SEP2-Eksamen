@@ -6,7 +6,7 @@ public class ClientMessage {
     private String type;
     private String error;
     private Map<String, Object> data;
-    private Long authenticatedAsUser;
+    private String authenticatedAsUser;
     private boolean broadcast = false;
 
     public ClientMessage(String type, Map<String, Object> data) {
@@ -23,7 +23,7 @@ public class ClientMessage {
     }
 
     public Long getAuthenticatedAsUser() {
-        return authenticatedAsUser;
+        return Long.parseLong(authenticatedAsUser);
     }
 
     public String getError() {

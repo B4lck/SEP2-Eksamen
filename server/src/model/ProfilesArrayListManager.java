@@ -1,7 +1,7 @@
 package model;
 
 import mediator.ClientMessage;
-import mediator.ServerMessage;
+import mediator.ServerRequest;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -11,13 +11,6 @@ public class ProfilesArrayListManager implements Profiles {
 
     public ProfilesArrayListManager() {
         profiles = new ArrayList<>();
-        setDummyData();
-    }
-
-    private void setDummyData() {
-        profiles.add(new ArrayListProfile("B4lcken", "HackerMan123"));
-        profiles.add(new ArrayListProfile("Malthel", "PinkPonyClub"));
-        profiles.add(new ArrayListProfile("Sharaf", "SwedenSucks321"));
     }
 
     @Override
@@ -53,7 +46,7 @@ public class ProfilesArrayListManager implements Profiles {
     }
 
     @Override
-    public void handleMessage(ServerMessage message) {
+    public void handleMessage(ServerRequest message) {
         Profile user;
 
         try {

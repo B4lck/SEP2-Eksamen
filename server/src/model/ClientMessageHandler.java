@@ -1,7 +1,7 @@
 package model;
 
-import mediator.ServerMessage;
+import mediator.ServerRequest;
 
 public interface ClientMessageHandler {
-    void handleMessage(ServerMessage message);
+    void handleMessage(ServerRequest message);
 }
