@@ -4,7 +4,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import model.Model;
 
-public class LogInViewModel {
+public class LogInViewModel implements ViewModel {
 
     private StringProperty userNameInputProperty = new SimpleStringProperty();
     private StringProperty passwordInputProperty = new SimpleStringProperty();
@@ -27,6 +27,7 @@ public class LogInViewModel {
         return errorProperty;
     }
 
+    @Override
     public void reset() {
         userNameInputProperty.set("");
         passwordInputProperty.set("");
@@ -40,10 +41,6 @@ public class LogInViewModel {
             System.out.println("Test, forkert login");
             errorProperty.set(e.getMessage());
         }
-    }
-
-    public void cancel() {
-
     }
 
 }

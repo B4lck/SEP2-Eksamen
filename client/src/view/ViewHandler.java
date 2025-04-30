@@ -4,6 +4,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.Region;
 import javafx.stage.Stage;
+import viewModel.ViewModel;
 import viewModel.ViewModelFactory;
 
 import java.util.HashMap;
@@ -52,7 +53,7 @@ public class ViewHandler {
         primaryStage.show();
     }
 
-    private <T> Region getRoot(ViewID viewId, T viewModel, ViewHandler viewHandler) {
+    private <T extends ViewModel> Region getRoot(ViewID viewId, T viewModel, ViewHandler viewHandler) {
         ViewController<T> vc = controllers.get(viewId.name());
 
         if (vc == null) {

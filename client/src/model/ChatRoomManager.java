@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ChatRoomManager implements PropertyChangeSubject, PropertyChangeListener {
-    private ArrayList<Message> messages;
+    private ArrayList<ChatMessage> messages;
     private PropertyChangeSupport property;
     private ChatClient chatClient = ChatClient.getInstance();
 
@@ -33,33 +33,42 @@ public class ChatRoomManager implements PropertyChangeSubject, PropertyChangeLis
         property.removePropertyChangeListener(listener);
     }
 
-    public void getMessages(long chatroom, int amount) {
+    public ArrayList<ChatMessage> getMessages(long chatroom, int amount) {
         chatClient.sendMessage(new ClientMessage("RECEIVE_MESSAGES", Map.of("chatroom", Long.toString(chatroom), "amount", amount)));
 
         try {
             var reply = chatClient.waitingForReply("RECEIVE_MESSAGES");
 
             for (Map<String, Object> message : (ArrayList<Map<String, Object>>) reply.getData().get("messages")) {
-                messages.add(Message.fromData(message));
+                messages.add(ChatMessage.fromData(message));
             }
 
             property.firePropertyChange("MESSAGES", null, messages);
+
+            return new ArrayList<>(List.of((ChatMessage[]) reply.getData().get("messages")));
         } catch (InterruptedException e) {
             e.printStackTrace();
+            // TODO: Håndter fejl
+            return new ArrayList<>();
         }
     }
 
-    public ArrayList<Message> getMessagesSince(long chatroom, long since) {
+    public ArrayList<ChatMessage> getMessagesSince(long chatroom, long since) {
         chatClient.sendMessage(new ClientMessage("RECEIVE_MESSAGES_SINCE", Map.of("chatroom", Long.toString(chatroom), "since", since)));
 
         try {
             var reply = chatClient.waitingForReply("RECEIVE_MESSAGES");
 
+            for (Map<String, Object> message : (ArrayList<Map<String, Object>>) reply.getData().get("messages")) {
+                messages.add(ChatMessage.fromData(message));
+            }
+
             property.firePropertyChange("MESSAGES", null, messages);
 
-            return new ArrayList<>(List.of((Message[]) reply.getData().get("messages")));
+            return new ArrayList<>(List.of((ChatMessage[]) reply.getData().get("messages")));
         } catch (InterruptedException e) {
             e.printStackTrace();
+            // TODO: Håndter fejl
             return new ArrayList<>();
         }
     }
@@ -77,7 +86,7 @@ public class ChatRoomManager implements PropertyChangeSubject, PropertyChangeLis
         System.out.println("modtaget broadcast");
         var message = (ClientMessage) evt.getNewValue();
         if (message.getType().equals("RECEIVE_MESSAGE")) {
-            Message castedMessage = Message.fromData((Map<String, Object>) message.getData().get("message"));
+            ChatMessage castedMessage = ChatMessage.fromData((Map<String, Object>) message.getData().get("message"));
             messages.add(castedMessage);
             property.firePropertyChange("MESSAGES", null, messages);
         }

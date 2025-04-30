@@ -4,7 +4,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import model.Model;
 
-public class SignUpViewModel {
+public class SignUpViewModel implements ViewModel {
 
     private StringProperty userNameInputProperty = new SimpleStringProperty();
     private StringProperty passwordInputProperty = new SimpleStringProperty();
@@ -32,6 +32,7 @@ public class SignUpViewModel {
         return errorProperty;
     }
 
+    @Override
     public void reset() {
         userNameInputProperty.set("");
         passwordInputProperty.set("");
@@ -49,10 +50,6 @@ public class SignUpViewModel {
         } catch (Exception e) {
             errorProperty.set(e.getMessage());
         }
-    }
-
-    public void cancel() {
-        // TODO, gør så man kommer tilbage til sidste view
     }
 
 }

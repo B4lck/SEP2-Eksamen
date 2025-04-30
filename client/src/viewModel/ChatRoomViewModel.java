@@ -4,7 +4,7 @@ import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import model.Message;
+import model.ChatMessage;
 import model.Model;
 
 import java.beans.PropertyChangeEvent;
@@ -13,11 +13,11 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 
-public class ChatRoomViewModel implements PropertyChangeListener {
+public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
     private ObservableList<ViewMessage> messagesProperty;
     private StringProperty composeMessageProperty;
-    private StringProperty errorMessageProperty;
+    private StringProperty errorProperty;
     private Model model;
 
     public ChatRoomViewModel(Model model) {
@@ -25,7 +25,7 @@ public class ChatRoomViewModel implements PropertyChangeListener {
 
         this.composeMessageProperty = new SimpleStringProperty();
         this.messagesProperty = FXCollections.observableArrayList();
-        this.errorMessageProperty = new SimpleStringProperty();
+        this.errorProperty = new SimpleStringProperty();
 
         model.getChatRoomManager().addListener(this);
     }
@@ -36,11 +36,11 @@ public class ChatRoomViewModel implements PropertyChangeListener {
             if (evt.getPropertyName().equals("MESSAGES")) {
                 messagesProperty.clear();
                 System.out.println(evt.getNewValue());
-                for (Message m : (ArrayList<Message>) evt.getNewValue()) {
+                for (ChatMessage m : (ArrayList<ChatMessage>) evt.getNewValue()) {
                     messagesProperty.add(new ViewMessage() {{
                         sender = model.getProfileManager().getProfile(m.getSentBy()).getUsername();
                         body = m.getBody();
-                        DateTime = LocalDateTime.ofEpochSecond(m.getDateTime() / 1000, (int) (m.getDateTime() % 1000 * 1000), ZoneOffset.UTC);
+                        dateTime = LocalDateTime.ofEpochSecond(m.getDateTime() / 1000, (int) (m.getDateTime() % 1000 * 1000), ZoneOffset.UTC);
                     }});
                 }
             }
@@ -55,19 +55,16 @@ public class ChatRoomViewModel implements PropertyChangeListener {
         return composeMessageProperty;
     }
 
-    public StringProperty getErrorMessageProperty() {
-        return errorMessageProperty;
+    public StringProperty getErrorProperty() {
+        return errorProperty;
     }
 
-    public void sendMessage() {
-        model.getChatRoomManager().sendMessage(0, composeMessageProperty.getValue());
-    }
-
+    @Override
     public void reset() {
         model.getChatRoomManager().getMessages(0, 10);
     }
 
-    public void logout() {
-        model.getProfileManager().logout();
+    public void sendMessage() {
+        model.getChatRoomManager().sendMessage(0, composeMessageProperty.getValue());
     }
 }

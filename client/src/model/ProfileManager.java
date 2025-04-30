@@ -33,12 +33,9 @@ public class ProfileManager {
         }
     }
 
-    public ArrayList<Profile> getAll() {
-        return profiles;
-    }
-
     public void logout() {
         this.currentUserId = -1;
+        // TODO: Bed serveren om at logge ud
     }
 
     public long login(String username, String password) {
@@ -69,7 +66,7 @@ public class ProfileManager {
         }
     }
 
-    public Profile getCurrentUser() {
+    public Profile getCurrentUserProfile() {
         try {
             ChatClient.getInstance().sendMessage(new ClientMessage("GET_CURRENT_PROFILE", Collections.emptyMap()));
 

@@ -1,8 +1,9 @@
 package view;
 
 import javafx.scene.layout.Region;
+import viewModel.ViewModel;
 
-public abstract class ViewController<T> {
+public abstract class ViewController<T extends ViewModel> {
     private ViewHandler viewHandler;
     private Region root;
     private T viewModel;
@@ -13,11 +14,13 @@ public abstract class ViewController<T> {
         this.root = root;
 
         this.init();
+        viewModel.reset();
     }
 
     protected abstract void init();
 
     public void reset() {
+        viewModel.reset();
     }
 
     public Region getRoot() {
