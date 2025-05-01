@@ -24,13 +24,13 @@ public class ChatRoomManager {
     }
 
     public ChatRoom getChatRoom(long chatroom) throws ServerError {
-        client.sendMessage(new ClientMessage("GET_ROOM", Map.of("chatroom", Long.toString(chatroom))));
+        client.sendMessage(new ClientMessage("GET_ROOM", Map.of("room", Long.toString(chatroom))));
         var reply = client.waitingForReply("GET_ROOM");
         return ChatRoom.fromData((Map<String, Object>) reply.getData().get("room"));
     }
 
     public void addUser(long chatroom, long userId) throws ServerError {
-        client.sendMessage(new ClientMessage("ADD_USER", Map.of("chatroom", Long.toString(chatroom), "user", Long.toString(userId))));
+        client.sendMessage(new ClientMessage("ADD_USER", Map.of("room", Long.toString(chatroom), "user", Long.toString(userId))));
         client.waitingForReply("SUCCESS");
     }
 
