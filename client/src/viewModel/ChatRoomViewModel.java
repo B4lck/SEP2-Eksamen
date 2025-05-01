@@ -5,6 +5,7 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.ChatMessage;
+import model.ChatRoom;
 import model.Model;
 import util.ServerError;
 
@@ -18,15 +19,29 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
     private ObservableList<ViewMessage> messagesProperty;
     private StringProperty composeMessageProperty;
-    private Model model;
+    private ObservableList<ViewRoom> roomsProperty;
 
-    public ChatRoomViewModel(Model model) {
+    private Model model;
+    private ViewState viewState;
+
+    public ChatRoomViewModel(Model model, ViewState viewState) {
         this.model = model;
 
         this.composeMessageProperty = new SimpleStringProperty();
         this.messagesProperty = FXCollections.observableArrayList();
 
+        this.roomsProperty = FXCollections.observableArrayList();
+        this.viewState = viewState;
+
         model.getChatManager().addListener(this);
+    }
+
+    public ObservableList<ViewRoom> getChatRoomsProperty() {
+        return roomsProperty;
+    }
+
+    public void setChatRoom(long chatRoom) {
+        viewState.setCurrentChatRoom(chatRoom);
     }
 
     @Override
@@ -62,8 +77,15 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     public void reset() {
         try {
             model.getChatManager().getMessages(0, 10);
+            this.roomsProperty.clear();
+            for (ChatRoom chatRoom : model.getChatRoomManager().getChatRooms()) {
+                roomsProperty.add(new ViewRoom() {{
+                    name = chatRoom.getName();
+                }});
+            }
         }
         catch (ServerError e) {
+            e.printStackTrace();
             e.showAlert();
         }
     }

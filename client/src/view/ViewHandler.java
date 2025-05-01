@@ -3,10 +3,13 @@ package view;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.Region;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import util.Callback;
 import viewModel.ViewModel;
 import viewModel.ViewModelFactory;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,6 +54,21 @@ public class ViewHandler {
         primaryStage.setWidth(root.getPrefWidth());
         primaryStage.setHeight(root.getPrefHeight());
         primaryStage.show();
+    }
+
+    public <R> void openPopup (PopupViewID view, Callback<R> callback) {
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource(view.getFilename()));
+            Region root = loader.load();
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(new Scene(root, root.getPrefWidth(), root.getPrefHeight()));
+            ((PopupViewController) loader.getController()).init(this, viewModelFactory, root, stage, callback);
+            stage.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private <T extends ViewModel> Region getRoot(ViewID viewId, T viewModel, ViewHandler viewHandler) {
