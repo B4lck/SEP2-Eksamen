@@ -8,15 +8,17 @@ import java.beans.PropertyChangeSupport;
 
 public class ChatModel implements Model, PropertyChangeListener {
     private Profiles profiles;
-    private Chat chatRooms;
+    private Chat chats;
+    private ChatRooms chatRooms;
     private PropertyChangeSupport property;
 
     public ChatModel() {
         property = new PropertyChangeSupport(this);
         profiles = new ProfilesArrayListManager();
-        chatRooms = new ChatArrayListManager();
+        chats = new ChatArrayListManager();
+        chatRooms = new ChatRoomsArrayListManager();
 
-        chatRooms.addListener(this);
+        chats.addListener(this);
     }
 
     @Override
@@ -27,6 +29,7 @@ public class ChatModel implements Model, PropertyChangeListener {
     @Override
     public void passClientMessage(ServerRequest message) {
         profiles.handleMessage(message);
+        chats.handleMessage(message);
         chatRooms.handleMessage(message);
     }
 
