@@ -5,4 +5,5 @@ public interface Profiles extends ClientMessageHandler {
     Profile getProfileByUsername(String username);
     void addProfile(Profile profile);
     void removeProfile(Profile profile);
+    Profile[] searchProfiles(String query);
 }

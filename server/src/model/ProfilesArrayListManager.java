@@ -46,8 +46,15 @@ public class ProfilesArrayListManager implements Profiles {
     }
 
     @Override
+    public Profile[] searchProfiles(String query) {
+        // TODO
+        return (Profile[]) profiles.toArray();
+    }
+
+    @Override
     public void handleMessage(ServerRequest message) {
         Profile user;
+        ArrayList<Map<String, Object>> profiles;
 
         try {
             switch (message.getType()) {
@@ -94,6 +101,20 @@ public class ProfilesArrayListManager implements Profiles {
                 // Get profile
                 case "GET_PROFILE":
                     message.respond(new ClientMessage("GET_PROFILE", Map.of("profile", getProfile(Long.parseLong((String) message.getData().get("uuid"))).getData())));
+                    break;
+                case "GET_PROFILES":
+                    profiles = new ArrayList<>();
+                    for (String id : (ArrayList<String>) message.getData().get("profiles")) {
+                        profiles.add(getProfile(Long.parseLong(id)).getData());
+                    }
+                    message.respond(new ClientMessage("GET_PROFILES", Map.of("profiles", profiles)));
+                    break;
+                case "SEARCH_PROFILES":
+                    profiles = new ArrayList<>();
+                    for (Profile profile : searchProfiles((String) message.getData().get("query"))) {
+                        profiles.add(profile.getData());
+                    }
+                    message.respond(new ClientMessage("SEARCH_PROFILES", Map.of("profiles", profiles)));
                     break;
             }
         } catch (Exception e) {
