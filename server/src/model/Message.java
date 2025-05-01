@@ -32,4 +32,6 @@ public interface Message {
      * @return alle instans variabler som map.
      */
     Map<String, Object> getData();
+
+    long getChatRoom();
 }

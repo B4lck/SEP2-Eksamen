@@ -16,10 +16,10 @@ public class ChatArrayListManager implements Chat {
     private PropertyChangeSupport property = new PropertyChangeSupport(this);
 
     @Override
-    public void sendMessage(long ChatRoomID, String messageBody, long senderID) {
-        var message = new ArrayListMessage(senderID, messageBody, LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000L);
+    public void sendMessage(long chatRoomId, String messageBody, long senderId) {
+        var message = new ArrayListMessage(senderId, messageBody, LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000L, chatRoomId);
 
-        if (senderID == -1) throw new IllegalStateException("Du skal være logget ind for at sende en besked i et chatroom");
+        if (senderId == -1) throw new IllegalStateException("Du skal være logget ind for at sende en besked i et chatroom");
 
         messages.add(message);
 
@@ -27,7 +27,7 @@ public class ChatArrayListManager implements Chat {
     }
 
     @Override
-    public ArrayList<Message> getMessages(long ChatRoomID, int amount) {
+    public ArrayList<Message> getMessages(long chatRoomId, int amount) {
         ArrayList<Message> list = new ArrayList<>();
 
         amount = Math.min(amount, messages.size());
