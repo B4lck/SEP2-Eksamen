@@ -4,6 +4,7 @@ import mediator.ClientMessage;
 import mediator.ServerRequest;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class ChatRoomsArrayListManager implements ChatRooms {
@@ -28,13 +29,13 @@ public class ChatRoomsArrayListManager implements ChatRooms {
     }
 
     @Override
-    public ChatRoom[] getParticipatingRooms(long user) {
+    public List<ChatRoom> getParticipatingRooms(long user) {
         ArrayList<ChatRoom> participatingRooms = new ArrayList<>();
         for (ChatRoom chatRoom : chatRooms) {
             if (chatRoom.isInRoom(user))
                 participatingRooms.add(chatRoom);
         }
-        return (ChatRoom[]) participatingRooms.toArray();
+        return participatingRooms;
     }
 
     @Override

@@ -1,5 +1,7 @@
 package model;
 
+import java.util.List;
+
 public interface ChatRooms extends ClientMessageHandler {
     /**
      * Opretter et nyt chatrum
@@ -22,7 +24,7 @@ public interface ChatRooms extends ClientMessageHandler {
      * @param user id'et på brugeren
      * @return ChatRoom objektet for alle rum som brugeren deltager i
      */
-    ChatRoom[] getParticipatingRooms(long user);
+    List<ChatRoom> getParticipatingRooms(long user);
 
     /**
      * Tilføjer en ny bruger til et chatrum
