@@ -15,8 +15,9 @@ public class CreateEditChatRoomViewModel implements ViewModel {
     private StringProperty nameProperty;
     private ObservableList<ViewUser> membersProperty;
     private Model model;
+    private ViewState viewState;
 
-    public CreateEditChatRoomViewModel(Model model) {
+    public CreateEditChatRoomViewModel(Model model, ViewState viewState) {
         this.model = model;
         this.nameProperty = new SimpleStringProperty();
         this.membersProperty = FXCollections.observableArrayList();
@@ -28,7 +29,7 @@ public class CreateEditChatRoomViewModel implements ViewModel {
 
     public void addUser(long userId) {
         try {
-            model.getChatRoomManager().addUser(-1, userId);
+            model.getChatRoomManager().addUser(viewState.getCurrentChatRoom(), userId);
         } catch (ServerError error) {
             error.printStackTrace();
             error.showAlert();

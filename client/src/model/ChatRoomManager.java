@@ -12,7 +12,7 @@ public class ChatRoomManager {
     private ChatClient client = ChatClient.getInstance();
 
     public List<ChatRoom> getChatRooms() throws ServerError {
-        client.sendMessage(new ClientMessage("GET_MY_ROOMS", null));
+        client.sendMessage(new ClientMessage("GET_MY_ROOMS", Map.of()));
         var reply = client.waitingForReply("GET_ROOMS");
 
         ArrayList<ChatRoom> chatRooms = new ArrayList<>();

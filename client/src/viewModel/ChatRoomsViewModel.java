@@ -9,19 +9,20 @@ import util.ServerError;
 public class ChatRoomsViewModel implements ViewModel {
     private ObservableList<ViewRoom> roomsProperty;
     private Model model;
+    private ViewState viewState;
 
-
-    public ChatRoomsViewModel(Model model) {
+    public ChatRoomsViewModel(Model model, ViewState viewState) {
         this.model = model;
         this.roomsProperty = FXCollections.observableArrayList();
+        this.viewState = viewState;
     }
 
     public ObservableList<ViewRoom> getChatRoomsProperty() {
         return roomsProperty;
     }
 
-    public void setRoomsProperty(ObservableList<ViewRoom> RoomsProperty) {
-        this.roomsProperty = RoomsProperty;
+    public void setChatRoom(long chatRoom) {
+        viewState.setCurrentChatRoom(chatRoom);
     }
 
     @Override
