@@ -29,8 +29,8 @@ public interface ChatRoom {
     void addUser(long userToAdd, long addedByUser);
 
     /**
-     * Pas?
-     * @return
+     * Laver objektet om til et map, så det kan sendes med JSON til clienten uden fejl
+     * @return Map af alle instans variabler
      */
     Map<String, Object> getData();
 
