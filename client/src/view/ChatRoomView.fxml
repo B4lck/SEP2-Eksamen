@@ -18,7 +18,7 @@
         <padding>
             <Insets top="20.0" />
         </padding>
-        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Hej Bruger!">
+        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Hej Bruger!" fx:id="greetingText">
             <VBox.margin>
                 <Insets bottom="30.0" />
             </VBox.margin>

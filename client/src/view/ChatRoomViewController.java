@@ -9,6 +9,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import viewModel.ViewMessage;
 
 public class ChatRoomViewController extends ViewController<viewModel.ChatRoomViewModel> {
@@ -18,10 +19,13 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
     private VBox messages;
     @FXML
     private ScrollPane scrollPane;
+    @FXML
+    private Text greetingText;
 
     @Override
     protected void init() {
         message.textProperty().bindBidirectional(getViewModel().getComposeMessageProperty());
+        greetingText.textProperty().bind(getViewModel().getGreetingTextProperty());
 
 
         getViewModel().getMessagesProperty().addListener((ListChangeListener<ViewMessage>) change -> {

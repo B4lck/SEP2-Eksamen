@@ -20,6 +20,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     private ObservableList<ViewMessage> messagesProperty;
     private StringProperty composeMessageProperty;
     private ObservableList<ViewRoom> roomsProperty;
+    private StringProperty greetingTextProperty;
 
     private Model model;
     private ViewState viewState;
@@ -29,6 +30,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
         this.composeMessageProperty = new SimpleStringProperty();
         this.messagesProperty = FXCollections.observableArrayList();
+        this.greetingTextProperty = new SimpleStringProperty();
 
         this.roomsProperty = FXCollections.observableArrayList();
         this.viewState = viewState;
@@ -73,10 +75,15 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         return composeMessageProperty;
     }
 
+    public StringProperty getGreetingTextProperty() {
+        return greetingTextProperty;
+    }
+
     @Override
     public void reset() {
         try {
             model.getChatManager().getMessages(0, 10);
+            greetingTextProperty.setValue("Hej " + model.getProfileManager().getCurrentUserProfile().getUsername() + "!");
             this.roomsProperty.clear();
             for (ChatRoom chatRoom : model.getChatRoomManager().getChatRooms()) {
                 roomsProperty.add(new ViewRoom() {{
