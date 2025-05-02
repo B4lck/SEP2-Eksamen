@@ -66,13 +66,20 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
         getViewModel().reset();
     }
 
+    @FXML
     public void logud(ActionEvent actionEvent) {
         getViewHandler().openView(ViewID.LOGIN);
     }
 
+    @FXML
     public void send(ActionEvent actionEvent) {
         getViewModel().sendMessage();
         message.clear();
         scrollPane.setVvalue(1.0);
+    }
+
+    @FXML
+    public void createRoom() {
+        getViewHandler().openView(ViewID.CREATE_ROOM);
     }
 }

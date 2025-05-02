@@ -34,8 +34,9 @@ public class ChatRoomManager {
         client.waitingForReply("SUCCESS");
     }
 
-    public void createRoom(String name) throws ServerError {
+    public long createRoom(String name) throws ServerError {
         client.sendMessage(new ClientMessage("CREATE_ROOM", Map.of("name", name)));
-        client.waitingForReply("SUCCESS");
+        long reply = ChatRoom.fromData((Map<String, Object>) client.waitingForReply("GET_ROOM").getData().get("room")).getRoomId();
+        return reply;
     }
 }

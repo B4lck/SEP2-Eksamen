@@ -16,3 +16,7 @@
 .message-body {
   -fx-label-padding: 1px 4px 1px 4px;
 }
+
+.left-menu {
+  -fx-background-color: #979797;
+}

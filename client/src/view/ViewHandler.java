@@ -38,6 +38,7 @@ public class ViewHandler {
             case ViewID.LOGIN -> getRoot(view, viewModelFactory.getLogInViewModel(), this);
             case ViewID.SIGNUP -> getRoot(view, viewModelFactory.getSignUpViewModel(), this);
             case ViewID.CHATROOM -> getRoot(view, viewModelFactory.getChatRoomViewModel(), this);
+            case CREATE_ROOM -> getRoot(view, viewModelFactory.getCreateChatRoomViewModel(), this);
         };
 
         if (root == null) {

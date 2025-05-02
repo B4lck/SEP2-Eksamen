@@ -48,7 +48,11 @@ public class ArrayListChatRoom implements ChatRoom {
     @Override
     public Map<String, Object> getData() {
         // Jeg har ingen ide om hvad der skal være her?!??!
-        return Map.of("admin", admin, "name", name, "chatroomId", chatRoomId, "users", users);
+        return Map.of(
+                "admin", Long.toString(admin),
+                "name", name,
+                "chatroomId", Long.toString(chatRoomId),
+                "users", users.stream().map((e) -> Long.toString(e)).toList());
     }
 
     @Override

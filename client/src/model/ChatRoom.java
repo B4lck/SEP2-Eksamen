@@ -24,7 +24,7 @@ public class ChatRoom {
 
         return new ChatRoom(
                 (String) message.get("name"),
-                Long.parseLong((String) message.get("id")),
+                Long.parseLong((String) message.get("chatroomId")),
                 usersLong
         );
     }
