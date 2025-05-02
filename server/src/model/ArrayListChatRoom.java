@@ -1,5 +1,7 @@
 package model;
 
+import model.statemachine.AdministratorState;
+
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
@@ -8,14 +10,14 @@ public class ArrayListChatRoom implements ChatRoom {
     private long admin;
     private String name;
     private long chatRoomId;
-    private ArrayList<Long> users;
+    private ArrayList<ChatRoomUser> users;
 
-    public ArrayListChatRoom(String name, long user) {
-        this.admin = user;
+    public ArrayListChatRoom(String name, long userId) {
+        this.admin = userId;
         this.name = name;
         this.chatRoomId = new Random().nextLong();
         this.users = new ArrayList<>();
-        users.add(user);
+        users.add(new ChatRoomUser(userId));
     }
 
     @Override
@@ -33,7 +35,7 @@ public class ArrayListChatRoom implements ChatRoom {
         long[] temp = new long[users.size()];
         for (int i = 0; i < users.size(); i++) {
             if (users.get(i) != null)
-                temp[i] = users.get(i);
+                temp[i] = users.get(i).getId();
         }
         return temp;
     }
@@ -42,7 +44,7 @@ public class ArrayListChatRoom implements ChatRoom {
     public void addUser(long userToAdd, long addedByUser) {
         if (isInRoom(userToAdd)) throw new RuntimeException("User is already in the room");
         if (addedByUser != admin) throw new RuntimeException("User does not have permission to add users");
-        users.add(userToAdd);
+        users.add(new ChatRoomUser(userToAdd));
     }
 
     @Override
@@ -52,7 +54,7 @@ public class ArrayListChatRoom implements ChatRoom {
                 "admin", Long.toString(admin),
                 "name", name,
                 "chatroomId", Long.toString(chatRoomId),
-                "users", users.stream().map((e) -> Long.toString(e)).toList());
+                "users", users.stream().map((e) -> Long.toString(e.getId())).toList());
     }
 
     @Override
@@ -62,8 +64,8 @@ public class ArrayListChatRoom implements ChatRoom {
 
     @Override
     public boolean isInRoom(long user) {
-        for (long _user : users) {
-            if (_user == user)
+        for (ChatRoomUser _user : users) {
+            if (_user.getId() == user)
                 return true;
         }
         return false;
@@ -72,14 +74,26 @@ public class ArrayListChatRoom implements ChatRoom {
     @Override
     public void removeUser(long user, long adminUser) {
         if (!isInRoom(user)) throw new RuntimeException("User is not in the room");
-        if (adminUser != admin) throw new RuntimeException("User does not have permission to remove users");
-        if (user == adminUser) throw new RuntimeException("User cannot be removed");
-        users.remove(user);
+        if (!userIsAdmin(adminUser)) throw new RuntimeException("User does not have permission to remove users");
+        if (userIsAdmin(user)) throw new RuntimeException("User cannot be removed");
+        users.remove(getUserFromUserId(user));
     }
 
     @Override
     public void setName(String name, long changedByUser) {
-        if (changedByUser != admin) throw new RuntimeException("User does not have permission to change name");
+        if (!userIsAdmin(changedByUser)) throw new RuntimeException("User does not have permission to change name");
         this.name = name;
+    }
+
+    public ChatRoomUser getUserFromUserId(long userId) {
+        for (ChatRoomUser _user : users) {
+            if (_user.getId() == userId)
+                return _user;
+        }
+        throw new IllegalArgumentException("User does not exist in chatroom '" + name + "'");
+    }
+
+    public boolean userIsAdmin(long userId) {
+        return getUserFromUserId(userId).getState() instanceof AdministratorState;
     }
 }
