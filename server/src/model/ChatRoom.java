@@ -54,5 +54,17 @@ public interface ChatRoom {
      */
     boolean isInRoom(long user);
 
+    /**
+     * Fjerner en bruger fra chatrummet
+     * @param user id'et på brugeren der skal fjernes
+     * @param adminUser id'et på brugeren som forsøger at fjerne
+     */
     void removeUser(long user, long adminUser);
+
+    /**
+     * Sætter navnet på chatrummet
+     * @param name Det nye navn
+     * @param changedByUser id'et på brugeren som forsøger at ændre navnet
+     */
+    void setName(String name, long changedByUser);
 }

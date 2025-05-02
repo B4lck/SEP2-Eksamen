@@ -82,6 +82,10 @@ public class ChatRoomsArrayListManager implements ChatRooms {
                     removeUser(Long.parseLong((String) message.getData().get("room")), Long.parseLong((String) message.getData().get("user")), message.getUser());
                     message.respond(new ClientMessage("SUCCESS", Map.of()));
                     break;
+                case "UPDATE_ROOM_NAME":
+                    setName(Long.parseLong((String) message.getData().get("room")), (String) message.getData().get("name"), message.getUser());
+                    message.respond(new ClientMessage("SUCCESS", Map.of()));
+                    break;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -93,5 +97,11 @@ public class ChatRoomsArrayListManager implements ChatRooms {
     public void removeUser(long chatroom, long user, long adminUser) {
         ChatRoom chatRoom = getRoomFromId(chatroom);
         chatRoom.removeUser(user, adminUser);
+    }
+
+    @Override
+    public void setName(long chatroom, String name, long adminUser) {
+        ChatRoom chatRoom = getRoomFromId(chatroom);
+        chatRoom.setName(name, adminUser);
     }
 }

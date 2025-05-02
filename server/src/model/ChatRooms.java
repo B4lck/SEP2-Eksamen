@@ -38,5 +38,21 @@ public interface ChatRooms extends ClientMessageHandler {
      */
     void addUser(long chatroom, long newUser, long adminUser);
 
+    /**
+     * Fjerner en bruger fra et chatrum
+     *
+     * @param chatroom id'et på chatrummet
+     * @param user id'et på brugeren som skal fjernes
+     * @param adminUser id'et på brugeren som forsøger
+     */
     void removeUser(long chatroom, long user, long adminUser);
+
+    /**
+     * Sætter navnet på et chatrum
+     *
+     * @param chatroom id' på chatrummet
+     * @param name det nye navn på chatrummet
+     * @param adminUser id'et på brugeren der forsøger at ændre navnet på chatrummet
+     */
+    void setName(long chatroom, String name, long adminUser);
 }
