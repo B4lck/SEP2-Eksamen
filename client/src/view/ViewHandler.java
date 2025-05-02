@@ -35,10 +35,10 @@ public class ViewHandler {
         Region root = null;
 
         root = switch (view) {
-            case ViewID.LOGIN -> getRoot(view, viewModelFactory.getLogInViewModel(), this);
-            case ViewID.SIGNUP -> getRoot(view, viewModelFactory.getSignUpViewModel(), this);
-            case ViewID.CHATROOM -> getRoot(view, viewModelFactory.getChatRoomViewModel(), this);
-            case CREATE_ROOM -> getRoot(view, viewModelFactory.getCreateChatRoomViewModel(), this);
+            case LOGIN -> getRoot(view, viewModelFactory.getLogInViewModel(), this);
+            case SIGNUP -> getRoot(view, viewModelFactory.getSignUpViewModel(), this);
+            case CHATROOM -> getRoot(view, viewModelFactory.getChatRoomViewModel(), this);
+            case CREATE_EDIT_ROOM -> getRoot(view, viewModelFactory.getCreateChatRoomViewModel(), this);
         };
 
         if (root == null) {

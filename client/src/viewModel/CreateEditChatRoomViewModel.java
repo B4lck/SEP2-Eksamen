@@ -1,32 +1,49 @@
 package viewModel;
 
-import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.Model;
 import model.Profile;
 import util.ServerError;
 
-import java.util.ArrayList;
-
-public class CreateChatRoomViewModel implements ViewModel{
+public class CreateEditChatRoomViewModel implements ViewModel{
     private StringProperty nameField;
     private ObservableList<ViewUser> profiles;
+    private StringProperty titleText;
     private StringProperty errorText;
     private Model model;
+    private ViewState viewState;
 
-    public CreateChatRoomViewModel(Model model) {
+    private boolean isEdit = false;
+
+    public CreateEditChatRoomViewModel(Model model, ViewState viewState) {
         nameField = new SimpleStringProperty();
         errorText = new SimpleStringProperty();
+        titleText = new SimpleStringProperty();
         profiles = FXCollections.observableArrayList();
         this.model = model;
+        this.viewState = viewState;
     }
 
     @Override
     public void reset() {
-
+        if (viewState.getCurrentChatRoom() == -1) {
+            isEdit = false;
+            titleText.set("Opret chat rum");
+            nameField.set("");
+        }
+        else {
+            isEdit = true;
+            titleText.set("Rediger chat rum");
+            try {
+                nameField.set(model.getChatRoomManager().getChatRoom(viewState.getCurrentChatRoom()).getName());
+            } catch (ServerError e) {
+                e.showAlert();
+            }
+        }
     }
 
     public StringProperty getNameField() {
@@ -56,9 +73,15 @@ public class CreateChatRoomViewModel implements ViewModel{
             return false;
         }
         try {
-            long room = model.getChatRoomManager().createRoom(nameField.getValue());
-            for (ViewUser profile : profiles) {
-                model.getChatRoomManager().addUser(room, profile.userId);
+            if (isEdit) {
+                // Opdater eksisterende chatrum (id: viewState.getCurrentChatRoom())
+            }
+            else {
+                // Opret et nyt chat rum
+                long room = model.getChatRoomManager().createRoom(nameField.getValue());
+                for (ViewUser profile : profiles) {
+                    model.getChatRoomManager().addUser(room, profile.userId);
+                }
             }
         } catch (ServerError e) {
             e.showAlert();
@@ -69,5 +92,9 @@ public class CreateChatRoomViewModel implements ViewModel{
 
     public StringProperty getErrorTextProperty() {
         return errorText;
+    }
+
+    public StringProperty getTitleTextProperty() {
+        return titleText;
     }
 }

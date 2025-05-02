@@ -5,11 +5,13 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
-import model.Profile;
-import viewModel.ViewMessage;
+import javafx.scene.text.Text;
+import viewModel.CreateEditChatRoomViewModel;
 import viewModel.ViewUser;
 
-public class CreateChatRoomViewController extends ViewController<viewModel.CreateChatRoomViewModel>{
+public class CreateEditChatRoomViewController extends ViewController<CreateEditChatRoomViewModel> {
+    @FXML
+    public Text title;
     @FXML
     private TextField nameTextField;
     @FXML
@@ -17,11 +19,11 @@ public class CreateChatRoomViewController extends ViewController<viewModel.Creat
     @FXML
     private Label errorLabel;
 
-
     @Override
     protected void init() {
         nameTextField.textProperty().bindBidirectional(getViewModel().getNameField());
         errorLabel.textProperty().bind(getViewModel().getErrorTextProperty());
+        title.textProperty().bind(getViewModel().getTitleTextProperty());
 
         getViewModel().getProfiles().addListener((ListChangeListener<ViewUser>) change -> {
             users.getChildren().clear();

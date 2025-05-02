@@ -33,9 +33,7 @@
         </Text>
         <MenuButton mnemonicParsing="false">
             <items>
-                <MenuItem mnemonicParsing="false" text="Tilføj deltager"/>
-                <MenuItem mnemonicParsing="false" text="Fjern deltager"/>
-                <MenuItem mnemonicParsing="false" text="Ændre navn på gruppechat"/>
+                <MenuItem mnemonicParsing="false" text="Rediger" onAction="#editRoom" />
             </items>
         </MenuButton>
     </HBox>

@@ -49,7 +49,6 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
 
         // Beskeder
         getViewModel().getMessagesProperty().addListener((ListChangeListener<ViewMessage>) change -> {
-            System.out.println(scrollPane.getVvalue());
             // Hvis der er scrollet ned i bunden, skal den stadigvæk være scrollet helt ned, efter de nye beskeder bliver tilføjet.
             var isScrolledDown = scrollPane.getVvalue() >= 1.0;
             // TODO: Kun opret nye beskeder? Bemærk de nye beskeder vil kunne dukke op før og efter de beskeder som allerede
@@ -104,6 +103,12 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
 
     @FXML
     public void createRoom() {
-        getViewHandler().openView(ViewID.CREATE_ROOM);
+        getViewModel().setChatRoom(-1);
+        getViewHandler().openView(ViewID.CREATE_EDIT_ROOM);
+    }
+
+    @FXML
+    public void editRoom(ActionEvent actionEvent) {
+        getViewHandler().openView(ViewID.CREATE_EDIT_ROOM);
     }
 }
