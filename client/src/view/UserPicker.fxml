@@ -1,14 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="view.UserPicker"
-            prefHeight="400.0" prefWidth="600.0">
-    <Button onAction="#test">Test</Button>
+<AnchorPane prefHeight="400.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.UserPicker">
+    <Text layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Vælg en bruger" textAlignment="CENTER" wrappingWidth="400.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="20.0">
+        <font>
+            <Font size="18.0" />
+        </font>
+    </Text>
+    <TextField fx:id="search" layoutY="56.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="56.0" onKeyTyped="#update" />
+    <ListView fx:id="list" layoutY="83.0" prefHeight="272.0" prefWidth="400.0" AnchorPane.bottomAnchor="45.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="90.0" />
+    <ButtonBar layoutX="78.0" layoutY="284.0" prefHeight="40.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+        <buttons>
+            <Button mnemonicParsing="false" onAction="#cancel" text="Annuller">
+                <opaqueInsets>
+                    <Insets />
+                </opaqueInsets>
+            </Button>
+            <Button layoutX="320.0" layoutY="10.0" mnemonicParsing="false" onAction="#submit" text="Vælg">
+                <opaqueInsets>
+                    <Insets />
+                </opaqueInsets>
+            </Button>
+        </buttons>
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+        </padding>
+    </ButtonBar>
 </AnchorPane>

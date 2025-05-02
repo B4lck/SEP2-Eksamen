@@ -1,6 +1,9 @@
 package viewModel;
 
+import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.Model;
 import model.Profile;
@@ -13,19 +16,34 @@ public class UserPickerViewModel implements ViewModel {
     private Model model;
 
     public UserPickerViewModel(Model model) {
+        this.resultsProperty = FXCollections.observableArrayList();
+        this.searchProperty = new SimpleStringProperty();
         this.model = model;
+    }
+
+    public ObservableList<ViewUser> getResultsProperty() {
+        return resultsProperty;
+    }
+
+    public StringProperty getSearchProperty() {
+        return searchProperty;
     }
 
     public void search() {
         try {
             this.resultsProperty.clear();
 
-            for (Profile profile : model.getProfileManager().searchProfiles(searchProperty.getValue())) {
-                resultsProperty.add(new ViewUser(){{
+            var profiles = model.getProfileManager().searchProfiles(searchProperty.getValue());
+
+            System.out.println(profiles);
+
+            for (Profile profile : profiles) {
+                resultsProperty.add(new ViewUser() {{
                     username = profile.getUsername();
                     userId = profile.getUUID();
                 }});
             }
+
         } catch (ServerError e) {
             e.printStackTrace();
             e.showAlert();

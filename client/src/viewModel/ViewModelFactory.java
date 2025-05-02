@@ -45,4 +45,7 @@ public class ViewModelFactory {
         return createEditChatRoomViewModel;
     }
 
+    public ViewModel newUserPickerViewModel() {
+        return new UserPickerViewModel(model);
+    }
 }

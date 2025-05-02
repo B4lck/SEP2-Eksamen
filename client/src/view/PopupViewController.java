@@ -3,18 +3,19 @@ package view;
 import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import util.Callback;
+import viewModel.ViewModel;
 import viewModel.ViewModelFactory;
 
-public abstract class PopupViewController<R> {
+public abstract class PopupViewController<R, T extends ViewModel> {
 
-    protected ViewModelFactory factory;
-    protected ViewHandler viewHandler;
-    protected Stage stage;
+    private T viewModel;
+    private ViewHandler viewHandler;
+    private Stage stage;
     private Callback<R> callback;
-    protected Region root;
+    private Region root;
 
-    public void init(ViewHandler viewHandler, ViewModelFactory factory, Region root, Stage stage, Callback<R> callback) {
-        this.factory = factory;
+    public void init(ViewHandler viewHandler, T viewModel, Region root, Stage stage, Callback<R> callback) {
+        this.viewModel = viewModel;
         this.viewHandler = viewHandler;
         this.stage = stage;
         this.callback = callback;
@@ -29,5 +30,21 @@ public abstract class PopupViewController<R> {
     }
 
     protected abstract void init();
+
+    public Stage getStage() {
+        return stage;
+    }
+
+    public Region getRoot() {
+        return root;
+    }
+
+    public ViewHandler getViewHandler() {
+        return viewHandler;
+    }
+
+    public T getViewModel() {
+        return viewModel;
+    }
 
 }

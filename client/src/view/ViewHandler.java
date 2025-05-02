@@ -57,6 +57,10 @@ public class ViewHandler {
     }
 
     public <R> void openPopup (PopupViewID view, Callback<R> callback) {
+        ViewModel viewModel = switch (view) {
+            case USER_PICKER -> viewModelFactory.newUserPickerViewModel();
+        };
+
         try {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource(view.getFilename()));
@@ -64,7 +68,7 @@ public class ViewHandler {
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setScene(new Scene(root, root.getPrefWidth(), root.getPrefHeight()));
-            ((PopupViewController) loader.getController()).init(this, viewModelFactory, root, stage, callback);
+            ((PopupViewController) loader.getController()).init(this, viewModel, root, stage, callback);
             stage.showAndWait();
         } catch (IOException e) {
             e.printStackTrace();

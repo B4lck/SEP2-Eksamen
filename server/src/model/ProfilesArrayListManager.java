@@ -4,6 +4,7 @@ import mediator.ClientMessage;
 import mediator.ServerRequest;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class ProfilesArrayListManager implements Profiles {
@@ -46,9 +47,8 @@ public class ProfilesArrayListManager implements Profiles {
     }
 
     @Override
-    public Profile[] searchProfiles(String query) {
-        // TODO
-        return (Profile[]) profiles.toArray();
+    public List<Profile> searchProfiles(String query) {
+        return profiles.stream().filter(p -> p.getUsername().toLowerCase().contains(query.toLowerCase())).toList();
     }
 
     @Override
@@ -114,7 +114,7 @@ public class ProfilesArrayListManager implements Profiles {
                     for (Profile profile : searchProfiles((String) message.getData().get("query"))) {
                         profiles.add(profile.getData());
                     }
-                    message.respond(new ClientMessage("SEARCH_PROFILES", Map.of("profiles", profiles)));
+                    message.respond(new ClientMessage("GET_PROFILES", Map.of("profiles", profiles)));
                     break;
             }
         } catch (Exception e) {

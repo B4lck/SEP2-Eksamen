@@ -1,5 +1,7 @@
 package model;
 
+import java.util.List;
+
 public interface Profiles extends ClientMessageHandler {
     /**
      * Henter profilen ud fra et id
@@ -29,8 +31,9 @@ public interface Profiles extends ClientMessageHandler {
 
     /**
      * Henter en array af profiler ud fra matchende query
+     *
      * @param query Filtre - Kommer snart!
      * @return Array over profiler med matchende filtre
      */
-    Profile[] searchProfiles(String query);
+    List<Profile> searchProfiles(String query);
 }

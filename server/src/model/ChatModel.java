@@ -19,6 +19,17 @@ public class ChatModel implements Model, PropertyChangeListener {
         chatRooms = new ChatRoomsArrayListManager();
 
         chats.addListener(this);
+
+        // Dummy data
+
+        profiles.addProfile(new ArrayListProfile("Nikolai Sharaf", "1234"));
+        profiles.addProfile(new ArrayListProfile("Mazen Laursen", "1234"));
+        profiles.addProfile(new ArrayListProfile("Malthe Balck", "1234"));
+        profiles.addProfile(new ArrayListProfile("Bruger4", "1234"));
+        profiles.addProfile(new ArrayListProfile("Bruger5", "1234"));
+        profiles.addProfile(new ArrayListProfile("Bruger6", "1234"));
+        profiles.addProfile(new ArrayListProfile("Bruger7", "1234"));
+        profiles.addProfile(new ArrayListProfile("Bruger8", "1234"));
     }
 
     @Override
