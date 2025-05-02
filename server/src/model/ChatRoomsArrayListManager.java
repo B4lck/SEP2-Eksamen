@@ -65,7 +65,7 @@ public class ChatRoomsArrayListManager implements ChatRooms {
                     message.respond(new ClientMessage("GET_ROOM", Map.of("room", createRoom((String) message.getData().get("name"), message.getUser()).getData())));
                     break;
                 case "GET_ROOM":
-                    message.respond(new ClientMessage("GET_ROOM", Map.of("room", getRoom(Long.parseLong((String) message.getData().get("room")), message.getUser()))));
+                    message.respond(new ClientMessage("GET_ROOM", Map.of("room", getRoom(Long.parseLong((String) message.getData().get("room")), message.getUser()).getData())));
                     break;
                 case "GET_MY_ROOMS":
                     ArrayList<Map<String, Object>> rooms = new ArrayList<>();
@@ -75,7 +75,11 @@ public class ChatRoomsArrayListManager implements ChatRooms {
                     message.respond(new ClientMessage("GET_ROOMS", Map.of("rooms", rooms)));
                     break;
                 case "ADD_USER":
-                    addUser(Long.parseLong((String)message.getData().get("room")), Long.parseLong((String)message.getData().get("user")), message.getUser());
+                    addUser(Long.parseLong((String) message.getData().get("room")), Long.parseLong((String) message.getData().get("user")), message.getUser());
+                    message.respond(new ClientMessage("SUCCESS", Map.of()));
+                    break;
+                case "REMOVE_USER":
+                    removeUser(Long.parseLong((String) message.getData().get("room")), Long.parseLong((String) message.getData().get("user")), message.getUser());
                     message.respond(new ClientMessage("SUCCESS", Map.of()));
                     break;
             }
@@ -83,5 +87,11 @@ public class ChatRoomsArrayListManager implements ChatRooms {
             e.printStackTrace();
             message.respond(new ClientMessage(e.getMessage()));
         }
+    }
+
+    @Override
+    public void removeUser(long chatroom, long user, long adminUser) {
+        ChatRoom chatRoom = getRoomFromId(chatroom);
+        chatRoom.removeUser(user, adminUser);
     }
 }

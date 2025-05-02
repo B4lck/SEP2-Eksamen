@@ -68,4 +68,11 @@ public class ArrayListChatRoom implements ChatRoom {
         }
         return false;
     }
+
+    @Override
+    public void removeUser(long user, long adminUser) {
+        if (!isInRoom(user)) throw new RuntimeException("User is not in the room");
+        if (adminUser != admin) throw new RuntimeException("User does not have permission to remove users");
+        users.remove(user);
+    }
 }

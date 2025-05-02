@@ -1,13 +1,20 @@
 package viewModel;
 
-public class ViewState {
-    private Long currentChatRoom = null;
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.SimpleLongProperty;
 
-    public Long getCurrentChatRoom() {
+public class ViewState {
+    private LongProperty currentChatRoom = new SimpleLongProperty(-1);
+
+    public LongProperty getCurrentChatRoomProperty() {
         return currentChatRoom;
     }
 
-    public void setCurrentChatRoom(Long currentChatRoom) {
-        this.currentChatRoom = currentChatRoom;
+    public long getCurrentChatRoom() {
+        return currentChatRoom.get();
+    }
+
+    public void setCurrentChatRoom(long roomId) {
+        currentChatRoom.set(roomId);
     }
 }

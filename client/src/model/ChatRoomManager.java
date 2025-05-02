@@ -39,4 +39,8 @@ public class ChatRoomManager {
         long reply = ChatRoom.fromData((Map<String, Object>) client.waitingForReply("GET_ROOM").getData().get("room")).getRoomId();
         return reply;
     }
+    public void removeUser(long chatroom, long userId) throws ServerError {
+        client.sendMessage(new ClientMessage("REMOVE_USER", Map.of("room", Long.toString(chatroom), "user", Long.toString(userId))));
+        client.waitingForReply("SUCCESS");
+    }
 }
