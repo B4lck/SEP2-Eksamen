@@ -65,7 +65,7 @@ public class ChatRoomsArrayListManager implements ChatRooms {
                     message.respond(new ClientMessage("GET_ROOM", Map.of("room", createRoom((String) message.getData().get("name"), message.getUser()).getData())));
                     break;
                 case "GET_ROOM":
-                    message.respond(new ClientMessage("GET_ROOM", Map.of("room", getRoom(Long.parseLong((String) message.getData().get("room")), message.getUser()))));
+                    message.respond(new ClientMessage("GET_ROOM", Map.of("room", getRoom(Long.parseLong((String) message.getData().get("room")), message.getUser()).getData())));
                     break;
                 case "GET_MY_ROOMS":
                     ArrayList<Map<String, Object>> rooms = new ArrayList<>();

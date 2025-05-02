@@ -4,14 +4,21 @@ import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import viewModel.ViewMessage;
+import viewModel.ViewRoom;
 
 public class ChatRoomViewController extends ViewController<viewModel.ChatRoomViewModel> {
+    @FXML
+    public VBox rooms;
+    @FXML
+    public Text roomName;
     @FXML
     private TextField message;
     @FXML
@@ -23,7 +30,21 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
     protected void init() {
         message.textProperty().bindBidirectional(getViewModel().getComposeMessageProperty());
 
+        roomName.textProperty().bind(getViewModel().getRoomNameProperty());
 
+        // Rum
+        getViewModel().getChatRoomsProperty().addListener((ListChangeListener<ViewRoom>) change -> {
+            rooms.getChildren().clear();
+            change.getList().forEach(r -> {
+                Button roomButton = new Button(r.name);
+                roomButton.addEventHandler(ActionEvent.ACTION, evt -> {
+                    getViewModel().setChatRoom(r.roomId);
+                });
+                rooms.getChildren().add(roomButton);
+            });
+        });
+
+        // Beskeder
         getViewModel().getMessagesProperty().addListener((ListChangeListener<ViewMessage>) change -> {
             System.out.println(scrollPane.getVvalue());
             // Hvis der er scrollet ned i bunden, skal den stadigvæk være scrollet helt ned, efter de nye beskeder bliver tilføjet.
