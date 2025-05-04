@@ -95,7 +95,7 @@ public class ChatArrayListManager implements Chat {
                 // Hent antal beskeder
                 case "RECEIVE_MESSAGES_SINCE":
                     chatRoom = request.getLong("chatroom");
-                    long since = message.getData().getInt("since");
+                    long since = message.getData().getLong("since");
 
                     message.respond(new ClientMessage("RECEIVE_MESSAGES", new DataMap()
                             .with("messages", toSendableData(getMessagesSince(chatRoom, since)))));
