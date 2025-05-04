@@ -18,7 +18,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
     @FXML
     public VBox rooms;
     @FXML
-    public Text roomName;
+    public Label roomName;
     @FXML
     private TextField message;
     @FXML

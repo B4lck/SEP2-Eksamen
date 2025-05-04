@@ -1,8 +1,11 @@
 package view;
 
 import javafx.collections.ListChangeListener;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -15,7 +18,7 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
     @FXML
     private TextField nameTextField;
     @FXML
-    private VBox users;
+    private ListView<ViewUser> users;
     @FXML
     private Label errorLabel;
 
@@ -25,18 +28,22 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
         errorLabel.textProperty().bind(getViewModel().getErrorTextProperty());
         title.textProperty().bind(getViewModel().getTitleTextProperty());
 
-        getViewModel().getProfiles().addListener((ListChangeListener<ViewUser>) change -> {
-            users.getChildren().clear();
+        users.setItems(getViewModel().getProfiles());
 
-            change.getList().forEach(user -> {
-                Label username = new Label();
-                username.setText(user.username);
-                username.getStyleClass().add("username");
-                users.getChildren().add(username);
-            });
+        users.setCellFactory(cell -> new ListCell<>() {
+            @Override
+            protected void updateItem(ViewUser item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.username);
+                }
+            }
         });
     }
 
+    @FXML
     public void addUser() {
         getViewHandler().openPopup(PopupViewID.USER_PICKER, (Long userId) -> {
             if (userId != null)
@@ -44,13 +51,20 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
         });
     }
 
+    @FXML
     public void confirm() {
         if (getViewModel().confirm()) {
             getViewHandler().openView(ViewID.CHATROOM);
         }
     }
 
+    @FXML
     public void cancel() {
         getViewHandler().openView(ViewID.CHATROOM);
+    }
+
+    @FXML
+    public void removeUser(ActionEvent actionEvent) {
+        getViewModel().removeUser(users.getSelectionModel().getSelectedItems().getFirst().userId);
     }
 }

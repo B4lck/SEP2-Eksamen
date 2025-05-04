@@ -11,6 +11,8 @@ public interface Model extends PropertyChangeSubject
      * @return profiles
      */
     Profiles getProfiles();
+    Chat getChat();
+    ChatRooms getChatRooms();
 
     /**
      * Sender en besked fra clienten videre til modellen

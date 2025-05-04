@@ -14,9 +14,9 @@ public class ChatModel implements Model, PropertyChangeListener {
 
     public ChatModel() {
         property = new PropertyChangeSupport(this);
-        profiles = new ProfilesArrayListManager();
-        chats = new ChatArrayListManager();
-        chatRooms = new ChatRoomsArrayListManager();
+        profiles = new ProfilesArrayListManager(this);
+        chats = new ChatArrayListManager(this);
+        chatRooms = new ChatRoomsArrayListManager(this);
 
         chats.addListener(this);
 
@@ -41,6 +41,16 @@ public class ChatModel implements Model, PropertyChangeListener {
     @Override
     public Profiles getProfiles() {
         return profiles;
+    }
+
+    @Override
+    public Chat getChat() {
+        return chats;
+    }
+
+    @Override
+    public ChatRooms getChatRooms() {
+        return chatRooms;
     }
 
     @Override

@@ -14,6 +14,11 @@ public class ChatArrayListManager implements Chat {
     private ArrayList<Message> messages = new ArrayList<>();
 
     private PropertyChangeSupport property = new PropertyChangeSupport(this);
+    private Model model;
+
+    public ChatArrayListManager(Model model) {
+        this.model = model;
+    }
 
     @Override
     public void sendMessage(long chatRoomId, String messageBody, long senderId) {
@@ -50,6 +55,17 @@ public class ChatArrayListManager implements Chat {
         }
 
         return messages;
+    }
+
+    @Override
+    public void sendSystemMessage(long chatroom, String body) {
+        System.out.println(chatroom);
+        System.out.println(body);
+        var message = new ArrayListMessage(0, body, LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000L, chatroom);
+
+        messages.add(message);
+
+        property.firePropertyChange("RECEIVE_MESSAGE", null, Map.of("message", message.getData()));
     }
 
     @Override

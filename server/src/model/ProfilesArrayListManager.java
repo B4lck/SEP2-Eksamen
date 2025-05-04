@@ -9,9 +9,11 @@ import java.util.Map;
 
 public class ProfilesArrayListManager implements Profiles {
     private ArrayList<Profile> profiles;
+    private Model model;
 
-    public ProfilesArrayListManager() {
+    public ProfilesArrayListManager(Model model) {
         profiles = new ArrayList<>();
+        this.model = model;
     }
 
     @Override

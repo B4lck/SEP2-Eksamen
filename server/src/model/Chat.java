@@ -28,4 +28,6 @@ public interface Chat extends ClientMessageHandler, PropertyChangeSubject {
      * @return Returnere alle beskeder siden givet tidspunkt
      */
     ArrayList<Message> getMessagesSince(long ChatRoomID, long timestamp);
+
+    void sendSystemMessage(long chatroom, String message);
 }

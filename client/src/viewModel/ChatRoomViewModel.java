@@ -81,7 +81,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                     for (ChatMessage m : (ArrayList<ChatMessage>) evt.getNewValue()) {
                         if (m.getChatRoom() == viewState.getCurrentChatRoom()) {
                             messagesProperty.add(new ViewMessage() {{
-                                sender = model.getProfileManager().getProfile(m.getSentBy()).getUsername();
+                                sender = m.getSentBy() == 0 ? "System" : model.getProfileManager().getProfile(m.getSentBy()).getUsername();
                                 body = m.getBody();
                                 dateTime = LocalDateTime.ofEpochSecond(m.getDateTime() / 1000, (int) (m.getDateTime() % 1000 * 1000), ZoneOffset.UTC);
                             }});

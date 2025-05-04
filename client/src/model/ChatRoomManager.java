@@ -43,4 +43,9 @@ public class ChatRoomManager {
         client.sendMessage(new ClientMessage("REMOVE_USER", Map.of("room", Long.toString(chatroom), "user", Long.toString(userId))));
         client.waitingForReply("SUCCESS");
     }
+
+    public void setName(long chatroom, String name) throws ServerError {
+        client.sendMessage(new ClientMessage("UPDATE_ROOM_NAME", Map.of("room", Long.toString(chatroom), "name", name)));
+        client.waitingForReply("SUCCESS");
+    }
 }

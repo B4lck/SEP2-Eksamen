@@ -9,15 +9,18 @@ import java.util.Map;
 
 public class ChatRoomsArrayListManager implements ChatRooms {
     private ArrayList<ChatRoom> chatRooms;
+    private Model model;
 
-    public ChatRoomsArrayListManager() {
+    public ChatRoomsArrayListManager(Model model) {
         chatRooms = new ArrayList<>();
+        this.model = model;
     }
 
     @Override
     public ChatRoom createRoom(String name, long user) {
         ChatRoom chatRoom = new ArrayListChatRoom(name, user);
         chatRooms.add(chatRoom);
+        model.getChat().sendSystemMessage(chatRoom.getRoomId(), model.getProfiles().getProfile(user).getUsername() + " oprettede " + name + "!");
         return chatRoom;
     }
 
@@ -42,6 +45,7 @@ public class ChatRoomsArrayListManager implements ChatRooms {
     public void addUser(long chatroom, long newUser, long adminUser) {
         ChatRoom chatRoom = getRoomFromId(chatroom);
         chatRoom.addUser(newUser, adminUser);
+        model.getChat().sendSystemMessage(chatroom, model.getProfiles().getProfile(adminUser).getUsername() + " tilføjede " + model.getProfiles().getProfile(newUser).getUsername() + " til chatten!");
     }
 
     private ChatRoom getRoomFromId(long id) {
@@ -97,11 +101,13 @@ public class ChatRoomsArrayListManager implements ChatRooms {
     public void removeUser(long chatroom, long user, long adminUser) {
         ChatRoom chatRoom = getRoomFromId(chatroom);
         chatRoom.removeUser(user, adminUser);
+        model.getChat().sendSystemMessage(chatroom, model.getProfiles().getProfile(adminUser).getUsername() + " fjernede " + model.getProfiles().getProfile(user).getUsername() + " fra chatten!");
     }
 
     @Override
     public void setName(long chatroom, String name, long adminUser) {
         ChatRoom chatRoom = getRoomFromId(chatroom);
         chatRoom.setName(name, adminUser);
+        model.getChat().sendSystemMessage(chatroom, model.getProfiles().getProfile(adminUser).getUsername() + " omdøbte chatten til " + name + "!");
     }
 }
