@@ -1,31 +1,27 @@
 package model;
 
+import utils.DataMap;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class ChatRoom {
     private String name;
     private long roomId;
-    private ArrayList<Long> users;
+    private List<Long> users;
 
-    public ChatRoom(String name, long roomId, ArrayList<Long> users) {
+    public ChatRoom(String name, long roomId, List<Long> users) {
         this.name = name;
         this.roomId = roomId;
         this.users = users;
     }
 
-    public static ChatRoom fromData(Map<String, Object> message) {
-        var users = (ArrayList<String>) message.get("users");
-        var usersLong = new ArrayList<Long>();
-        for (String user : users) {
-            usersLong.add(Long.parseLong(user));
-        }
+    public static ChatRoom fromData(DataMap message) {
 
         return new ChatRoom(
-                (String) message.get("name"),
-                Long.parseLong((String) message.get("chatroomId")),
-                usersLong
+                message.getString("name"),
+                message.getLong("chatroomId"),
+                message.getLongsArray("users")
         );
     }
 

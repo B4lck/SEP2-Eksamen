@@ -1,5 +1,7 @@
 package mediator;
 
+import utils.DataMap;
+
 import java.util.Map;
 
 public class ClientMessage {
@@ -9,7 +11,7 @@ public class ClientMessage {
     private String authenticatedAsUser;
     private boolean broadcast = false;
 
-    public ClientMessage(String type, Map<String, Object> data) {
+    public ClientMessage(String type, DataMap data) {
         this.type = type;
         this.data = data;
     }
@@ -18,8 +20,8 @@ public class ClientMessage {
         this.error = error;
     }
 
-    public Map<String, Object> getData() {
-        return data;
+    public DataMap getData() {
+        return new DataMap(data);
     }
 
     public Long getAuthenticatedAsUser() {

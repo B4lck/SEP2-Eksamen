@@ -1,6 +1,6 @@
 package model;
 
-import java.util.Map;
+import utils.DataMap;
 
 public class ChatMessage {
     private long sentBy;
@@ -17,13 +17,13 @@ public class ChatMessage {
         this.chatRoom = chatRoom;
     }
 
-    public static ChatMessage fromData(Map<String, Object> message) {
+    public static ChatMessage fromData(DataMap message) {
         return new ChatMessage(
-                Long.parseLong((String) message.get("sentBy")),
-                (String) message.get("body"),
-                Long.parseLong((String) message.get("dateTime")),
-                Long.parseLong((String) message.get("id")),
-                Long.parseLong((String) message.get("chatRoom"))
+                message.getLong("sentBy"),
+                message.getString("body"),
+                message.getLong("dateTime"),
+                message.getLong("id"),
+                message.getLong("chatRoom")
         );
     }
 

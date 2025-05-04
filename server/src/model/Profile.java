@@ -1,6 +1,6 @@
 package model;
 
-import java.util.Map;
+import utils.DataMap;
 
 public interface Profile {
     /**
@@ -37,5 +37,5 @@ public interface Profile {
      * Laver profilen om til et map, som kan sendes til clienten
      * @return alle instans variabler som map.
      */
-    Map<String, Object> getData();
+    DataMap getData();
 }

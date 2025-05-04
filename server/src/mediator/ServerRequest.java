@@ -1,5 +1,7 @@
 package mediator;
 
+import utils.DataMap;
+
 import java.util.Map;
 
 /**
@@ -26,8 +28,8 @@ public class ServerRequest {
     /**
      * Hent beskedens data
      */
-    public Map<String, Object> getData() {
-        return data;
+    public DataMap getData() {
+        return new DataMap(data);
     }
 
     /**

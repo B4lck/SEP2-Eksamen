@@ -1,5 +1,7 @@
 package mediator;
 
+import utils.DataMap;
+
 import java.util.Map;
 
 /**
@@ -17,7 +19,7 @@ public class ClientMessage {
         this.error = error;
     }
 
-    public ClientMessage(String type, Map<String, Object> data) {
+    public ClientMessage(String type, DataMap data) {
         this.type = type;
         this.data = data;
     }

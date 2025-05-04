@@ -2,6 +2,7 @@ package mediator;
 
 import com.google.gson.Gson;
 import model.Model;
+import utils.DataMap;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -90,7 +91,7 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
      * @param message
      */
     public void sendMessage(ClientMessage message) {
-        System.out.println("sender besked til client");
+        System.out.println("sender besked til client med type " + message.type);
         message.setAuthenticatedUser(currentUser);
         out.println(gson.toJson(message));
     }
@@ -101,7 +102,7 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         // Broadcast
-        ClientMessage message = new ClientMessage(evt.getPropertyName(), (Map<String, Object>) evt.getNewValue());
+        ClientMessage message = new ClientMessage(evt.getPropertyName(), (DataMap) evt.getNewValue());
         message.broadcast = true;
         out.println(gson.toJson(message));
     }

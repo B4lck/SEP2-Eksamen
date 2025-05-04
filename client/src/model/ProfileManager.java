@@ -3,6 +3,7 @@ package model;
 import mediator.ChatClient;
 import mediator.ClientMessage;
 import util.ServerError;
+import utils.DataMap;
 
 import java.rmi.ServerException;
 import java.util.ArrayList;
@@ -17,11 +18,13 @@ public class ProfileManager {
     private ChatClient client = ChatClient.getInstance();
 
     public long signUp(String username, String password) throws ServerError {
-        client.sendMessage(new ClientMessage("SIGN_UP", Map.of("username", username, "password", password)));
+        client.sendMessage(new ClientMessage("SIGN_UP", new DataMap()
+                .with("username", username)
+                .with("password", password)));
 
         ClientMessage res = client.waitingForReply("SIGN_UP");
 
-        return Long.parseLong((String) res.getData().get("uuid"));
+        return res.getData().getLong("uuid");
     }
 
     public void logout() {
@@ -30,37 +33,41 @@ public class ProfileManager {
     }
 
     public long login(String username, String password) throws ServerError {
-        client.sendMessage(new ClientMessage("LOG_IN", Map.of("username", username, "password", password)));
+        client.sendMessage(new ClientMessage("LOG_IN", new DataMap()
+                .with("username", username)
+                .with("password", password)));
 
         ClientMessage res = client.waitingForReply("LOG_IN");
 
-        return Long.parseLong((String) res.getData().get("uuid"));
+        return res.getData().getLong("uuid");
     }
 
     public Profile getProfile(long id) throws ServerError {
-        client.sendMessage(new ClientMessage("GET_PROFILE", Map.of("uuid", Long.toString(id))));
+        client.sendMessage(new ClientMessage("GET_PROFILE", new DataMap()
+                .with("uuid", Long.toString(id))));
 
         ClientMessage res = client.waitingForReply("GET_PROFILE");
 
-        return Profile.fromData((Map<String, Object>) res.getData().get("profile"));
+        return Profile.fromData(res.getData().getMap("profile"));
     }
 
     public Profile getCurrentUserProfile() throws ServerError {
-        client.sendMessage(new ClientMessage("GET_CURRENT_PROFILE", Collections.emptyMap()));
+        client.sendMessage(new ClientMessage("GET_CURRENT_PROFILE", new DataMap()));
 
         ClientMessage res = client.waitingForReply("GET_PROFILE");
 
-        return Profile.fromData((Map<String, Object>) res.getData().get("profile"));
+        return Profile.fromData(res.getData().getMap("profile"));
     }
 
     public List<Profile> getProfiles(List<Long> profiles) throws ServerError {
-        client.sendMessage(new ClientMessage("GET_PROFILES", Map.of("profiles", profiles.toArray())));
+        client.sendMessage(new ClientMessage("GET_PROFILES", new DataMap()
+                .with("profiles", profiles)));
 
         ClientMessage reply = client.waitingForReply("GET_PROFILES");
 
         ArrayList<Profile> receivedProfiles = new ArrayList<>();
 
-        for (Map<String, Object> profile : (ArrayList<Map<String, Object>>) reply.getData().get("profiles")) {
+        for (var profile : reply.getData().getMapArray("profiles")) {
             receivedProfiles.add(Profile.fromData(profile));
         }
 
@@ -68,13 +75,14 @@ public class ProfileManager {
     }
 
     public List<Profile> searchProfiles(String query) throws ServerError {
-        client.sendMessage(new ClientMessage("SEARCH_PROFILES", Map.of("query", query)));
+        client.sendMessage(new ClientMessage("SEARCH_PROFILES", new DataMap()
+                .with("query", query)));
 
         ClientMessage reply = client.waitingForReply("GET_PROFILES");
 
         ArrayList<Profile> receivedProfiles = new ArrayList<>();
 
-        for (Map<String, Object> profile : (ArrayList<Map<String, Object>>) reply.getData().get("profiles")) {
+        for (var profile : reply.getData().getMapArray("profiles")) {
             receivedProfiles.add(Profile.fromData(profile));
         }
 

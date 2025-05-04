@@ -1,8 +1,8 @@
 package model;
 
-import util.PropertyChangeSubject;
+import utils.PropertyChangeSubject;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public interface Chat extends ClientMessageHandler, PropertyChangeSubject {
     /**
@@ -19,7 +19,7 @@ public interface Chat extends ClientMessageHandler, PropertyChangeSubject {
      * @param amount Antal beskeder
      * @return Returnere antal beskeder ud fra amount
      */
-    ArrayList<Message> getMessages(long ChatRoomID, int amount);
+    List<Message> getMessages(long ChatRoomID, int amount);
 
     /**
      * Hent alle beskeder siden givet tidspunkt
@@ -27,7 +27,7 @@ public interface Chat extends ClientMessageHandler, PropertyChangeSubject {
      * @param timestamp Tid i unix time
      * @return Returnere alle beskeder siden givet tidspunkt
      */
-    ArrayList<Message> getMessagesSince(long ChatRoomID, long timestamp);
+    List<Message> getMessagesSince(long ChatRoomID, long timestamp);
 
     void sendSystemMessage(long chatroom, String message);
 }

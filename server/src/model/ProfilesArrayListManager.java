@@ -2,6 +2,7 @@ package model;
 
 import mediator.ClientMessage;
 import mediator.ServerRequest;
+import utils.DataMap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +57,9 @@ public class ProfilesArrayListManager implements Profiles {
     @Override
     public void handleMessage(ServerRequest message) {
         Profile user;
-        ArrayList<Map<String, Object>> profiles;
+        ArrayList<DataMap> profiles;
+
+        var request = message.getData();
 
         try {
             switch (message.getType()) {
@@ -65,62 +68,64 @@ public class ProfilesArrayListManager implements Profiles {
                     System.out.println("sign up");
                     // Check if username is taken
                     try {
-                        getProfileByUsername((String) message.getData().get("username"));
+                        getProfileByUsername(request.getString("username"));
                         System.out.println("sendt fejl til bruger");
                         message.respond(new ClientMessage("Username is already taken"));
                         return;
                     } catch (IllegalArgumentException e) {
                         // Bruger findes ikke, så vi kan oprette den
                     }
-                    System.out.println("a");
                     // Create user
-                    user = new ArrayListProfile((String) message.getData().get("username"), (String) message.getData().get("password"));
+                    user = new ArrayListProfile(request.getString("username"), request.getString("password"));
                     addProfile(user);
-                    System.out.println("b");
                     // Log user in
                     message.setUser(user.getUUID());
                     // Respond with uuid
-                    message.respond(new ClientMessage("SIGN_UP", Map.of("uuid", Long.toString(user.getUUID()))));
+                    message.respond(new ClientMessage("SIGN_UP", new DataMap()
+                            .with("uuid", user.getUUID())));
                     System.out.println("sendt svar til bruger");
                     break;
                 // Log in
                 case "LOG_IN":
                     // Check if user exists
                     try {
-                        user = getProfileByUsername((String) message.getData().get("username"));
+                        user = getProfileByUsername(request.getString("username"));
                     } catch (IllegalArgumentException e) {
                         message.respond(new ClientMessage("Wrong username or password"));
                         return;
                     }
                     // Check password
-                    if (user.checkPassword((String) message.getData().get("password"))) {
+                    if (user.checkPassword(request.getString("password"))) {
                         message.setUser(user.getUUID());
-                        message.respond(new ClientMessage("LOG_IN", Map.of("uuid", Long.toString(user.getUUID()))));
+                        message.respond(new ClientMessage("LOG_IN", new DataMap()
+                                .with("uuid", Long.toString(user.getUUID()))));
                     } else {
                         message.respond(new ClientMessage("Wrong username or password"));
                     }
                     break;
                 // Get profile
                 case "GET_CURRENT_PROFILE":
-                    message.respond(new ClientMessage("GET_PROFILE", Map.of("profile", getProfile(message.getUser()).getData())));
+                    message.respond(new ClientMessage("GET_PROFILE", new DataMap()
+                            .with("profile", getProfile(message.getUser()).getData())));
                     break;
                 // Get profile
                 case "GET_PROFILE":
-                    message.respond(new ClientMessage("GET_PROFILE", Map.of("profile", getProfile(Long.parseLong((String) message.getData().get("uuid"))).getData())));
+                    message.respond(new ClientMessage("GET_PROFILE", new DataMap()
+                            .with("profile", getProfile(request.getLong("uuid")).getData())));
                     break;
                 case "GET_PROFILES":
                     profiles = new ArrayList<>();
-                    for (String id : (ArrayList<String>) message.getData().get("profiles")) {
-                        profiles.add(getProfile(Long.parseLong(id)).getData());
+                    for (long id : request.getLongsArray("profiles")) {
+                        profiles.add(getProfile(id).getData());
                     }
-                    message.respond(new ClientMessage("GET_PROFILES", Map.of("profiles", profiles)));
+                    message.respond(new ClientMessage("GET_PROFILES", new DataMap().with("profiles", profiles)));
                     break;
                 case "SEARCH_PROFILES":
                     profiles = new ArrayList<>();
-                    for (Profile profile : searchProfiles((String) message.getData().get("query"))) {
+                    for (Profile profile : searchProfiles(request.getString("query"))) {
                         profiles.add(profile.getData());
                     }
-                    message.respond(new ClientMessage("GET_PROFILES", Map.of("profiles", profiles)));
+                    message.respond(new ClientMessage("GET_PROFILES", new DataMap().with("profiles", profiles)));
                     break;
             }
         } catch (Exception e) {

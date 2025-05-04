@@ -1,6 +1,6 @@
 package model;
 
-import java.util.Map;
+import utils.DataMap;
 
 public class Profile {
     private String username;
@@ -11,8 +11,8 @@ public class Profile {
         this.uuid = uuid;
     }
 
-    public static Profile fromData(Map<String, Object> data) {
-        return new Profile((String) data.get("username"), Long.parseLong((String) data.get("uuid")));
+    public static Profile fromData(DataMap data) {
+        return new Profile(data.getString("username"), data.getLong("uuid"));
     }
 
     public String getUsername() {

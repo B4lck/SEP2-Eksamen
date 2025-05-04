@@ -1,8 +1,8 @@
 package mediator;
 
 import com.google.gson.Gson;
-import util.PropertyChangeSubject;
 import util.ServerError;
+import utils.PropertyChangeSubject;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -66,6 +66,7 @@ public class ChatClient implements PropertyChangeSubject {
     }
 
     public synchronized ClientMessage waitingForReply(String type) throws ServerError {
+        System.out.println("venter på en " + type + " besked fra server");
         ClientMessage received = null;
         boolean found = false;
 

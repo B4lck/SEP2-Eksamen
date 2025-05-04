@@ -1,7 +1,7 @@
 package model;
 
 import mediator.ServerRequest;
-import util.PropertyChangeSubject;
+import utils.PropertyChangeSubject;
 
 
 public interface Model extends PropertyChangeSubject

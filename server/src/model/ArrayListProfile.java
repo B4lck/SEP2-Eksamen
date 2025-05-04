@@ -1,6 +1,7 @@
 package model;
 
-import java.util.Map;
+import utils.DataMap;
+
 import java.util.Random;
 
 public class ArrayListProfile implements Profile {
@@ -41,7 +42,9 @@ public class ArrayListProfile implements Profile {
     }
 
     @Override
-    public Map<String, Object> getData() {
-        return Map.of("username", username, "uuid", Long.toString(uuid));
+    public DataMap getData() {
+        return new DataMap()
+                .with("username", username)
+                .with("uuid", uuid);
     }
 }

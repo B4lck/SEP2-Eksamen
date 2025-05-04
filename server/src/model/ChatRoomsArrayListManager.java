@@ -2,6 +2,7 @@ package model;
 
 import mediator.ClientMessage;
 import mediator.ServerRequest;
+import utils.DataMap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,29 +67,31 @@ public class ChatRoomsArrayListManager implements ChatRooms {
         try {
             switch (message.getType()) {
                 case "CREATE_ROOM":
-                    message.respond(new ClientMessage("GET_ROOM", Map.of("room", createRoom((String) message.getData().get("name"), message.getUser()).getData())));
+                    message.respond(new ClientMessage("GET_ROOM", new DataMap()
+                            .with("room", createRoom(message.getData().getString("name"), message.getUser()).getData())));
                     break;
                 case "GET_ROOM":
-                    message.respond(new ClientMessage("GET_ROOM", Map.of("room", getRoom(Long.parseLong((String) message.getData().get("room")), message.getUser()).getData())));
+                    message.respond(new ClientMessage("GET_ROOM", new DataMap()
+                            .with("room", getRoom(message.getData().getLong("room"), message.getUser()).getData())));
                     break;
                 case "GET_MY_ROOMS":
-                    ArrayList<Map<String, Object>> rooms = new ArrayList<>();
+                    ArrayList<DataMap> rooms = new ArrayList<>();
                     for (ChatRoom room : getParticipatingRooms(message.getUser())) {
                         rooms.add(room.getData());
                     }
-                    message.respond(new ClientMessage("GET_ROOMS", Map.of("rooms", rooms)));
+                    message.respond(new ClientMessage("GET_ROOMS", new DataMap().with("rooms", rooms)));
                     break;
                 case "ADD_USER":
-                    addUser(Long.parseLong((String) message.getData().get("room")), Long.parseLong((String) message.getData().get("user")), message.getUser());
-                    message.respond(new ClientMessage("SUCCESS", Map.of()));
+                    addUser(message.getData().getLong("room"), message.getData().getLong("user"), message.getUser());
+                    message.respond(new ClientMessage("SUCCESS", new DataMap()));
                     break;
                 case "REMOVE_USER":
-                    removeUser(Long.parseLong((String) message.getData().get("room")), Long.parseLong((String) message.getData().get("user")), message.getUser());
-                    message.respond(new ClientMessage("SUCCESS", Map.of()));
+                    removeUser(message.getData().getLong("room"), message.getData().getLong("user"), message.getUser());
+                    message.respond(new ClientMessage("SUCCESS", new DataMap()));
                     break;
                 case "UPDATE_ROOM_NAME":
-                    setName(Long.parseLong((String) message.getData().get("room")), (String) message.getData().get("name"), message.getUser());
-                    message.respond(new ClientMessage("SUCCESS", Map.of()));
+                    setName(message.getData().getLong("room"), message.getData().getString("name"), message.getUser());
+                    message.respond(new ClientMessage("SUCCESS", new DataMap()));
                     break;
             }
         } catch (Exception e) {

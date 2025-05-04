@@ -2,12 +2,14 @@ package model;
 
 import mediator.ClientMessage;
 import mediator.ServerRequest;
+import utils.DataMap;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class ChatArrayListManager implements Chat {
@@ -28,7 +30,7 @@ public class ChatArrayListManager implements Chat {
 
         messages.add(message);
 
-        property.firePropertyChange("RECEIVE_MESSAGE", null, Map.of("message", message.getData()));
+        property.firePropertyChange("RECEIVE_MESSAGE", null, new DataMap().with("message", message.getData()));
     }
 
     @Override
@@ -59,42 +61,44 @@ public class ChatArrayListManager implements Chat {
 
     @Override
     public void sendSystemMessage(long chatroom, String body) {
-        System.out.println(chatroom);
-        System.out.println(body);
         var message = new ArrayListMessage(0, body, LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000L, chatroom);
 
         messages.add(message);
 
-        property.firePropertyChange("RECEIVE_MESSAGE", null, Map.of("message", message.getData()));
+        property.firePropertyChange("RECEIVE_MESSAGE", null, new DataMap().with("message", message.getData()));
     }
 
     @Override
     public void handleMessage(ServerRequest message) {
         long chatRoom;
+        var request = message.getData();
 
         try {
             switch (message.getType()) {
                 // Send besked
                 case "SEND_MESSAGE":
-                    chatRoom = Long.parseLong((String) message.getData().get("chatroom"));
-                    String messageBody = (String) message.getData().get("body");
+                    chatRoom = request.getLong("chatroom");
+                    String messageBody = request.getString("body");
 
                     sendMessage(chatRoom, messageBody, message.getUser());
-                    message.respond(new ClientMessage("SUCCESS", Map.of("status", "Message sent")));
+                    message.respond(new ClientMessage("SUCCESS", new DataMap()
+                            .with("status", "Message sent")));
                     break;
                 // Hent antal beskeder
                 case "RECEIVE_MESSAGES":
-                    chatRoom = Long.parseLong((String) message.getData().get("chatroom"));
-                    int amount = ((Double) message.getData().get("amount")).intValue();
+                    chatRoom = request.getLong("chatroom");
+                    int amount = request.getInt("amount");
 
-                    message.respond(new ClientMessage("RECEIVE_MESSAGES", Map.of("messages", toSendableData(getMessages(chatRoom, amount)))));
+                    message.respond(new ClientMessage("RECEIVE_MESSAGES", new DataMap()
+                            .with("messages", toSendableData(getMessages(chatRoom, amount)))));
                     break;
                 // Hent antal beskeder
                 case "RECEIVE_MESSAGES_SINCE":
-                    chatRoom = ((Double) message.getData().get("chatroom")).longValue();
-                    long since = (int) message.getData().get("since");
+                    chatRoom = request.getLong("chatroom");
+                    long since = message.getData().getInt("since");
 
-                    message.respond(new ClientMessage("RECEIVE_MESSAGES", Map.of("messages", toSendableData(getMessagesSince(chatRoom, since)))));
+                    message.respond(new ClientMessage("RECEIVE_MESSAGES", new DataMap()
+                            .with("messages", toSendableData(getMessagesSince(chatRoom, since)))));
                     break;
             }
         } catch (Exception e) {
@@ -103,15 +107,8 @@ public class ChatArrayListManager implements Chat {
         }
     }
 
-    private Map<String, Object>[] toSendableData(ArrayList<Message> messages) {
-        Map<String, Object>[] sendableData = new Map[messages.size()];
-
-        for (int i = 0; i < messages.size(); i++ ) {
-            var message = messages.get(i);
-            sendableData[i] = message.getData();
-        }
-
-        return sendableData;
+    private List<DataMap> toSendableData(List<Message> messages) {
+        return messages.stream().map(Message::getData).toList();
     }
 
     @Override

@@ -1,5 +1,7 @@
 package model;
 
+import utils.DataMap;
+
 import java.util.Map;
 
 public interface Message {
@@ -31,7 +33,7 @@ public interface Message {
      * Laver beskeden om til et map, som kan sendes til clienten
      * @return alle instans variabler som map.
      */
-    Map<String, Object> getData();
+    DataMap getData();
 
     long getChatRoom();
 }

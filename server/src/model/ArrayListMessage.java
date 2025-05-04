@@ -1,6 +1,6 @@
 package model;
 
-import java.util.Map;
+import utils.DataMap;
 
 public class ArrayListMessage implements Message {
     private long sentBy;
@@ -40,8 +40,13 @@ public class ArrayListMessage implements Message {
     }
 
     @Override
-    public Map<String, Object> getData() {
-        return Map.of("sentBy", Long.toString(sentBy), "body", body, "dateTime", Long.toString(dateTime), "id", Long.toString(messageId), "chatRoom", Long.toString(chatRoom));
+    public DataMap getData() {
+        return new DataMap()
+                .with("sentBy", sentBy)
+                .with("body", body)
+                .with("dateTime", dateTime)
+                .with("id", messageId)
+                .with("chatRoom", chatRoom);
     }
 
     @Override

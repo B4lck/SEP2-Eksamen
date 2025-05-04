@@ -1,5 +1,7 @@
 package model;
 
+import utils.DataMap;
+
 import java.util.Map;
 
 public interface ChatRoom {
@@ -37,7 +39,7 @@ public interface ChatRoom {
      *
      * @return Map af alle instans variabler
      */
-    Map<String, Object> getData();
+    DataMap getData();
 
     /**
      * Sætter navnet på chatrummet

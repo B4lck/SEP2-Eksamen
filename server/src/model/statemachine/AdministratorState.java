@@ -2,7 +2,7 @@ package model.statemachine;
 
 import model.ChatRoomUser;
 
-public class AdministratorState extends UserState{
+public class AdministratorState extends UserState {
     private ChatRoomUser user;
 
     public AdministratorState(ChatRoomUser user) {
