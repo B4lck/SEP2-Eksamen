@@ -18,6 +18,14 @@ public interface Profiles extends ClientMessageHandler {
     Profile getProfileByUsername(String username);
 
     /**
+     * Opretter en ny profil
+     * @param username Brugernavnet til profillen
+     * @param password Adgangskoden til profillen
+     * @return Profilen der blev oprettet
+     */
+    Profile createProfile(String username, String password);
+
+    /**
      * Gemmer ny profil i manageren
      * @param profile Profil objektet
      */

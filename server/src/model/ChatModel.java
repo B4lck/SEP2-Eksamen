@@ -22,16 +22,14 @@ public class ChatModel implements Model, PropertyChangeListener {
 
         // Dummy data
 
-        var user1 = new ArrayListProfile("1", "1");
-        profiles.addProfile(user1);
-        var user2 = new ArrayListProfile("Mazen Laursen", "1234");
-        profiles.addProfile(user2);
-        profiles.addProfile(new ArrayListProfile("Malthe Balck", "1234"));
-        profiles.addProfile(new ArrayListProfile("Nikolai Sharaf", "1234"));
-        profiles.addProfile(new ArrayListProfile("Bruger5", "1234"));
-        profiles.addProfile(new ArrayListProfile("Bruger6", "1234"));
-        profiles.addProfile(new ArrayListProfile("Bruger7", "1234"));
-        profiles.addProfile(new ArrayListProfile("Bruger8", "1234"));
+        var user1 = profiles.createProfile("1", "1");
+        var user2 = profiles.createProfile("Mazen Laursen", "1234");
+        profiles.createProfile("Malthe Balck", "1234");
+        profiles.createProfile("Nikolai Sharaf", "1234");
+        profiles.createProfile("Bruger5", "1234");
+        profiles.createProfile("Bruger6", "1234");
+        profiles.createProfile("Bruger7", "1234");
+        profiles.createProfile("Bruger8", "1234");
 
         var rum = chatRooms.createRoom("Rum nr 1", user2.getUUID());
         chatRooms.addUser(rum.getRoomId(), user1.getUUID(), user2.getUUID());

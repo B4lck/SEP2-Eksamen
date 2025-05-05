@@ -13,33 +13,62 @@ public class DataMap extends HashMap<String, Object> {
         super();
     }
 
+    /**
+     * Opret er data map med et map.
+     * @param map
+     */
     public DataMap(Map<String, Object> map) {
         super(map);
     }
 
+    /**
+     * Hent et felt som et DataMap.
+     * @param key - Nøgle
+     */
     public DataMap getMap(String key) {
         return new DataMap((Map) super.get(key));
     }
 
+    /**
+     * Gem et map.
+     * @param key - Nøgle
+     * @param value - Mappet som skal gemmes.
+     */
     public void putMap(String key, Map<String, Object> value) {
         super.put(key, value);
     }
 
+    /**
+     * Gem et map.
+     * @param key - Nøgle
+     * @param value - Mappet som skal gemmes.
+     * @return DataMappet
+     */
     public DataMap with(String key, Map<String, Object> value) {
         super.put(key, value);
         return this;
     }
 
+    /**
+     * Hent en array af DataMaps fra mappet.
+     * @param key - Nøgle
+     */
     public List<DataMap> getMapArray(String key) {
         var list = (List<Map<String, Object>>) super.get(key);
 
         return list.stream().map(m -> new DataMap(m)).toList();
     }
 
+    /**
+     * Hent en array fra mappet.
+     */
     public <T> List<T> getArray(String key) {
         return (List<T>) super.get(key);
     }
 
+    /**
+     * Gem en array fra mappet.
+     */
     public <T> void putArray(String key, List<T> value) {
         super.put(key, value);
     }

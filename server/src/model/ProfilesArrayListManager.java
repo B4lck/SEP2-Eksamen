@@ -40,6 +40,13 @@ public class ProfilesArrayListManager implements Profiles {
     }
 
     @Override
+    public Profile createProfile(String username, String password) {
+        var profile = new ArrayListProfile(username, password);
+        addProfile(profile);
+        return profile;
+    }
+
+    @Override
     public void addProfile(Profile profile) {
         profiles.add(profile);
     }
@@ -76,8 +83,7 @@ public class ProfilesArrayListManager implements Profiles {
                         // Bruger findes ikke, så vi kan oprette den
                     }
                     // Create user
-                    user = new ArrayListProfile(request.getString("username"), request.getString("password"));
-                    addProfile(user);
+                    user = createProfile(request.getString("username"), request.getString("password"));
                     // Log user in
                     message.setUser(user.getUUID());
                     // Respond with uuid

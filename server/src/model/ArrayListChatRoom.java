@@ -13,6 +13,8 @@ public class ArrayListChatRoom implements ChatRoom {
     private List<ChatRoomUser> users;
 
     public ArrayListChatRoom(String name, long userId) {
+        if (name == null || name.isBlank()) throw new IllegalArgumentException("Name cannot be null or blank");
+
         this.name = name;
         this.chatRoomId = new Random().nextLong();
         this.users = new ArrayList<>();
@@ -46,8 +48,8 @@ public class ArrayListChatRoom implements ChatRoom {
 
     @Override
     public void addUser(long userToAdd, long addedByUser) {
-        if (isInRoom(userToAdd)) throw new RuntimeException("User is already in the room");
-        if (!isUserAdmin(addedByUser)) throw new RuntimeException("User does not have permission to add users");
+        if (isInRoom(userToAdd)) throw new IllegalStateException("User is already in the room");
+        if (!isUserAdmin(addedByUser)) throw new IllegalStateException("User does not have permission to add users");
         users.add(new ChatRoomUser(userToAdd));
     }
 
@@ -76,15 +78,20 @@ public class ArrayListChatRoom implements ChatRoom {
 
     @Override
     public void removeUser(long user, long adminUser) {
-        if (!isInRoom(user)) throw new RuntimeException("User is not in the room");
-        if (!isUserAdmin(adminUser)) throw new RuntimeException("User does not have permission to remove users");
-        if (isUserAdmin(user)) throw new RuntimeException("User cannot be removed");
+        if (!isInRoom(user)) throw new IllegalStateException("User is not in the room");
+        if (user == adminUser) {
+            users.remove(getUserFromUserId(user));
+            return;
+        }
+        if (!isUserAdmin(adminUser)) throw new IllegalStateException("User does not have permission to remove users");
+        if (isUserAdmin(user)) throw new IllegalStateException("User cannot be removed");
         users.remove(getUserFromUserId(user));
     }
 
     @Override
     public void setName(String name, long changedByUser) {
-        if (!isUserAdmin(changedByUser)) throw new RuntimeException("User does not have permission to change name");
+        if (name == null || name.isBlank()) throw new IllegalArgumentException("Name cannot be null or blank");
+        if (!isUserAdmin(changedByUser)) throw new IllegalStateException("User does not have permission to change name");
         this.name = name;
     }
 
@@ -93,7 +100,7 @@ public class ArrayListChatRoom implements ChatRoom {
             if (_user.getId() == userId)
                 return _user;
         }
-        throw new IllegalArgumentException("User does not exist in chatroom '" + name + "'");
+        throw new IllegalStateException("User does not exist in chatroom '" + name + "'");
     }
 
     public boolean isUserAdmin(long userId) {

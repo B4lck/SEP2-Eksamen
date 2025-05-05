@@ -28,7 +28,7 @@ public class ChatRoomsArrayListManager implements ChatRooms {
     @Override
     public ChatRoom getRoom(long roomId, long user) {
         ChatRoom chatRoom = getRoomFromId(roomId);
-        if (!chatRoom.isInRoom(user)) throw new RuntimeException("User does not have access to the room");
+        if (!chatRoom.isInRoom(user)) throw new IllegalStateException("User does not have access to the room");
         return chatRoom;
     }
 
@@ -57,7 +57,7 @@ public class ChatRoomsArrayListManager implements ChatRooms {
                 break;
             }
         }
-        if (chatRoom == null) throw new RuntimeException("Room does not exist");
+        if (chatRoom == null) throw new IllegalStateException("Room does not exist");
         return chatRoom;
     }
 
