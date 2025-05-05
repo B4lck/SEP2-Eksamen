@@ -32,6 +32,7 @@ public class ViewHandler {
         this.viewModelFactory = viewModelFactory;
         currentScene = new Scene(new Region());
 
+        // Notifikationer
         model.getMessagesManager().addListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {

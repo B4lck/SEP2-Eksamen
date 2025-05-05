@@ -85,15 +85,12 @@ public class MessagesManager implements PropertyChangeSubject, PropertyChangeLis
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        System.out.println("modtaget broadcast");
         var message = (ClientMessage) evt.getNewValue();
         if (message.getType().equals("RECEIVE_MESSAGE")) {
             Message castedMessage = Message.fromData(message.getData().getMap("message"));
             messages.add(castedMessage);
             property.firePropertyChange("MESSAGES", null, messages);
-            for (Message msg : messages) {
-                property.firePropertyChange("NEW_MESSAGE", null, msg);
-            }
+            property.firePropertyChange("NEW_MESSAGE", null, castedMessage);
         }
     }
 }
