@@ -14,6 +14,7 @@ import java.beans.PropertyChangeListener;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
@@ -64,7 +65,28 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
         try {
             roomNameProperty.set(model.getRoomManager().getChatRoom(viewState.getCurrentChatRoom()).getName());
-            model.getMessagesManager().getMessages(chatroom, 10);
+            var initialMessages = model.getMessagesManager().getMessages(chatroom, 10);
+
+            for (Message message : initialMessages) {
+                addMessage(message);
+            }
+        } catch (ServerError e) {
+            e.printStackTrace();
+            e.showAlert();
+        }
+    }
+
+    private void addMessage(Message message) {
+        try {
+            if (message.getChatRoom() == viewState.getCurrentChatRoom()) {
+                messagesProperty.add(new ViewMessage() {{
+                    sender = message.getSentBy() == 0 ? "System" : model.getProfileManager().getProfile(message.getSentBy()).getUsername();
+                    body = message.getBody();
+                    dateTime = LocalDateTime.ofEpochSecond(message.getDateTime() / 1000, (int) (message.getDateTime() % 1000 * 1000), ZoneOffset.UTC);
+                    messageId = message.getMessageId();
+                    isSystemMessage = message.getSentBy() == 0;
+                }});
+            }
         } catch (ServerError e) {
             e.printStackTrace();
             e.showAlert();
@@ -74,23 +96,8 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         Platform.runLater(() -> {
-            try {
-                if (evt.getPropertyName().equals("MESSAGES")) {
-                    messagesProperty.clear();
-                    System.out.println(evt.getNewValue());
-                    for (Message m : (ArrayList<Message>) evt.getNewValue()) {
-                        if (m.getChatRoom() == viewState.getCurrentChatRoom()) {
-                            messagesProperty.add(new ViewMessage() {{
-                                sender = m.getSentBy() == 0 ? "System" : model.getProfileManager().getProfile(m.getSentBy()).getUsername();
-                                body = m.getBody();
-                                dateTime = LocalDateTime.ofEpochSecond(m.getDateTime() / 1000, (int) (m.getDateTime() % 1000 * 1000), ZoneOffset.UTC);
-                                messageId = m.getMessageId();
-                            }});
-                        }
-                    }
-                }
-            } catch (ServerError e) {
-                e.showAlert();
+            if (evt.getPropertyName().equals("NEW_MESSAGE")) {
+                addMessage((Message) evt.getNewValue());
             }
         });
     }
@@ -114,9 +121,9 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     @Override
     public void reset() {
         try {
-            model.getMessagesManager().getMessages(0, 10);
             greetingTextProperty.setValue("Hej " + model.getProfileManager().getCurrentUserProfile().getUsername() + "!");
-            // Beskeder/Nuværende rum
+
+            // Beskeder
             resetMessages();
 
             // Liste over rum
@@ -127,6 +134,19 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                     roomId = chatRoom.getRoomId();
                 }});
             }
+        } catch (ServerError e) {
+            e.printStackTrace();
+            e.showAlert();
+        }
+    }
+
+    public void loadOlderMessages() {
+        try {
+            var messages = model.getMessagesManager().getMessagesBefore(viewState.getCurrentChatRoom(), messagesProperty.getFirst().messageId, 10);
+            for (Message message : messages) {
+                addMessage(message);
+            }
+            messagesProperty.sort(Comparator.comparing(o -> o.dateTime));
         } catch (ServerError e) {
             e.printStackTrace();
             e.showAlert();

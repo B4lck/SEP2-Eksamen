@@ -73,24 +73,37 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
         // Beskeder
         getViewModel().getMessagesProperty().addListener((ListChangeListener<ViewMessage>) change -> {
             // Hvis der er scrollet ned i bunden, skal den stadigvæk være scrollet helt ned, efter de nye beskeder bliver tilføjet.
-            var isScrolledDown = scrollPane.getVvalue() >= 1.0;
-            // TODO: Kun opret nye beskeder? Bemærk de nye beskeder vil kunne dukke op før og efter de beskeder som allerede
-            //       er vist, alt efter om der bliver modtaget nye beskeder, eller brugere går tilbage i chatten.
+            var scrollAfter = scrollPane.getVvalue() >= 1.0;
+
             messages.getChildren().clear();
+
+            Button loadMoreButton = new Button();
+
+            loadMoreButton.setText("Indlæs mere du");
+
+            loadMoreButton.addEventHandler(ActionEvent.ACTION, evt -> {
+               getViewModel().loadOlderMessages();
+            });
+
+            messages.getChildren().add(loadMoreButton);
+
+
             // Opret elementer
             change.getList().forEach(m -> {
                 HBox messageContainer = new HBox();
                 messageContainer.getStyleClass().add("message-container");
 
-                Label messageTime = new Label();
-                messageTime.getStyleClass().add("message-time");
-                messageTime.setText("%02d:%02d".formatted(m.dateTime.getHour(), m.dateTime.getMinute()));
-                messageContainer.getChildren().add(messageTime);
+                if (!m.isSystemMessage) {
+                    Label messageTime = new Label();
+                    messageTime.getStyleClass().add("message-time");
+                    messageTime.setText("%02d:%02d".formatted(m.dateTime.getHour(), m.dateTime.getMinute()));
+                    messageContainer.getChildren().add(messageTime);
 
-                Label messageSender = new Label();
-                messageSender.getStyleClass().add("message-sender");
-                messageSender.setText(m.sender);
-                messageContainer.getChildren().add(messageSender);
+                    Label messageSender = new Label();
+                    messageSender.getStyleClass().add("message-sender");
+                    messageSender.setText(m.sender + "(" + m.messageId + ")");
+                    messageContainer.getChildren().add(messageSender);
+                }
 
                 Label messageBody = new Label();
                 messageBody.getStyleClass().add("message-body");
@@ -106,9 +119,11 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
             });
             // Lad viewet opdater, før den scroller ned.
             Platform.runLater(() -> {
-                if (isScrolledDown) scrollPane.setVvalue(1.0);
+                if (scrollAfter) scrollPane.setVvalue(1.0);
             });
         });
+
+        scrollPane.setVvalue(1.0);
     }
 
     @Override

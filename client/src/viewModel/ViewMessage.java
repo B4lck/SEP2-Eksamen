@@ -7,4 +7,5 @@ public class ViewMessage {
     public String body;
     public LocalDateTime dateTime;
     public long messageId;
+    public boolean isSystemMessage;
 }

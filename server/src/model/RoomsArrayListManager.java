@@ -20,7 +20,7 @@ public class RoomsArrayListManager implements Rooms {
     public Room createRoom(String name, long user) {
         Room chatRoom = new ArrayListRoom(name, user);
         chatRooms.add(chatRoom);
-        model.getChat().sendSystemMessage(chatRoom.getRoomId(), model.getProfiles().getProfile(user).getUsername() + " oprettede " + name + "!");
+        model.getMessages().sendSystemMessage(chatRoom.getRoomId(), model.getProfiles().getProfile(user).getUsername() + " oprettede " + name + "!");
         return chatRoom;
     }
 
@@ -45,7 +45,7 @@ public class RoomsArrayListManager implements Rooms {
     public void addUser(long chatroom, long newUser, long adminUser) {
         Room chatRoom = getRoomFromId(chatroom);
         chatRoom.addUser(newUser, adminUser);
-        model.getChat().sendSystemMessage(chatroom, model.getProfiles().getProfile(adminUser).getUsername() + " tilføjede " + model.getProfiles().getProfile(newUser).getUsername() + " til chatten!");
+        model.getMessages().sendSystemMessage(chatroom, model.getProfiles().getProfile(adminUser).getUsername() + " tilføjede " + model.getProfiles().getProfile(newUser).getUsername() + " til chatten!");
     }
 
     private Room getRoomFromId(long id) {
@@ -56,7 +56,7 @@ public class RoomsArrayListManager implements Rooms {
                 break;
             }
         }
-        if (chatRoom == null) throw new IllegalStateException("Room does not exist");
+        if (chatRoom == null) throw new IllegalStateException("Rummet findes ikke");
         return chatRoom;
     }
 
@@ -103,13 +103,13 @@ public class RoomsArrayListManager implements Rooms {
     public void removeUser(long chatroom, long user, long adminUser) {
         Room chatRoom = getRoomFromId(chatroom);
         chatRoom.removeUser(user, adminUser);
-        model.getChat().sendSystemMessage(chatroom, model.getProfiles().getProfile(adminUser).getUsername() + " fjernede " + model.getProfiles().getProfile(user).getUsername() + " fra chatten!");
+        model.getMessages().sendSystemMessage(chatroom, model.getProfiles().getProfile(adminUser).getUsername() + " fjernede " + model.getProfiles().getProfile(user).getUsername() + " fra chatten!");
     }
 
     @Override
     public void setName(long chatroom, String name, long adminUser) {
         Room chatRoom = getRoomFromId(chatroom);
         chatRoom.setName(name, adminUser);
-        model.getChat().sendSystemMessage(chatroom, model.getProfiles().getProfile(adminUser).getUsername() + " omdøbte chatten til " + name + "!");
+        model.getMessages().sendSystemMessage(chatroom, model.getProfiles().getProfile(adminUser).getUsername() + " omdøbte chatten til " + name + "!");
     }
 }
