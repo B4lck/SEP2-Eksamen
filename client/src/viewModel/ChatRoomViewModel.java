@@ -4,8 +4,8 @@ import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import model.ChatMessage;
-import model.ChatRoom;
+import model.Message;
+import model.Room;
 import model.Model;
 import util.ServerError;
 
@@ -38,7 +38,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         this.roomsProperty = FXCollections.observableArrayList();
         this.viewState = viewState;
 
-        model.getChatManager().addListener(this);
+        model.getMessagesManager().addListener(this);
 
         viewState.getCurrentChatRoomProperty().addListener((change) -> {
             resetMessages();
@@ -63,8 +63,8 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         }
 
         try {
-            roomNameProperty.set(model.getChatRoomManager().getChatRoom(viewState.getCurrentChatRoom()).getName());
-            model.getChatManager().getMessages(chatroom, 10);
+            roomNameProperty.set(model.getRoomManager().getChatRoom(viewState.getCurrentChatRoom()).getName());
+            model.getMessagesManager().getMessages(chatroom, 10);
         } catch (ServerError e) {
             e.printStackTrace();
             e.showAlert();
@@ -78,7 +78,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                 if (evt.getPropertyName().equals("MESSAGES")) {
                     messagesProperty.clear();
                     System.out.println(evt.getNewValue());
-                    for (ChatMessage m : (ArrayList<ChatMessage>) evt.getNewValue()) {
+                    for (Message m : (ArrayList<Message>) evt.getNewValue()) {
                         if (m.getChatRoom() == viewState.getCurrentChatRoom()) {
                             messagesProperty.add(new ViewMessage() {{
                                 sender = m.getSentBy() == 0 ? "System" : model.getProfileManager().getProfile(m.getSentBy()).getUsername();
@@ -113,14 +113,14 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     @Override
     public void reset() {
         try {
-            model.getChatManager().getMessages(0, 10);
+            model.getMessagesManager().getMessages(0, 10);
             greetingTextProperty.setValue("Hej " + model.getProfileManager().getCurrentUserProfile().getUsername() + "!");
             // Beskeder/Nuværende rum
             resetMessages();
 
             // Liste over rum
             this.roomsProperty.clear();
-            for (ChatRoom chatRoom : model.getChatRoomManager().getChatRooms()) {
+            for (Room chatRoom : model.getRoomManager().getChatRooms()) {
                 roomsProperty.add(new ViewRoom() {{
                     name = chatRoom.getName();
                     roomId = chatRoom.getRoomId();
@@ -134,7 +134,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
     public void sendMessage() {
         try {
-            model.getChatManager().sendMessage(viewState.getCurrentChatRoom(), composeMessageProperty.getValue());
+            model.getMessagesManager().sendMessage(viewState.getCurrentChatRoom(), composeMessageProperty.getValue());
         } catch (ServerError e) {
             e.showAlert();
         }

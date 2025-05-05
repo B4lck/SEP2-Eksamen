@@ -1,14 +1,20 @@
 package view;
 
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.Region;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import model.Message;
+import model.Model;
 import util.Callback;
+import util.ServerError;
 import viewModel.ViewModel;
 import viewModel.ViewModelFactory;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,14 +22,39 @@ import java.util.Map;
 public class ViewHandler {
     private Stage primaryStage;
     private Scene currentScene;
+    private NotificationManager notificationManager = NotificationManager.getNotificationManager();
 
     private ViewModelFactory viewModelFactory;
 
     private Map<String, ViewController> controllers = new HashMap<>();
 
-    public ViewHandler(ViewModelFactory viewModelFactory) {
+    public ViewHandler(ViewModelFactory viewModelFactory, Model model) {
         this.viewModelFactory = viewModelFactory;
         currentScene = new Scene(new Region());
+
+        model.getMessagesManager().addListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                // Hvis primary stage er i fokus, behøves notifikationer ikke
+                if (primaryStage != null && primaryStage.isFocused()) return;
+                // Lyt efter nye beskeder
+                if (evt.getPropertyName().equals("NEW_MESSAGE")) {
+                    Message message = (Message) evt.getNewValue();
+                    // Send ikke system beskeder, eller egne beskeder som notifikationer
+                    if (message.getSentBy() == 0) return;
+                    if (message.getSentBy() == model.getProfileManager().getCurrentUserUUID()) return;
+                    // Send notifikation
+                    Platform.runLater(() -> {
+                        try {
+                            notificationManager.showNotification(model.getProfileManager().getProfile(message.getSentBy()).getUsername() + " har sendt dig en besked", message.getBody());
+                        } catch (ServerError e) {
+                            e.printStackTrace();
+                            e.showAlert();
+                        }
+                    });
+                }
+            }
+        });
     }
 
     public void start(Stage primaryStage) {
@@ -57,7 +88,7 @@ public class ViewHandler {
         primaryStage.show();
     }
 
-    public <R> void openPopup (PopupViewID view, Callback<R> callback) {
+    public <R> void openPopup(PopupViewID view, Callback<R> callback) {
         ViewModel viewModel = switch (view) {
             case USER_PICKER -> viewModelFactory.newUserPickerViewModel();
         };

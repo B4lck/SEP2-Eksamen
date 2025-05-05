@@ -2,14 +2,14 @@ package model;
 
 import utils.DataMap;
 
-public class ChatMessage {
+public class Message {
     private long sentBy;
     private String body;
     private long dateTime;
     private long messageId;
     private long chatRoom;
 
-    public ChatMessage(long sentBy, String body, long dateTime, long messageId, long chatRoom) {
+    public Message(long sentBy, String body, long dateTime, long messageId, long chatRoom) {
         this.sentBy = sentBy;
         this.body = body;
         this.dateTime = dateTime;
@@ -17,8 +17,8 @@ public class ChatMessage {
         this.chatRoom = chatRoom;
     }
 
-    public static ChatMessage fromData(DataMap message) {
-        return new ChatMessage(
+    public static Message fromData(DataMap message) {
+        return new Message(
                 message.getLong("sentBy"),
                 message.getString("body"),
                 message.getLong("dateTime"),

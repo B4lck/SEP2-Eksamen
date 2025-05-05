@@ -104,7 +104,7 @@ public class ProfilesArrayListManager implements Profiles {
                     if (user.checkPassword(request.getString("password"))) {
                         message.setUser(user.getUUID());
                         message.respond(new ClientMessage("LOG_IN", new DataMap()
-                                .with("uuid", Long.toString(user.getUUID()))));
+                                .with("uuid", user.getUUID())));
                     } else {
                         message.respond(new ClientMessage("Wrong username or password"));
                     }

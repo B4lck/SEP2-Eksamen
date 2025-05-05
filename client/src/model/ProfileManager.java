@@ -24,6 +24,8 @@ public class ProfileManager {
 
         ClientMessage res = client.waitingForReply("SIGN_UP");
 
+        currentUserId = res.getData().getLong("uuid");
+
         return res.getData().getLong("uuid");
     }
 
@@ -38,6 +40,8 @@ public class ProfileManager {
                 .with("password", password)));
 
         ClientMessage res = client.waitingForReply("LOG_IN");
+
+        currentUserId = res.getData().getLong("uuid");
 
         return res.getData().getLong("uuid");
     }
@@ -87,5 +91,9 @@ public class ProfileManager {
         }
 
         return receivedProfiles;
+    }
+
+    public long getCurrentUserUUID() {
+        return this.currentUserId;
     }
 }

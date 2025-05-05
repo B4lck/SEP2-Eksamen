@@ -11,12 +11,12 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 
-public class ChatManager implements PropertyChangeSubject, PropertyChangeListener {
-    private ArrayList<ChatMessage> messages;
+public class MessagesManager implements PropertyChangeSubject, PropertyChangeListener {
+    private ArrayList<Message> messages;
     private PropertyChangeSupport property;
     private ChatClient chatClient = ChatClient.getInstance();
 
-    public ChatManager() {
+    public MessagesManager() {
         this.messages = new ArrayList<>();
         property = new PropertyChangeSupport(this);
 
@@ -33,20 +33,21 @@ public class ChatManager implements PropertyChangeSubject, PropertyChangeListene
         property.removePropertyChangeListener(listener);
     }
 
-    public ArrayList<ChatMessage> getMessages(long chatroom, int amount) throws ServerError {
+    public ArrayList<Message> getMessages(long chatroom, int amount) throws ServerError {
         chatClient.sendMessage(new ClientMessage("RECEIVE_MESSAGES", new DataMap()
                 .with("chatroom", chatroom)
                 .with("amount", amount)));
 
         var reply = chatClient.waitingForReply("RECEIVE_MESSAGES");
-        var newMessages = new ArrayList<ChatMessage>();
+        var newMessages = new ArrayList<Message>();
 
         for (var message : reply.getData().getMapArray("messages")) {
-            var msg = ChatMessage.fromData(message);
+            var msg = Message.fromData(message);
             // Undgå duplikeringer
             if (messages.stream().filter(m -> m.getMessageId() == msg.getMessageId()).findAny().isEmpty()) {
                 messages.add(msg);
                 newMessages.add(msg);
+                property.firePropertyChange("NEW_MESSAGE", null, msg);
             }
         }
 
@@ -55,18 +56,19 @@ public class ChatManager implements PropertyChangeSubject, PropertyChangeListene
         return newMessages;
     }
 
-    public ArrayList<ChatMessage> getMessagesSince(long chatroom, long since) throws ServerError {
+    public ArrayList<Message> getMessagesSince(long chatroom, long since) throws ServerError {
         chatClient.sendMessage(new ClientMessage("RECEIVE_MESSAGES_SINCE", new DataMap()
                 .with("chatroom", chatroom)
                 .with("since", since)));
 
         var reply = chatClient.waitingForReply("RECEIVE_MESSAGES");
 
-        var newMessages = new ArrayList<ChatMessage>();
+        var newMessages = new ArrayList<Message>();
 
         for (var message : reply.getData().getMapArray("messages")) {
-            messages.add(ChatMessage.fromData(message));
-            newMessages.add(ChatMessage.fromData(message));
+            messages.add(Message.fromData(message));
+            newMessages.add(Message.fromData(message));
+            property.firePropertyChange("NEW_MESSAGE", null, message);
         }
 
         property.firePropertyChange("MESSAGES", null, messages);
@@ -86,9 +88,12 @@ public class ChatManager implements PropertyChangeSubject, PropertyChangeListene
         System.out.println("modtaget broadcast");
         var message = (ClientMessage) evt.getNewValue();
         if (message.getType().equals("RECEIVE_MESSAGE")) {
-            ChatMessage castedMessage = ChatMessage.fromData(message.getData().getMap("message"));
+            Message castedMessage = Message.fromData(message.getData().getMap("message"));
             messages.add(castedMessage);
             property.firePropertyChange("MESSAGES", null, messages);
+            for (Message msg : messages) {
+                property.firePropertyChange("NEW_MESSAGE", null, msg);
+            }
         }
     }
 }

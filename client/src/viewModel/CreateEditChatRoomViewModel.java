@@ -2,7 +2,6 @@ package viewModel;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.Model;
@@ -43,7 +42,7 @@ public class CreateEditChatRoomViewModel implements ViewModel {
             titleText.set("Rediger chat rum");
             profiles.clear();
             try {
-                var room = model.getChatRoomManager().getChatRoom(viewState.getCurrentChatRoom());
+                var room = model.getRoomManager().getChatRoom(viewState.getCurrentChatRoom());
                 nameField.set(room.getName());
                 for (long userId : room.getUsers()) {
                     addUser(userId);
@@ -86,7 +85,7 @@ public class CreateEditChatRoomViewModel implements ViewModel {
         }
         try {
             if (isEdit) {
-                var room = model.getChatRoomManager().getChatRoom(viewState.getCurrentChatRoom());
+                var room = model.getRoomManager().getChatRoom(viewState.getCurrentChatRoom());
 
                 // Fjern fjernede brugere og tilføj nye brugere, ved at compare imod de gamle brugere
                 var previousProfiles = room.getUsers();
@@ -102,21 +101,21 @@ public class CreateEditChatRoomViewModel implements ViewModel {
                                 .toList());
 
                 for (Long profile : addedProfiles) {
-                    if (profile != null) model.getChatRoomManager().addUser(room.getRoomId(), profile);
+                    if (profile != null) model.getRoomManager().addUser(room.getRoomId(), profile);
                 }
 
                 for (Long profile : removedProfiles) {
-                    if (profile != null) model.getChatRoomManager().removeUser(room.getRoomId(), profile);
+                    if (profile != null) model.getRoomManager().removeUser(room.getRoomId(), profile);
                 }
 
                 // Opdater gruppenavn
                 if (!nameField.getValue().equals(room.getName()))
-                    model.getChatRoomManager().setName(room.getRoomId(), nameField.get());
+                    model.getRoomManager().setName(room.getRoomId(), nameField.get());
             } else {
                 // Opret et nyt chat rum
-                long room = model.getChatRoomManager().createRoom(nameField.getValue());
+                long room = model.getRoomManager().createRoom(nameField.getValue());
                 for (ViewUser profile : profiles) {
-                    model.getChatRoomManager().addUser(room, profile.userId);
+                    model.getRoomManager().addUser(room, profile.userId);
                 }
             }
         } catch (ServerError e) {
