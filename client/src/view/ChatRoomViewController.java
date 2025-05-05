@@ -4,10 +4,7 @@ import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -15,6 +12,7 @@ import viewModel.ViewMessage;
 import viewModel.ViewRoom;
 
 public class ChatRoomViewController extends ViewController<viewModel.ChatRoomViewModel> {
+    // References til ChatRoomView.fxml
     @FXML
     public VBox rooms;
     @FXML
@@ -28,8 +26,33 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
     @FXML
     private Text greetingText;
 
+    // Context menu
+    @FXML
+    private ContextMenu contextMenu;
+    @FXML
+    private MenuItem editMessageItem;
+    @FXML
+    private MenuItem deleteMessageItem;
+    private ViewMessage highlightedMessage;
+    private boolean editing = false;
+
     @Override
     protected void init() {
+        // Context menu
+        contextMenu = new ContextMenu();
+        editMessageItem = new MenuItem("Rediger");
+        deleteMessageItem = new MenuItem("Fjern");
+
+        editMessageItem.setOnAction((_) -> {
+            editing = true;
+            message.textProperty().setValue(highlightedMessage.body);
+        });
+
+        deleteMessageItem.setOnAction((_) -> getViewModel().deleteMessage(highlightedMessage.messageId));
+
+        contextMenu.getItems().addAll(editMessageItem, deleteMessageItem);
+
+        // Bindings
         message.textProperty().bindBidirectional(getViewModel().getComposeMessageProperty());
         greetingText.textProperty().bind(getViewModel().getGreetingTextProperty());
 
@@ -74,6 +97,11 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
                 messageBody.setText(m.body);
                 messageContainer.getChildren().add(messageBody);
 
+                messageContainer.setOnContextMenuRequested(e -> {
+                    highlightedMessage = m;
+                    contextMenu.show(messageContainer, e.getScreenX(), e.getScreenY());
+                });
+
                 messages.getChildren().add(messageContainer);
             });
             // Lad viewet opdater, før den scroller ned.
@@ -96,9 +124,15 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
 
     @FXML
     public void send(ActionEvent actionEvent) {
-        getViewModel().sendMessage();
-        message.clear();
-        scrollPane.setVvalue(1.0);
+        if (editing) {
+            getViewModel().editMessage(highlightedMessage.messageId);
+            message.clear();
+            scrollPane.setVvalue(1.0);
+        } else {
+            getViewModel().sendMessage();
+            message.clear();
+            scrollPane.setVvalue(1.0);
+        }
     }
 
     @FXML

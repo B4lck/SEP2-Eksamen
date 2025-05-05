@@ -84,6 +84,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                                 sender = m.getSentBy() == 0 ? "System" : model.getProfileManager().getProfile(m.getSentBy()).getUsername();
                                 body = m.getBody();
                                 dateTime = LocalDateTime.ofEpochSecond(m.getDateTime() / 1000, (int) (m.getDateTime() % 1000 * 1000), ZoneOffset.UTC);
+                                messageId = m.getMessageId();
                             }});
                         }
                     }
@@ -138,5 +139,13 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         } catch (ServerError e) {
             e.showAlert();
         }
+    }
+
+    public void editMessage(long messageId) {
+
+    }
+
+    public void deleteMessage(long messageId) {
+
     }
 }
