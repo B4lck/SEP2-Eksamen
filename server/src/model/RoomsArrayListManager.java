@@ -6,36 +6,35 @@ import utils.DataMap;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public class ChatRoomsArrayListManager implements ChatRooms {
-    private ArrayList<ChatRoom> chatRooms;
+public class RoomsArrayListManager implements Rooms {
+    private ArrayList<Room> chatRooms;
     private Model model;
 
-    public ChatRoomsArrayListManager(Model model) {
+    public RoomsArrayListManager(Model model) {
         chatRooms = new ArrayList<>();
         this.model = model;
     }
 
     @Override
-    public ChatRoom createRoom(String name, long user) {
-        ChatRoom chatRoom = new ArrayListChatRoom(name, user);
+    public Room createRoom(String name, long user) {
+        Room chatRoom = new ArrayListRoom(name, user);
         chatRooms.add(chatRoom);
         model.getChat().sendSystemMessage(chatRoom.getRoomId(), model.getProfiles().getProfile(user).getUsername() + " oprettede " + name + "!");
         return chatRoom;
     }
 
     @Override
-    public ChatRoom getRoom(long roomId, long user) {
-        ChatRoom chatRoom = getRoomFromId(roomId);
+    public Room getRoom(long roomId, long user) {
+        Room chatRoom = getRoomFromId(roomId);
         if (!chatRoom.isInRoom(user)) throw new IllegalStateException("User does not have access to the room");
         return chatRoom;
     }
 
     @Override
-    public List<ChatRoom> getParticipatingRooms(long user) {
-        ArrayList<ChatRoom> participatingRooms = new ArrayList<>();
-        for (ChatRoom chatRoom : chatRooms) {
+    public List<Room> getParticipatingRooms(long user) {
+        ArrayList<Room> participatingRooms = new ArrayList<>();
+        for (Room chatRoom : chatRooms) {
             if (chatRoom.isInRoom(user))
                 participatingRooms.add(chatRoom);
         }
@@ -44,14 +43,14 @@ public class ChatRoomsArrayListManager implements ChatRooms {
 
     @Override
     public void addUser(long chatroom, long newUser, long adminUser) {
-        ChatRoom chatRoom = getRoomFromId(chatroom);
+        Room chatRoom = getRoomFromId(chatroom);
         chatRoom.addUser(newUser, adminUser);
         model.getChat().sendSystemMessage(chatroom, model.getProfiles().getProfile(adminUser).getUsername() + " tilføjede " + model.getProfiles().getProfile(newUser).getUsername() + " til chatten!");
     }
 
-    private ChatRoom getRoomFromId(long id) {
-        ChatRoom chatRoom = null;
-        for (ChatRoom _chatRoom : chatRooms) {
+    private Room getRoomFromId(long id) {
+        Room chatRoom = null;
+        for (Room _chatRoom : chatRooms) {
             if (_chatRoom.getRoomId() == id) {
                 chatRoom = _chatRoom;
                 break;
@@ -76,7 +75,7 @@ public class ChatRoomsArrayListManager implements ChatRooms {
                     break;
                 case "GET_MY_ROOMS":
                     ArrayList<DataMap> rooms = new ArrayList<>();
-                    for (ChatRoom room : getParticipatingRooms(message.getUser())) {
+                    for (Room room : getParticipatingRooms(message.getUser())) {
                         rooms.add(room.getData());
                     }
                     message.respond(new ClientMessage("GET_ROOMS", new DataMap().with("rooms", rooms)));
@@ -102,14 +101,14 @@ public class ChatRoomsArrayListManager implements ChatRooms {
 
     @Override
     public void removeUser(long chatroom, long user, long adminUser) {
-        ChatRoom chatRoom = getRoomFromId(chatroom);
+        Room chatRoom = getRoomFromId(chatroom);
         chatRoom.removeUser(user, adminUser);
         model.getChat().sendSystemMessage(chatroom, model.getProfiles().getProfile(adminUser).getUsername() + " fjernede " + model.getProfiles().getProfile(user).getUsername() + " fra chatten!");
     }
 
     @Override
     public void setName(long chatroom, String name, long adminUser) {
-        ChatRoom chatRoom = getRoomFromId(chatroom);
+        Room chatRoom = getRoomFromId(chatroom);
         chatRoom.setName(name, adminUser);
         model.getChat().sendSystemMessage(chatroom, model.getProfiles().getProfile(adminUser).getUsername() + " omdøbte chatten til " + name + "!");
     }

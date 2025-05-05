@@ -8,6 +8,7 @@ public interface Profile {
      * @return
      */
     long getUUID();
+
     /**
      * Henter brugernavnet på profilen
      * @return brugernavnet

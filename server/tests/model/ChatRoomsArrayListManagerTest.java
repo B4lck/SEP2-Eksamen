@@ -123,7 +123,7 @@ class ChatRoomsArrayListManagerTest {
         var room = model.getChatRooms().createRoom("test", user.getUUID());
         model.getChatRooms().addUser(room.getRoomId(), user2.getUUID(), user.getUUID());
 
-        assertEquals(room.getUsers().length, 2);
+        assertEquals(room.getUsers().size(), 2);
     }
 
     /**
@@ -141,7 +141,7 @@ class ChatRoomsArrayListManagerTest {
 
         assertThrows(IllegalStateException.class, () -> model.getChatRooms().addUser(room.getRoomId(), user2.getUUID(), user.getUUID()));
 
-        assertEquals(room.getUsers().length, 2);
+        assertEquals(room.getUsers().size(), 2);
     }
 
     /**
@@ -171,7 +171,7 @@ class ChatRoomsArrayListManagerTest {
 
         assertThrows(IllegalStateException.class, () -> model.getChatRooms().addUser(room.getRoomId(), user2.getUUID(), user2.getUUID()));
 
-        assertEquals(room.getUsers().length, 1);
+        assertEquals(room.getUsers().size(), 1);
     }
 
     /**
@@ -188,7 +188,7 @@ class ChatRoomsArrayListManagerTest {
         model.getChatRooms().addUser(room.getRoomId(), user2.getUUID(), user.getUUID());
         model.getChatRooms().removeUser(room.getRoomId(), user2.getUUID(), user.getUUID());
 
-        assertEquals(room.getUsers().length, 1);
+        assertEquals(room.getUsers().size(), 1);
     }
 
     /**
@@ -221,7 +221,7 @@ class ChatRoomsArrayListManagerTest {
 
         assertThrows(IllegalStateException.class, () -> model.getChatRooms().removeUser(room.getRoomId(), user2.getUUID(), user3.getUUID()));
 
-        assertEquals(room.getUsers().length, 2);
+        assertEquals(room.getUsers().size(), 2);
     }
 
     /**
@@ -240,7 +240,7 @@ class ChatRoomsArrayListManagerTest {
 
         assertThrows(IllegalStateException.class, () -> model.getChatRooms().removeUser(room.getRoomId(), user.getUUID(), user2.getUUID()));
 
-        assertEquals(room.getUsers().length, 2);
+        assertEquals(room.getUsers().size(), 2);
     }
 
     /**
@@ -259,7 +259,7 @@ class ChatRoomsArrayListManagerTest {
 
         model.getChatRooms().removeUser(room.getRoomId(), user2.getUUID(), user2.getUUID());
 
-        assertEquals(room.getUsers().length, 1);
+        assertEquals(room.getUsers().size(), 1);
     }
 
     /**

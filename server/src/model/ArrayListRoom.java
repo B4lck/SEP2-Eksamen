@@ -7,19 +7,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class ArrayListChatRoom implements ChatRoom {
+public class ArrayListRoom implements Room {
     private String name;
     private long chatRoomId;
-    private List<ChatRoomUser> users;
+    private List<RoomUser> users;
 
-    public ArrayListChatRoom(String name, long userId) {
+    public ArrayListRoom(String name, long userId) {
         if (name == null || name.isBlank()) throw new IllegalArgumentException("Name cannot be null or blank");
 
         this.name = name;
         this.chatRoomId = new Random().nextLong();
         this.users = new ArrayList<>();
 
-        var adminUser = new ChatRoomUser(userId);
+        var adminUser = new RoomUser(userId);
 
         adminUser.setState(new AdministratorState(adminUser));
 
@@ -37,20 +37,15 @@ public class ArrayListChatRoom implements ChatRoom {
     }
 
     @Override
-    public long[] getUsers() {
-        long[] temp = new long[users.size()];
-        for (int i = 0; i < users.size(); i++) {
-            if (users.get(i) != null)
-                temp[i] = users.get(i).getId();
-        }
-        return temp;
+    public List<Long> getUsers() {
+        return users.stream().map(RoomUser::getId).toList();
     }
 
     @Override
     public void addUser(long userToAdd, long addedByUser) {
         if (isInRoom(userToAdd)) throw new IllegalStateException("User is already in the room");
         if (!isUserAdmin(addedByUser)) throw new IllegalStateException("User does not have permission to add users");
-        users.add(new ChatRoomUser(userToAdd));
+        users.add(new RoomUser(userToAdd));
     }
 
     @Override
@@ -59,7 +54,7 @@ public class ArrayListChatRoom implements ChatRoom {
         return new DataMap()
                 .with("name", name)
                 .with("chatroomId", chatRoomId)
-                .with("users", users.stream().map(ChatRoomUser::getId).toList());
+                .with("users", users.stream().map(RoomUser::getId).toList());
     }
 
     @Override
@@ -69,7 +64,7 @@ public class ArrayListChatRoom implements ChatRoom {
 
     @Override
     public boolean isInRoom(long user) {
-        for (ChatRoomUser _user : users) {
+        for (RoomUser _user : users) {
             if (_user.getId() == user)
                 return true;
         }
@@ -95,8 +90,8 @@ public class ArrayListChatRoom implements ChatRoom {
         this.name = name;
     }
 
-    public ChatRoomUser getUserFromUserId(long userId) {
-        for (ChatRoomUser _user : users) {
+    public RoomUser getUserFromUserId(long userId) {
+        for (RoomUser _user : users) {
             if (_user.getId() == userId)
                 return _user;
         }

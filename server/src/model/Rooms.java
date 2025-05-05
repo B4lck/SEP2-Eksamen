@@ -2,7 +2,7 @@ package model;
 
 import java.util.List;
 
-public interface ChatRooms extends ClientMessageHandler {
+public interface Rooms extends ClientMessageHandler {
     /**
      * Opretter et nyt chatrum
      *
@@ -10,7 +10,7 @@ public interface ChatRooms extends ClientMessageHandler {
      * @param user id'et på brugeren som opretter chatrummet
      * @return ChatRoom objektet som bliver oprettet
      */
-    ChatRoom createRoom(String name, long user);
+    Room createRoom(String name, long user);
 
     /**
      * Henter et rum ud fra id'et på rummet
@@ -19,7 +19,7 @@ public interface ChatRooms extends ClientMessageHandler {
      * @param user id'et på brugeren som prøver at hente rummet
      * @return ChatRoom hvis brugeren er en del af rummet, ellers thrower den
      */
-    ChatRoom getRoom(long room, long user);
+    Room getRoom(long room, long user);
 
     /**
      * Henter alle rum som en bruger deltager i
@@ -27,7 +27,7 @@ public interface ChatRooms extends ClientMessageHandler {
      * @param user id'et på brugeren
      * @return ChatRoom objektet for alle rum som brugeren deltager i
      */
-    List<ChatRoom> getParticipatingRooms(long user);
+    List<Room> getParticipatingRooms(long user);
 
     /**
      * Tilføjer en ny bruger til et chatrum

@@ -2,9 +2,9 @@ package model;
 
 import utils.DataMap;
 
-import java.util.Map;
+import java.util.List;
 
-public interface ChatRoom {
+public interface Room {
     /**
      * Henter navnet på chatrummet
      *
@@ -24,7 +24,7 @@ public interface ChatRoom {
      *
      * @return id'et på alle brugere
      */
-    long[] getUsers();
+    List<Long> getUsers();
 
     /**
      * Tilføjer ny bruger til chatrummet
@@ -33,6 +33,14 @@ public interface ChatRoom {
      * @param addedByUser Id'et på brugeren der forsøger at tilføje en ny bruger
      */
     void addUser(long userToAdd, long addedByUser);
+
+    /**
+     * Fjerner en bruger fra chatrummet
+     *
+     * @param user      id'et på brugeren der skal fjernes
+     * @param adminUser id'et på brugeren som forsøger at fjerne
+     */
+    void removeUser(long user, long adminUser);
 
     /**
      * Laver objektet om til et map, så det kan sendes med JSON til clienten uden fejl
@@ -57,15 +65,9 @@ public interface ChatRoom {
     boolean isInRoom(long user);
 
     /**
-     * Fjerner en bruger fra chatrummet
-     * @param user id'et på brugeren der skal fjernes
-     * @param adminUser id'et på brugeren som forsøger at fjerne
-     */
-    void removeUser(long user, long adminUser);
-
-    /**
      * Sætter navnet på chatrummet
-     * @param name Det nye navn
+     *
+     * @param name          Det nye navn
      * @param changedByUser id'et på brugeren som forsøger at ændre navnet
      */
     void setName(String name, long changedByUser);

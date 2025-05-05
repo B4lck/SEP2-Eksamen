@@ -7,7 +7,7 @@ public class ViewModelFactory {
     private ChatRoomViewModel chatRoomViewModel;
     private SignUpViewModel signUpViewModel;
     private LogInViewModel logInViewModel;
-    private CreateEditChatRoomViewModel createChatRoomViewModel;
+    private CreateEditChatRoomViewModel createEditChatRoomViewModel;
 
     private ViewState viewState = new ViewState();
 
@@ -42,10 +42,10 @@ public class ViewModelFactory {
         return new UserPickerViewModel(model);
     }
 
-    public ViewModel getCreateChatRoomViewModel() {
-        if (createChatRoomViewModel == null) {
-            createChatRoomViewModel = new CreateEditChatRoomViewModel(model, viewState);
+    public ViewModel getCreateEditChatRoomViewModel() {
+        if (createEditChatRoomViewModel == null) {
+            createEditChatRoomViewModel = new CreateEditChatRoomViewModel(model, viewState);
         }
-        return createChatRoomViewModel;
+        return createEditChatRoomViewModel;
     }
 }
