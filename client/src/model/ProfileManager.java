@@ -6,15 +6,13 @@ import util.ServerError;
 import utils.DataMap;
 
 import java.rmi.ServerException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ProfileManager {
-    private ArrayList<Profile> profiles = new ArrayList<>();
-    private long currentUserId = -1;
+    // Lokal cache af profiler
+    private Map<Long, Profile> profiles = new HashMap<>();
 
+    private long currentUserId = -1;
     private ChatClient client = ChatClient.getInstance();
 
     public long signUp(String username, String password) throws ServerError {
@@ -47,12 +45,22 @@ public class ProfileManager {
     }
 
     public Profile getProfile(long id) throws ServerError {
+        // Hent fra cache
+        if (profiles.containsKey(id)) {
+            return profiles.get(id);
+        }
+
+        // Anmod server om profilen
         client.sendMessage(new ClientMessage("GET_PROFILE", new DataMap()
                 .with("uuid", Long.toString(id))));
 
         ClientMessage res = client.waitingForReply("ProfileManager getProfile");
 
-        return Profile.fromData(res.getData().getMap("profile"));
+        // Gem profil i cache
+        Profile profile = Profile.fromData(res.getData().getMap("profile"));
+        profiles.put(profile.getUUID(), profile);
+
+        return profiles.get(profile.getUUID());
     }
 
     public Profile getCurrentUserProfile() throws ServerError {
@@ -64,6 +72,7 @@ public class ProfileManager {
     }
 
     public List<Profile> getProfiles(List<Long> profiles) throws ServerError {
+        // TODO: Bruger ikke cache, men er heller ikke brugt endnu så who cares
         client.sendMessage(new ClientMessage("GET_PROFILES", new DataMap()
                 .with("profiles", profiles)));
 
