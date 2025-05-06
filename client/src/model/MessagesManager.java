@@ -86,22 +86,70 @@ public class MessagesManager implements PropertyChangeSubject, PropertyChangeLis
             chatClient.sendMessage(new ClientMessage("SEND_MESSAGE", new DataMap()
                     .with("chatroom", chatroom)
                     .with("body", body)));
-        }
-        else {
+        } else {
             chatClient.sendMessageWithAttachments(new ClientMessage("SEND_MESSAGE", new DataMap()
                     .with("chatroom", chatroom)
                     .with("body", body)), attachments);
         }
         chatClient.waitingForReply("MessagesManager sendMessage");
     }
+    /**
+     * Bruges for at opdatere en besked gemt i cachen, SENDER IKKE EN BESKED TIL SERVER!
+     *
+     * @param messageId id'et på beskeden
+     * @param body body'et på beskeden som skal opdateres
+     */
+    public void updateCachedMessage(long messageId, String body) {
+        for (Message message : messages) {
+            if (message.getMessageId() == messageId) {
+                message.setBody(body);
+            }
+        }
+    }
+
+    /**
+     * Sender besked til server om at redigere en besked
+     *
+     * @param messageId
+     * @param body
+     * @throws ServerError
+     */
+    public void editMessage(long messageId, String body) throws ServerError {
+        chatClient.sendMessage(new ClientMessage("EDIT_MESSAGE", new DataMap()
+                .with("messageId", messageId)
+                .with("body", body)));
+        chatClient.waitingForReply("SUCCESS");
+    }
+
+    /**
+     * Sender besked til server om at fjerne en besked
+     *
+     * @param messageId
+     * @throws ServerError
+     */
+    public void deleteMessage(long messageId) throws ServerError {
+        chatClient.sendMessage(new ClientMessage("DELETE_MESSAGE", new DataMap()
+                .with("messageId",messageId)));
+        chatClient.waitingForReply("SUCCESS");
+    }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         var message = (ClientMessage) evt.getNewValue();
-        if (message.getType().equals("RECEIVE_MESSAGE")) {
-            Message castedMessage = Message.fromData(message.getData().getMap("message"));
-            messages.add(castedMessage);
-            property.firePropertyChange("NEW_MESSAGE", null, castedMessage);
+        var request = message.getData();
+
+        switch (message.getType().toUpperCase()) {
+            case "RECEIVE_MESSAGE":
+                Message castedMessage = Message.fromData(request.getMap("message"));
+                messages.add(castedMessage);
+                property.firePropertyChange("NEW_MESSAGE", null, castedMessage);
+                break;
+            case "UPDATE_MESSAGE":
+                long messageId = request.getLong("messageId");
+                String messageBody = request.getString("body");
+                updateCachedMessage(messageId, messageBody);
+                property.firePropertyChange("UPDATE_VIEW_MODEL", null, 1);
+                break;
         }
     }
 }

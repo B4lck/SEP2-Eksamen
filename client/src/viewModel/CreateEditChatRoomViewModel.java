@@ -19,7 +19,7 @@ public class CreateEditChatRoomViewModel implements ViewModel {
     private Model model;
     private ViewState viewState;
 
-    private boolean isEdit = false;
+    private boolean edit = false;
 
     public CreateEditChatRoomViewModel(Model model, ViewState viewState) {
         nameField = new SimpleStringProperty();
@@ -33,12 +33,12 @@ public class CreateEditChatRoomViewModel implements ViewModel {
     @Override
     public void reset() {
         if (viewState.getCurrentChatRoom() == -1) {
-            isEdit = false;
+            edit = false;
             titleText.set("Opret chat rum");
             profiles.clear();
             nameField.set("");
         } else {
-            isEdit = true;
+            edit = true;
             titleText.set("Rediger chat rum");
             profiles.clear();
             try {
@@ -100,7 +100,7 @@ public class CreateEditChatRoomViewModel implements ViewModel {
             return false;
         }
         try {
-            if (isEdit) {
+            if (edit) {
                 var room = model.getRoomManager().getChatRoom(viewState.getCurrentChatRoom());
 
                 // Fjern fjernede brugere og tilføj nye brugere, ved at compare imod de gamle brugere
@@ -147,5 +147,9 @@ public class CreateEditChatRoomViewModel implements ViewModel {
 
     public StringProperty getTitleTextProperty() {
         return titleText;
+    }
+
+    public boolean isEdit () {
+        return edit;
     }
 }

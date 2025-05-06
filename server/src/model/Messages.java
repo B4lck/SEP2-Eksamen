@@ -28,4 +28,8 @@ public interface Messages extends ClientMessageHandler, PropertyChangeSubject {
     Message getMessage(long messageId);
 
     void sendSystemMessage(long chatroom, String message);
+
+    void editMessage(long messageId, String messageBody, long byUserId);
+
+    void deleteMessage(long messageId, long byUserId);
 }

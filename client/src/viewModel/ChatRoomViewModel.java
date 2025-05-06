@@ -101,8 +101,13 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         Platform.runLater(() -> {
-            if (evt.getPropertyName().equals("NEW_MESSAGE")) {
-                addMessage((Message) evt.getNewValue());
+            switch (evt.getPropertyName()) {
+                case "NEW_MESSAGE":
+                    addMessage((Message) evt.getNewValue());
+                    break;
+                case "UPDATE_VIEW_MODEL":
+                    reset();
+                    break;
             }
         });
     }
@@ -172,10 +177,18 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     }
 
     public void editMessage(long messageId) {
-
+        try {
+            model.getMessagesManager().editMessage(messageId, composeMessageProperty.getValue());
+        } catch (ServerError e) {
+            e.showAlert();
+        }
     }
 
     public void deleteMessage(long messageId) {
-
+        try {
+            model.getMessagesManager().deleteMessage(messageId);
+        } catch (ServerError e) {
+            e.showAlert();
+        }
     }
 }

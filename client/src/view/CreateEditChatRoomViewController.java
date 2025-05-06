@@ -44,6 +44,13 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
         });
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        muteButton.setVisible(getViewModel().isEdit());
+        unmuteButton.setVisible(getViewModel().isEdit());
+    }
+
     @FXML
     public void addUser() {
         getViewHandler().openPopup(PopupViewID.USER_PICKER, (Long userId) -> {
@@ -68,10 +75,12 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
     public void removeUser(ActionEvent actionEvent) {
         getViewModel().removeUser(users.getSelectionModel().getSelectedItems().getFirst().userId);
     }
+
     @FXML
     public void mute(ActionEvent actionEvent) {
     getViewModel().muteUser(users.getSelectionModel().getSelectedItems().getFirst().userId);
     }
+
     @FXML
     public void unmute(ActionEvent actionEvent) {
     getViewModel().unmuteUser(users.getSelectionModel().getSelectedItems().getFirst().userId);
