@@ -5,6 +5,8 @@ import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -15,6 +17,7 @@ import viewModel.ViewRoom;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 
 public class ChatRoomViewController extends ViewController<viewModel.ChatRoomViewModel> {
@@ -111,10 +114,31 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
                     messageContainer.getChildren().add(messageSender);
                 }
 
+                VBox body = new VBox();
+                body.getStyleClass().add("message-body");
+                messageContainer.getChildren().add(body);
+
                 Label messageBody = new Label();
-                messageBody.getStyleClass().add("message-body");
+                messageBody.getStyleClass().add("message-body-text");
                 messageBody.setText(m.body);
-                messageContainer.getChildren().add(messageBody);
+                body.getChildren().add(messageBody);
+
+                for (File attachment : m.attachments) {
+                    try {
+                        Image image = new Image(new FileInputStream(attachment));
+                        ImageView imageView = new ImageView(image);
+
+                        imageView.setFitWidth(300);
+                        imageView.setPreserveRatio(true);
+
+                        body.getChildren().add(imageView);
+                    } catch (FileNotFoundException e) {
+                        Label errorLabel = new Label();
+                        errorLabel.getStyleClass().add("message-error");
+                        errorLabel.setText("Komme ikke hente bilag: " + attachment.getName());
+                        messageContainer.getChildren().add(errorLabel);
+                    }
+                }
 
                 // TODO: Context menuen skal kun på, hvis det er brugeren egen besked
                 messageContainer.setOnContextMenuRequested(e -> {

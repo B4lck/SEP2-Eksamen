@@ -2,8 +2,6 @@ package model;
 
 import utils.DataMap;
 
-import java.util.Map;
-
 public interface Message {
     /**
      * Henter beskedens unikke id
@@ -38,4 +36,6 @@ public interface Message {
     long getChatRoom();
 
     void editBody(String messageBody, long byUserId);
+
+    void addAttachment(String fileName);
 }

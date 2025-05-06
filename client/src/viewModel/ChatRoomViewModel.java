@@ -12,6 +12,7 @@ import util.ServerError;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -84,12 +85,21 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     private void addMessage(Message message) {
         try {
             if (message.getChatRoom() == viewState.getCurrentChatRoom()) {
+                List<File> files = new ArrayList<>();
+                // Download attachments
+                for (String attachmentName : message.getAttachments()) {
+                    File file = model.getUserFileManager().getFile(attachmentName);
+                    files.add(file);
+                }
+
+                // Tilføj besked
                 messagesProperty.add(new ViewMessage() {{
                     sender = message.getSentBy() == 0 ? "System" : model.getProfileManager().getProfile(message.getSentBy()).getUsername();
                     body = message.getBody();
                     dateTime = LocalDateTime.ofEpochSecond(message.getDateTime() / 1000, (int) (message.getDateTime() % 1000 * 1000), ZoneOffset.UTC);
                     messageId = message.getMessageId();
                     isSystemMessage = message.getSentBy() == 0;
+                    attachments = files;
                 }});
             }
         } catch (ServerError e) {

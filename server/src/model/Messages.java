@@ -7,11 +7,13 @@ import java.util.List;
 public interface Messages extends ClientMessageHandler, PropertyChangeSubject {
     /**
      * Send besked til chatrum
-     * @param chatroom Chatrummets id
+     *
+     * @param chatroom    Chatrummets id
      * @param messageBody Beskedens body
-     * @param senderID Id'et på sender
+     * @param senderID    Id'et på sender
+     * @return
      */
-    void sendMessage(long chatroom, String messageBody, long senderID);
+    Message sendMessage(long chatroom, String messageBody, List<String> attachments, long senderID);
 
     void sendMessage(long chatroom, String messageBody, long senderID, long time);
 

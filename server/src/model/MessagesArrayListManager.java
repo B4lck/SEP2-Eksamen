@@ -23,7 +23,7 @@ public class MessagesArrayListManager implements Messages {
     }
 
     @Override
-    public void sendMessage(long chatroom, String messageBody, long senderId) {
+    public Message sendMessage(long chatroom, String messageBody, List<String> attachments, long senderId) {
         var message = new ArrayListMessage(senderId, messageBody, LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000L, chatroom);
 
         if (senderId == -1)
@@ -32,10 +32,17 @@ public class MessagesArrayListManager implements Messages {
         if (model.getRooms().getRoom(chatroom,senderId).isMuted(senderId))
             throw new IllegalStateException("Du snakker for meget brormand");
 
+        // Tilføj bilag
+        for (String attachment : attachments) {
+            message.addAttachment(attachment);
+        }
+
         messages.add(message);
 
         // Broadcast besked
         property.firePropertyChange("RECEIVE_MESSAGE", null, new DataMap().with("message", message.getData()));
+
+        return message;
     }
 
     @Override
@@ -107,7 +114,15 @@ public class MessagesArrayListManager implements Messages {
                     chatRoom = request.getLong("chatroom");
                     String messageBody = request.getString("body");
 
-                    sendMessage(chatRoom, messageBody, message.getUser());
+                    List<String> attachments = new ArrayList<>();
+
+                    while (!message.getAttachments().isEmpty()) {
+                        var name = message.downloadNextAttachment();
+                        System.out.println("tilføjer bilag...");
+                        attachments.add(name);
+                    }
+
+                    Message msg = sendMessage(chatRoom, messageBody, attachments, message.getUser());
 
                     message.respond(new ClientMessage("SUCCESS", new DataMap()
                             .with("status", "Message sent")));

@@ -39,7 +39,7 @@ public class ChatModel implements Model, PropertyChangeListener {
         rooms.addUser(rum.getRoomId(), user4.getUUID(), user1.getUUID());
         rooms.createRoom("Rum nr 2", user1.getUUID());
 
-        long time = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) / 10L + 100000;
+        long time = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) / 10L - 1000000;
 
         messages.sendMessage(rum.getRoomId(), "Godmorgen! Er du også på vej på arbejde?", user1.getUUID(), (time++) * 10000);
         messages.sendMessage(rum.getRoomId(), "Ja, sidder i bussen nu. Trafikken er forfærdelig i dag 😫", user2.getUUID(), (time++) * 10000);
