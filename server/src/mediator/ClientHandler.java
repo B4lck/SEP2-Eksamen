@@ -140,4 +140,22 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
         }
 
     }
+
+    public void sendFile(FileInputStream data, String name) {
+        try {
+            out.println("FILE");
+            out.println(name);
+            out.println(data.getChannel().size());
+
+            // Venter til at klient er klar
+            in.readLine();
+
+            // Skift til BufferedOutputStream for binære data
+            data.transferTo(socket.getOutputStream());
+            socket.getOutputStream().flush();
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

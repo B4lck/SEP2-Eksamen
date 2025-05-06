@@ -3,6 +3,8 @@ package mediator;
 import utils.DataMap;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -99,6 +101,13 @@ public class ServerRequest {
         if (!attachments.isEmpty()) respond(new ClientMessage("DONE", new DataMap()) );
 
         handler.sendMessage(message);
+    }
+
+    /**
+     * Svar klienten med rå data
+     */
+    public void respond(FileInputStream data, String name) {
+        handler.sendFile(data, name);
     }
 
     private String sanitizeFileName(String fileName) {

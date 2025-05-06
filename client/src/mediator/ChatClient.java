@@ -3,6 +3,7 @@ package mediator;
 import com.google.gson.Gson;
 import util.Attachment;
 import util.ServerError;
+import utils.DataMap;
 import utils.PropertyChangeSubject;
 
 import java.beans.PropertyChangeListener;
@@ -14,7 +15,6 @@ import java.util.List;
 
 public class ChatClient implements PropertyChangeSubject {
     private Socket socket;
-    private BufferedReader in;
     private PrintWriter out;
     private ArrayList<ClientMessage> receivedMessages;
     private ChatClientReceiver receiver;
@@ -26,10 +26,9 @@ public class ChatClient implements PropertyChangeSubject {
 
     private ChatClient(String host, int port) throws IOException {
         this.socket = new Socket(host, port);
-        this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.out = new PrintWriter(socket.getOutputStream(), true);
         this.receivedMessages = new ArrayList<>();
-        this.receiver = new ChatClientReceiver(this, in);
+        this.receiver = new ChatClientReceiver(this, socket);
         var recieverThread = new Thread(receiver);
         recieverThread.start();
         this.gson = new Gson();
@@ -95,14 +94,25 @@ public class ChatClient implements PropertyChangeSubject {
         out.println(gson.toJson(message));
     }
 
+    /**
+     * Send en besked med filer
+     *
+     * @param message     - Beskeden
+     * @param attachments - Liste af attachments (filer) der skal sendes til serveren
+     * @throws ServerError
+     */
     public void sendMessageWithAttachments(ClientMessage message, List<Attachment> attachments) throws ServerError {
+        // Tilføj attachments til besked
         for (Attachment attachment : attachments) {
             message.addAttachment(attachment.getName());
         }
 
+        // Send besked
         sendMessage(message);
 
-        listen: while (true) {
+        // Lyt efter de forskellige kommandoer, som serveren kan anmode om, i forbindelse med at uploade filer
+        listen:
+        while (true) {
             ClientMessage command = waitingForReply("ChatClient attachment sender");
 
             switch (command.getType()) {
@@ -114,7 +124,9 @@ public class ChatClient implements PropertyChangeSubject {
                             .orElseThrow();
 
                     try {
+                        // Send fil-størrelse, så serveren ved hvornår hele filen er hentet
                         out.println(attachment.getStream().getChannel().size());
+                        // Send filen
                         attachment.getStream().transferTo(socket.getOutputStream());
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -124,9 +136,39 @@ public class ChatClient implements PropertyChangeSubject {
                 case "DONE":
                     break listen;
                 default:
-                    receivedMessages.add(command);
-                    break listen;
+                    throw new RuntimeException("Serveren har sendt en ugyldig kommando.. Jeg kan ikke recover, rip.");
             }
+        }
+    }
+
+    public synchronized void receiveFile(File file) {
+        this.receivedFile = file;
+        notifyAll();
+    }
+
+    private File receivedFile = null;
+
+    /**
+     *
+     */
+    public synchronized File downloadFile(String fileId) throws ServerError {
+        try {
+            sendMessage(new ClientMessage("DOWNLOAD_FILE", new DataMap()
+                    .with("fileId", fileId)));
+
+            ClientMessage fileInfo = waitingForReply("Downloader");
+
+            // Vent på fil
+            while (receivedFile == null) {
+                wait();
+            }
+
+            File file = receivedFile;
+            receivedFile = null;
+            return file;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 

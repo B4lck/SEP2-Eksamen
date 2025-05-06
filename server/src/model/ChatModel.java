@@ -99,7 +99,6 @@ public class ChatModel implements Model, PropertyChangeListener {
         messages.sendMessage(rum.getRoomId(), "I lige måde! Vi må gøre det igen snart", user2.getUUID(), (time++) * 10000);
         messages.sendMessage(rum.getRoomId(), "Helt sikkert! God eftermiddag 😊", user1.getUUID(), (time++) * 10000);
         messages.sendMessage(rum.getRoomId(), "Dig også! Ses i morgen", user2.getUUID(), (time++) * 10000);
-
     }
 
     @Override
@@ -119,6 +118,7 @@ public class ChatModel implements Model, PropertyChangeListener {
 
     @Override
     public void passClientMessage(ServerRequest message) {
+        UserFilesManager.getInstance().handleMessage(message);
         profiles.handleMessage(message);
         messages.handleMessage(message);
         rooms.handleMessage(message);

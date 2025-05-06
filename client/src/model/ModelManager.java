@@ -26,4 +26,9 @@ public class ModelManager implements Model {
     public RoomManager getRoomManager() {
         return chatRoomManager;
     }
+
+    @Override
+    public UserFileManager getUserFileManager() {
+        return UserFileManager.getInstance();
+    }
 }
