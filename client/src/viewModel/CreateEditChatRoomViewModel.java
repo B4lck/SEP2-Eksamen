@@ -74,6 +74,22 @@ public class CreateEditChatRoomViewModel implements ViewModel {
         }
     }
 
+    public void muteUser(long _userId) {
+        try {
+            model.getRoomManager().muteUser(viewState.getCurrentChatRoom(),_userId);
+        } catch (ServerError e) {
+            e.showAlert();
+        }
+    }
+
+    public void unmuteUser(long _userId) {
+        try {
+            model.getRoomManager().unmuteUser(viewState.getCurrentChatRoom(),_userId);
+        } catch (ServerError e) {
+            e.showAlert();
+        }
+    }
+
     public void removeUser(long userId) {
         profiles.removeIf(p -> p.userId == userId);
     }

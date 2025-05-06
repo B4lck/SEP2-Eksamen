@@ -3,10 +3,7 @@ package view;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import viewModel.CreateEditChatRoomViewModel;
@@ -15,6 +12,10 @@ import viewModel.ViewUser;
 public class CreateEditChatRoomViewController extends ViewController<CreateEditChatRoomViewModel> {
     @FXML
     public Text title;
+    @FXML
+    private Button muteButton;
+    @FXML
+    private Button unmuteButton;
     @FXML
     private TextField nameTextField;
     @FXML
@@ -66,5 +67,13 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
     @FXML
     public void removeUser(ActionEvent actionEvent) {
         getViewModel().removeUser(users.getSelectionModel().getSelectedItems().getFirst().userId);
+    }
+    @FXML
+    public void mute(ActionEvent actionEvent) {
+    getViewModel().muteUser(users.getSelectionModel().getSelectedItems().getFirst().userId);
+    }
+    @FXML
+    public void unmute(ActionEvent actionEvent) {
+    getViewModel().unmuteUser(users.getSelectionModel().getSelectedItems().getFirst().userId);
     }
 }

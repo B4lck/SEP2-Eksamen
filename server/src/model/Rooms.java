@@ -55,4 +55,20 @@ public interface Rooms extends ClientMessageHandler {
      * @param adminUser id'et på brugeren der forsøger at ændre navnet på chatrummet
      */
     void setName(long chatroom, String name, long adminUser);
+
+    /**
+     *  Muter en bruger
+     * @param chatroom id'et på chatrummet
+     * @param user id'et på user
+     * @param adminUser id'et på adminUser
+     */
+    void muteUser(long chatroom, long user, long adminUser);
+
+    /**
+     * Unmuter en bruger
+     * @param chatroom id'et på chatrummet
+     * @param user id'et på user
+     * @param adminUser id'et på adminUser
+     */
+    void unmuteUser(long chatroom, long user, long adminUser);
 }

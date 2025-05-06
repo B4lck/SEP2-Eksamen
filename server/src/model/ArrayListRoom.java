@@ -1,6 +1,7 @@
 package model;
 
 import model.statemachine.AdministratorState;
+import model.statemachine.MutedUser;
 import utils.DataMap;
 
 import java.util.ArrayList;
@@ -86,8 +87,29 @@ public class ArrayListRoom implements Room {
     @Override
     public void setName(String name, long changedByUser) {
         if (name == null || name.isBlank()) throw new IllegalArgumentException("Name cannot be null or blank");
-        if (!isUserAdmin(changedByUser)) throw new IllegalStateException("User does not have permission to change name");
+        if (!isUserAdmin(changedByUser))
+            throw new IllegalStateException("User does not have permission to change name");
         this.name = name;
+    }
+
+    @Override
+    public void muteUser(long userId, long byUser) {
+        RoomUser user = getUserFromUserId(userId);
+        if (!isUserAdmin(byUser)) throw new IllegalStateException("User does not have permission to change users");
+        user.getState().mute();
+    }
+
+    @Override
+    public void unmuteUser(long userId, long byUser) {
+        RoomUser user = getUserFromUserId(userId);
+        if (!isUserAdmin(byUser)) throw new IllegalStateException("User does not have permission to change users");
+        user.getState().unmute();
+    }
+
+    @Override
+    public boolean isMuted(long userId) {
+        RoomUser user = getUserFromUserId(userId);
+        return user.getState() instanceof MutedUser;
     }
 
     public RoomUser getUserFromUserId(long userId) {

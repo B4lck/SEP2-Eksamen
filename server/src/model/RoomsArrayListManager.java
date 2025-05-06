@@ -92,6 +92,15 @@ public class RoomsArrayListManager implements Rooms {
                     setName(message.getData().getLong("room"), message.getData().getString("name"), message.getUser());
                     message.respond(new ClientMessage("SUCCESS", new DataMap()));
                     break;
+                case "MUTE_USER":
+                    muteUser(message.getData().getLong("chatroomId"), message.getData().getLong("userId"), message.getUser());
+                    message.respond(new ClientMessage("SUCCESS", new DataMap()));
+                    break;
+                case "UNMUTE_USER":
+                    unmuteUser(message.getData().getLong("chatroomId"), message.getData().getLong("userId"), message.getUser());
+                    message.respond(new ClientMessage("SUCCESS", new DataMap()));
+                    break;
+
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -111,5 +120,20 @@ public class RoomsArrayListManager implements Rooms {
         Room chatRoom = getRoomFromId(chatroom);
         chatRoom.setName(name, adminUser);
         model.getMessages().sendSystemMessage(chatroom, model.getProfiles().getProfile(adminUser).getUsername() + " omdøbte chatten til " + name + "!");
+    }
+
+    @Override
+    public void muteUser(long chatroom, long user, long adminUser) {
+        Room room = getRoomFromId(chatroom);
+        room.muteUser(user, adminUser);
+        model.getMessages().sendSystemMessage(chatroom, model.getProfiles().getProfile(adminUser).getUsername() + " muted " + model.getProfiles().getProfile(user).getUsername() + ".");
+    }
+
+    @Override
+    public void unmuteUser(long chatroom, long user, long adminUser) {
+        Room room = getRoomFromId(chatroom);
+        room.unmuteUser(user, adminUser);
+        model.getMessages().sendSystemMessage(chatroom, model.getProfiles().getProfile(adminUser).getUsername() + " unmuted " + model.getProfiles().getProfile(user).getUsername() + ".");
+
     }
 }
