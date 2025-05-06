@@ -1,5 +1,6 @@
 package model;
 
+import util.Attachment;
 import mediator.ChatClient;
 import mediator.ClientMessage;
 import util.ServerError;
@@ -40,7 +41,7 @@ public class MessagesManager implements PropertyChangeSubject, PropertyChangeLis
                 .with("chatroom", chatroom)
                 .with("amount", amount)));
 
-        var reply = chatClient.waitingForReply("RECEIVE_MESSAGES");
+        var reply = chatClient.waitingForReply("MessagesManager getMessages");
 
         addNewMessages(reply.getData().getMapArray("messages"));
 
@@ -57,7 +58,7 @@ public class MessagesManager implements PropertyChangeSubject, PropertyChangeLis
                 .with("before", messageId)
                 .with("amount", amount)));
 
-        var reply = chatClient.waitingForReply("RECEIVE_MESSAGES");
+        var reply = chatClient.waitingForReply("MessagesManager getMessagesBefore");
 
         addNewMessages(reply.getData().getMapArray("messages"));
 
@@ -80,11 +81,18 @@ public class MessagesManager implements PropertyChangeSubject, PropertyChangeLis
         }
     }
 
-    public void sendMessage(long chatroom, String body) throws ServerError {
-        chatClient.sendMessage(new ClientMessage("SEND_MESSAGE", new DataMap()
-                .with("chatroom", chatroom)
-                .with("body", body)));
-        chatClient.waitingForReply("SUCCESS");
+    public void sendMessage(long chatroom, String body, List<Attachment> attachments) throws ServerError {
+        if (attachments.isEmpty()) {
+            chatClient.sendMessage(new ClientMessage("SEND_MESSAGE", new DataMap()
+                    .with("chatroom", chatroom)
+                    .with("body", body)));
+        }
+        else {
+            chatClient.sendMessageWithAttachments(new ClientMessage("SEND_MESSAGE", new DataMap()
+                    .with("chatroom", chatroom)
+                    .with("body", body)), attachments);
+        }
+        chatClient.waitingForReply("MessagesManager sendMessage");
     }
 
     @Override

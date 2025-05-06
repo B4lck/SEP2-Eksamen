@@ -1,17 +1,16 @@
 package mediator;
 
 import com.google.gson.Gson;
+import util.Attachment;
 import util.ServerError;
 import utils.PropertyChangeSubject;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ChatClient implements PropertyChangeSubject {
     private Socket socket;
@@ -54,8 +53,7 @@ public class ChatClient implements PropertyChangeSubject {
     }
 
     public synchronized void receive(String s) {
-        System.out.println("modtaget fra server");
-        System.out.println(s);
+        System.out.println("fra server: " + s);
         ClientMessage message = gson.fromJson(s, ClientMessage.class);
         if (message.isBroadcast()) {
             property.firePropertyChange("broadcast", null, message);
@@ -65,28 +63,29 @@ public class ChatClient implements PropertyChangeSubject {
         }
     }
 
-    public synchronized ClientMessage waitingForReply(String type) throws ServerError {
-        System.out.println("venter på en " + type + " besked fra server");
+    public synchronized ClientMessage waitingForReply(String who) throws ServerError {
+        System.out.println(who + " venter på en besked fra server");
         ClientMessage received = null;
-        boolean found = false;
 
-        while (!found) {
-            while(!receivedMessages.isEmpty()) {
-                received = receivedMessages.removeLast();
-                if (received.hasError()) {
-                    System.out.println("SERVER FEJL:");
-                    System.out.println(received.getError());
-                    throw new ServerError(received.getError());
+        while (true) {
+            if (receivedMessages.isEmpty()) {
+                try {
+                    wait();
+                    continue;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    break;
                 }
-                found = received.getType().equals(type);
-                if (found) break;
             }
-            try {
-                if (!found) wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                break;
+
+            received = receivedMessages.removeFirst();
+            if (received.hasError()) {
+                System.out.println("SERVER FEJL:");
+                System.out.println(received.getError());
+                throw new ServerError(received.getError());
             }
+
+            break;
         }
 
         return received;
@@ -94,6 +93,41 @@ public class ChatClient implements PropertyChangeSubject {
 
     public void sendMessage(ClientMessage message) {
         out.println(gson.toJson(message));
+    }
+
+    public void sendMessageWithAttachments(ClientMessage message, List<Attachment> attachments) throws ServerError {
+        for (Attachment attachment : attachments) {
+            message.addAttachment(attachment.getName());
+        }
+
+        sendMessage(message);
+
+        listen: while (true) {
+            ClientMessage command = waitingForReply("ChatClient attachment sender");
+
+            switch (command.getType()) {
+                case "SEND_NEXT":
+                    var attachmentIndex = command.getData().getString("attachmentName");
+                    var attachment = attachments.stream()
+                            .filter(a -> a.getName().equals(attachmentIndex))
+                            .findAny()
+                            .orElseThrow();
+
+                    try {
+                        out.println(attachment.getStream().getChannel().size());
+                        attachment.getStream().transferTo(socket.getOutputStream());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    break;
+                case "DONE":
+                    break listen;
+                default:
+                    receivedMessages.add(command);
+                    break listen;
+            }
+        }
     }
 
     @Override

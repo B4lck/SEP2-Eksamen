@@ -96,6 +96,9 @@ public class MessagesArrayListManager implements Messages {
                     String messageBody = request.getString("body");
 
                     sendMessage(chatRoom, messageBody, message.getUser());
+
+                    message.downloadNextAttachment();
+
                     message.respond(new ClientMessage("SUCCESS", new DataMap()
                             .with("status", "Message sent")));
                     break;

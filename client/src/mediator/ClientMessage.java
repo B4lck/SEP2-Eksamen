@@ -2,6 +2,8 @@ package mediator;
 
 import utils.DataMap;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class ClientMessage {
@@ -10,6 +12,7 @@ public class ClientMessage {
     private Map<String, Object> data;
     private String authenticatedAsUser;
     private boolean broadcast = false;
+    private List<String> attachments = new ArrayList<>();
 
     public ClientMessage(String type, DataMap data) {
         this.type = type;
@@ -42,5 +45,9 @@ public class ClientMessage {
 
     public boolean isBroadcast() {
         return broadcast;
+    }
+
+    public void addAttachment(String attachment) {
+        this.attachments.add(attachment);
     }
 }

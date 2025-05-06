@@ -13,7 +13,7 @@ public class RoomManager {
 
     public List<Room> getChatRooms() throws ServerError {
         client.sendMessage(new ClientMessage("GET_MY_ROOMS", new DataMap()));
-        var reply = client.waitingForReply("GET_ROOMS");
+        var reply = client.waitingForReply("RoomManager getChatRooms");
 
         ArrayList<Room> chatRooms = new ArrayList<>();
         for (var room : reply.getData().getMapArray("rooms")) {
@@ -27,7 +27,7 @@ public class RoomManager {
         client.sendMessage(new ClientMessage("GET_ROOM", new DataMap()
                 .with("room", chatroom)));
         
-        var reply = client.waitingForReply("GET_ROOM");
+        var reply = client.waitingForReply("RoomManager getChatRoom");
         
         return Room.fromData(reply.getData().getMap("room"));
     }
@@ -36,14 +36,14 @@ public class RoomManager {
         client.sendMessage(new ClientMessage("ADD_USER", new DataMap()
                 .with("room", chatroom)
                 .with("user", userId)));
-        client.waitingForReply("SUCCESS");
+        client.waitingForReply("RoomManager addUser");
     }
 
     public long createRoom(String name) throws ServerError {
         client.sendMessage(new ClientMessage("CREATE_ROOM", new DataMap()
                 .with("name", name)));
         
-        long reply = Room.fromData(client.waitingForReply("GET_ROOM").getData().getMap("room")).getRoomId();
+        long reply = Room.fromData(client.waitingForReply("RoomManager createRoom").getData().getMap("room")).getRoomId();
         
         return reply;
     }
@@ -53,7 +53,7 @@ public class RoomManager {
                 .with("room", chatroom)
                 .with("user", userId)));
         
-        client.waitingForReply("SUCCESS");
+        client.waitingForReply("RoomManager removeUser");
     }
 
     public void setName(long chatroom, String name) throws ServerError {
@@ -61,6 +61,6 @@ public class RoomManager {
                 .with("room", chatroom)
                 .with("name", name)));
         
-        client.waitingForReply("SUCCESS");
+        client.waitingForReply("RoomManager setName");
     }
 }

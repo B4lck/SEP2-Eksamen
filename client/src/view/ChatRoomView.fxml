@@ -36,6 +36,7 @@
     </ScrollPane>
     <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="0.0">
         <HBox alignment="CENTER" prefHeight="50.0" spacing="20.0">
+            <Button mnemonicParsing="false" onAction="#upload" text="Tilføj..." />
             <TextField fx:id="message" prefWidth="300.0" />
             <Button mnemonicParsing="false" onAction="#send" text="Send" />
         </HBox>

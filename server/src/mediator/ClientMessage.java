@@ -2,6 +2,7 @@ package mediator;
 
 import utils.DataMap;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -13,6 +14,7 @@ public class ClientMessage {
     public Map<String, Object> data;
     public String authenticatedAsUser;
     public boolean broadcast = false;
+    public List<String> attachments;
 
     public ClientMessage(String error) {
         this.type = "ERROR";

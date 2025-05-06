@@ -2,7 +2,10 @@ package mediator;
 
 import utils.DataMap;
 
+import java.io.File;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * ServerRequest objektet bliver oprettet og delt til modellen når en klient anmoder serveren om en ressource.
@@ -12,10 +15,13 @@ public class ServerRequest {
     private String type;
     private Map<String, Object> data;
     private ClientHandler handler;
+    private List<String> attachments;
 
-    public ServerRequest(String type, Map<String, Object> data) {
+    public ServerRequest(String type, Map<String, Object> data, List<String> attachments) {
         this.type = type;
         this.data = data;
+
+        this.attachments = attachments;
     }
 
     /**
@@ -57,11 +63,54 @@ public class ServerRequest {
     }
 
     /**
+     * Hent antallet af attachments i alt
+     */
+    public List<String> getAttachments() {
+        return attachments;
+    }
+
+    /**
+     * Downlaod næste attachment
+     */
+    public String downloadNextAttachment() {
+        if (attachments.isEmpty()) throw new IllegalStateException("Du har ikke noget attachment tilbage");
+
+        var attachmentName = attachments.removeFirst();
+
+        long randomId = Math.abs(new Random().nextLong());
+        String randomIdString = Long.toString(randomId, 36);
+
+        String attachmentId = randomIdString + "-" + sanitizeFileName(attachmentName);
+
+        handler.downloadAttachment(attachmentId, attachmentName);
+
+        if (attachments.isEmpty()) respond(new ClientMessage("DONE", new DataMap()) );
+
+        return attachmentId;
+    }
+
+    /**
      * Svar klienten med en ClientMessage
      * @param message
      */
     public void respond(ClientMessage message) {
         if (handler == null) throw new IllegalStateException("Du kan kun køre respond på server messages modtaget fra klienten.");
+
+        if (!attachments.isEmpty()) respond(new ClientMessage("DONE", new DataMap()) );
+
         handler.sendMessage(message);
+    }
+
+    private String sanitizeFileName(String fileName) {
+        // Fjern eventuelle directory-dele (path traversal prevention)
+        fileName = new File(fileName).getName();
+
+        // Fjern ugyldige filsystem karakterer
+        // Behold kun bogstaver, tal, bindestreg, underscore og punktum
+        return fileName.replaceAll("[^a-zA-Z0-9._-]", "_")
+                // Undgå skjulte filer (filer der starter med punkt)
+                .replaceAll("^\\.", "_")
+                // Hvis navnet er tomt efter sanitizing
+                .replaceAll("^$", "unnamed_file");
     }
 }

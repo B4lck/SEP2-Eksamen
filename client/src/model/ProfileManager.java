@@ -22,7 +22,7 @@ public class ProfileManager {
                 .with("username", username)
                 .with("password", password)));
 
-        ClientMessage res = client.waitingForReply("SIGN_UP");
+        ClientMessage res = client.waitingForReply("ProfileManager signUp");
 
         currentUserId = res.getData().getLong("uuid");
 
@@ -39,7 +39,7 @@ public class ProfileManager {
                 .with("username", username)
                 .with("password", password)));
 
-        ClientMessage res = client.waitingForReply("LOG_IN");
+        ClientMessage res = client.waitingForReply("ProfileManager login");
 
         currentUserId = res.getData().getLong("uuid");
 
@@ -50,7 +50,7 @@ public class ProfileManager {
         client.sendMessage(new ClientMessage("GET_PROFILE", new DataMap()
                 .with("uuid", Long.toString(id))));
 
-        ClientMessage res = client.waitingForReply("GET_PROFILE");
+        ClientMessage res = client.waitingForReply("ProfileManager getProfile");
 
         return Profile.fromData(res.getData().getMap("profile"));
     }
@@ -58,7 +58,7 @@ public class ProfileManager {
     public Profile getCurrentUserProfile() throws ServerError {
         client.sendMessage(new ClientMessage("GET_CURRENT_PROFILE", new DataMap()));
 
-        ClientMessage res = client.waitingForReply("GET_PROFILE");
+        ClientMessage res = client.waitingForReply("ProfileManager getCurrentUserProfile");
 
         return Profile.fromData(res.getData().getMap("profile"));
     }
@@ -67,7 +67,7 @@ public class ProfileManager {
         client.sendMessage(new ClientMessage("GET_PROFILES", new DataMap()
                 .with("profiles", profiles)));
 
-        ClientMessage reply = client.waitingForReply("GET_PROFILES");
+        ClientMessage reply = client.waitingForReply("ProfileManager getProfiles");
 
         ArrayList<Profile> receivedProfiles = new ArrayList<>();
 
@@ -82,7 +82,7 @@ public class ProfileManager {
         client.sendMessage(new ClientMessage("SEARCH_PROFILES", new DataMap()
                 .with("query", query)));
 
-        ClientMessage reply = client.waitingForReply("GET_PROFILES");
+        ClientMessage reply = client.waitingForReply("ProfileManager searchProfiles");
 
         ArrayList<Profile> receivedProfiles = new ArrayList<>();
 

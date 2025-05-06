@@ -8,8 +8,14 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
+import util.Attachment;
 import viewModel.ViewMessage;
 import viewModel.ViewRoom;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
 
 public class ChatRoomViewController extends ViewController<viewModel.ChatRoomViewModel> {
     // References til ChatRoomView.fxml
@@ -159,5 +165,18 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
     @FXML
     public void editRoom(ActionEvent actionEvent) {
         getViewHandler().openView(ViewID.CREATE_EDIT_ROOM);
+    }
+
+    @FXML
+    public void upload(ActionEvent actionEvent) {
+        try {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Open Resource File");
+            File file = fileChooser.showOpenDialog(getRoot().getScene().getWindow());
+            FileInputStream stream = new FileInputStream(file);
+            getViewModel().addAttachment(new Attachment(file.getName(), stream));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

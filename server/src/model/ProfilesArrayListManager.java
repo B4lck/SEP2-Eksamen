@@ -72,11 +72,9 @@ public class ProfilesArrayListManager implements Profiles {
             switch (message.getType()) {
                 // Sign up
                 case "SIGN_UP":
-                    System.out.println("sign up");
                     // Check if username is taken
                     try {
                         getProfileByUsername(request.getString("username"));
-                        System.out.println("sendt fejl til bruger");
                         message.respond(new ClientMessage("Username is already taken"));
                         return;
                     } catch (IllegalArgumentException e) {
@@ -89,7 +87,6 @@ public class ProfilesArrayListManager implements Profiles {
                     // Respond with uuid
                     message.respond(new ClientMessage("SIGN_UP", new DataMap()
                             .with("uuid", user.getUUID())));
-                    System.out.println("sendt svar til bruger");
                     break;
                 // Log in
                 case "LOG_IN":

@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import util.Attachment;
 import model.Message;
 import model.Room;
 import model.Model;
@@ -11,10 +12,12 @@ import util.ServerError;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
@@ -26,6 +29,8 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
     private Model model;
     private ViewState viewState;
+
+    public List<Attachment> attachments = new ArrayList<>();
 
     public ChatRoomViewModel(Model model, ViewState viewState) {
         this.model = model;
@@ -155,10 +160,15 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
     public void sendMessage() {
         try {
-            model.getMessagesManager().sendMessage(viewState.getCurrentChatRoom(), composeMessageProperty.getValue());
+            model.getMessagesManager().sendMessage(viewState.getCurrentChatRoom(), composeMessageProperty.getValue(), attachments);
+            attachments.clear();
         } catch (ServerError e) {
             e.showAlert();
         }
+    }
+
+    public void addAttachment(Attachment inputStream) {
+        attachments.add(inputStream);
     }
 
     public void editMessage(long messageId) {
