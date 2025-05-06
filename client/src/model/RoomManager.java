@@ -26,9 +26,9 @@ public class RoomManager {
     public Room getChatRoom(long chatroom) throws ServerError {
         client.sendMessage(new ClientMessage("GET_ROOM", new DataMap()
                 .with("room", chatroom)));
-        
+
         var reply = client.waitingForReply("RoomManager getChatRoom");
-        
+
         return Room.fromData(reply.getData().getMap("room"));
     }
 
@@ -42,9 +42,9 @@ public class RoomManager {
     public long createRoom(String name) throws ServerError {
         client.sendMessage(new ClientMessage("CREATE_ROOM", new DataMap()
                 .with("name", name)));
-        
+
         long reply = Room.fromData(client.waitingForReply("RoomManager createRoom").getData().getMap("room")).getRoomId();
-        
+
         return reply;
     }
 
@@ -52,7 +52,7 @@ public class RoomManager {
         client.sendMessage(new ClientMessage("REMOVE_USER", new DataMap()
                 .with("room", chatroom)
                 .with("user", userId)));
-        
+
         client.waitingForReply("RoomManager removeUser");
     }
 
@@ -60,7 +60,23 @@ public class RoomManager {
         client.sendMessage(new ClientMessage("UPDATE_ROOM_NAME", new DataMap()
                 .with("room", chatroom)
                 .with("name", name)));
-        
+
+        client.waitingForReply("SUCCESS");
+    }
+
+    public void muteUser(long chatroom, long userId) throws ServerError {
+        client.sendMessage(new ClientMessage("MUTE_USER", new DataMap()
+                .with("chatroomId", chatroom)
+                .with("userId", userId)));
+
+        client.waitingForReply("SUCCESS");
+    }
+
+    public void unmuteUser(long chatroom, long userId) throws ServerError {
+        client.sendMessage(new ClientMessage("UNMUTE_USER", new DataMap()
+                .with("chatroomId", chatroom)
+                .with("userId", userId)));
+
         client.waitingForReply("RoomManager setName");
     }
 }

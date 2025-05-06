@@ -71,4 +71,29 @@ public interface Room {
      * @param changedByUser id'et på brugeren som forsøger at ændre navnet
      */
     void setName(String name, long changedByUser);
+
+    /**
+     * Muter en bruger i chatrummet
+     *
+     * @param userId Id på valgte bruger
+     * @param byUser Id'et på udførende
+     */
+    void muteUser (long userId, long byUser);
+
+    /**
+     * Unmuter bruger i chatrummet
+     *
+     * @param userId Id på valgte bruger
+     * @param byUser Id'et på udførende
+     */
+    void unmuteUser (long userId, long byUser);
+
+    /**
+     * Tjekker om brugeren er muted
+     *
+     * @param userId Id på valgte bruger
+     * @return True hvis brugeren er muted
+     */
+    boolean isMuted (long userId);
 }
+

@@ -29,8 +29,8 @@ public class MessagesArrayListManager implements Messages {
         if (senderId == -1)
             throw new IllegalStateException("Du skal være logget ind for at sende en besked i et chatroom");
 
-        // Thrower hvis rummet ikke findes, eller hvis brugerne ikke har adgang til rummet.
-        model.getRooms().getRoom(chatroom, senderId);
+        if (model.getRooms().getRoom(chatroom,senderId).isMuted(senderId))
+            throw new IllegalStateException("Du snakker for meget brormand");
 
         messages.add(message);
 
