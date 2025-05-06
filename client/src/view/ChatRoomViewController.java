@@ -116,6 +116,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
                 messageBody.setText(m.body);
                 messageContainer.getChildren().add(messageBody);
 
+                // TODO: Context menuen skal kun på, hvis det er brugeren egen besked
                 messageContainer.setOnContextMenuRequested(e -> {
                     highlightedMessage = m;
                     contextMenu.show(messageContainer, e.getScreenX(), e.getScreenY());

@@ -36,4 +36,6 @@ public interface Message {
     DataMap getData();
 
     long getChatRoom();
+
+    void editBody(String messageBody, long byUserId);
 }

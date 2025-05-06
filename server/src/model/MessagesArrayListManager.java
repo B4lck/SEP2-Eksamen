@@ -83,6 +83,18 @@ public class MessagesArrayListManager implements Messages {
     }
 
     @Override
+    public void editMessage(long messageId, String messageBody, long byUserId) {
+        var message = getMessage(messageId);
+        message.editBody(messageBody + " (redigeret)", byUserId);
+    }
+
+    @Override
+    public void deleteMessage(long messageId, long byUserId) {
+        var message = getMessage(messageId);
+        message.editBody("[BESKEDEN ER BLEVET SLETTET]", byUserId);
+    }
+
+    @Override
     public void handleMessage(ServerRequest message) {
         long chatRoom;
         var request = message.getData();
@@ -128,6 +140,35 @@ public class MessagesArrayListManager implements Messages {
                     message.respond(new ClientMessage("RECEIVE_MESSAGES", new DataMap()
                             .with("messages", toSendableData(messages))
                             .with("newest_time", messages.getFirst().getDateTime())));
+                    break;
+                case "EDIT_MESSAGE":
+                    long messageId = request.getLong("messageId");
+                    String body = request.getString("body");
+
+                    editMessage(messageId, body, message.getUser());
+
+                    message.respond(new ClientMessage("SUCCESS", new DataMap()
+                            .with("status", "Message updated")));
+
+                    property.firePropertyChange("UPDATE_MESSAGE", null, new DataMap()
+                            .with("messageId", messageId)
+                            .with("body", body));
+
+                    sendSystemMessage(getMessage(messageId).getChatRoom(), model.getProfiles().getProfile(message.getUser()).getUsername() + " har ændret en besked");
+                    break;
+                case "DELETE_MESSAGE":
+                    messageId = request.getLong("messageId");
+
+                    deleteMessage(messageId, message.getUser());
+
+                    message.respond(new ClientMessage("SUCCESS", new DataMap()
+                            .with("status", "Message deleted")));
+
+                    property.firePropertyChange("UPDATE_MESSAGE", null, new DataMap()
+                            .with("messageId", messageId)
+                            .with("body", getMessage(messageId).getBody()));
+
+                    sendSystemMessage(getMessage(messageId).getChatRoom(), model.getProfiles().getProfile(message.getUser()).getUsername() + " har slettet en besked");
                     break;
             }
         } catch (Exception e) {

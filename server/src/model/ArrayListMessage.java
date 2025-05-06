@@ -53,4 +53,10 @@ public class ArrayListMessage implements Message {
     public long getChatRoom() {
         return chatRoom;
     }
+
+    @Override
+    public void editBody(String messageBody, long byUserId) {
+        if (byUserId != sentBy) throw new IllegalArgumentException("Du har ikke tilladelse til at slette den her besked");
+        body = messageBody;
+    }
 }
