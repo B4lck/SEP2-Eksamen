@@ -149,6 +149,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
             getViewModel().editMessage(highlightedMessage.messageId);
             message.clear();
             scrollPane.setVvalue(1.0);
+            editing = false;
         } else {
             getViewModel().sendMessage();
             message.clear();
