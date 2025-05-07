@@ -112,7 +112,9 @@ public class MessagesArrayListManager implements Messages {
         property.firePropertyChange("UPDATE_MESSAGE", null, message.getData());
 
         // Send system besked
-        sendSystemMessage(message.getChatRoom(), model.getProfiles().getProfile(byUserId).getUsername() + " har ændret en besked");
+        sendSystemMessage(message.getChatRoom(),
+                model.getProfiles().getProfile(byUserId).map(Profile::getUsername).orElse("En bruger")
+                        + " har ændret en besked.");
     }
 
     @Override
@@ -133,7 +135,8 @@ public class MessagesArrayListManager implements Messages {
         property.firePropertyChange("UPDATE_MESSAGE", null, message.getData());
 
         // Send system besked
-        sendSystemMessage(message.getChatRoom(), model.getProfiles().getProfile(byUserId).getUsername() + " har slettet en besked");
+        String username = model.getProfiles().getProfile(byUserId).map(Profile::getUsername).orElse("En bruger");
+        sendSystemMessage(message.getChatRoom(), username + " har slettet en besked.");
     }
 
     @Override

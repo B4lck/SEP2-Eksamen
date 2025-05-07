@@ -18,30 +18,19 @@ public class ProfilesArrayListManager implements Profiles {
     }
 
     @Override
-    public Profile getProfile(long uuid) { // TODO: Optional?
+    public Optional<Profile> getProfile(long uuid) {
         for (Profile profile : profiles) {
             if (profile.getUUID() == uuid) {
-                return profile;
+                return Optional.of(profile);
             }
         }
 
-        throw new IllegalStateException("User does not exist");
-    }
-
-    @Override
-    public boolean doesProfileExist(long uuid) {
-        for (Profile profile : profiles) {
-            if (profile.getUUID() == uuid) {
-                return true;
-            }
-        }
-
-        return false;
+        return Optional.empty();
     }
 
     @Override
     public Optional<Profile> getProfileByUsername(String username) {
-        if (username == null) throw new IllegalArgumentException("Username cannot be null");
+        if (username == null) throw new IllegalArgumentException("Username må ikke være null");
 
         for (Profile profile : profiles) {
             if (username.equals(profile.getUsername())) {
@@ -54,8 +43,8 @@ public class ProfilesArrayListManager implements Profiles {
 
     @Override
     public Profile createProfile(String username, String password) {
-        if (username == null) throw new IllegalArgumentException("Username cannot be null");
-        if (password == null) throw new IllegalArgumentException("Password cannot be null");
+        if (username == null) throw new IllegalArgumentException("Username må ikke være null");
+        if (password == null) throw new IllegalArgumentException("Password må ikke være null");
         var profile = new ArrayListProfile(username, password);
         addProfile(profile);
         return profile;
@@ -63,22 +52,22 @@ public class ProfilesArrayListManager implements Profiles {
 
     @Override
     public void addProfile(Profile profile) {
-        if (profile == null) throw new IllegalArgumentException("Profile cannot be null");
-        if (doesProfileExist(profile.getUUID())) throw new IllegalStateException("User already exists");
+        if (profile == null) throw new IllegalArgumentException("Profile må ikke være null");
+        if (getProfile(profile.getUUID()).isPresent()) throw new IllegalStateException("Profilen findes allerede");
         if (getProfileByUsername(profile.getUsername()).isPresent())
-            throw new IllegalStateException("Username already taken");
+            throw new IllegalStateException("Brugernavnet er allerede taget");
         profiles.add(profile);
     }
 
     @Override
     public void removeProfile(Profile profile) {
-        if (profile == null) throw new IllegalArgumentException("Profile cannot be null");
+        if (profile == null) throw new IllegalArgumentException("Profile må ikke være null");
         profiles.remove(profile);
     }
 
     @Override
     public List<Profile> searchProfiles(String query) {
-        if (query == null) throw new IllegalArgumentException("Query cannot be null");
+        if (query == null) throw new IllegalArgumentException("Query må ikke være null");
         return profiles.stream().filter(p -> p.getUsername().toLowerCase().contains(query.toLowerCase())).toList();
     }
 
@@ -104,27 +93,33 @@ public class ProfilesArrayListManager implements Profiles {
                 case "LOG_IN":
                     // Check if user exists
                     user = getProfileByUsername(data.getString("username"))
-                            .orElseThrow(() -> new IllegalStateException("Wrong username or password"));
+                            .orElseThrow(() -> new IllegalStateException("Forkert brugernavn eller adgangskode"));
                     // Check password
                     if (user.checkPassword(data.getString("password"))) {
                         request.setUser(user.getUUID());
                         request.respond(new DataMap().with("uuid", user.getUUID()));
                     } else {
-                        throw new IllegalStateException("Wrong username or password");
+                        throw new IllegalStateException("Forkert brugernavn eller adgangskode");
                     }
                     break;
                 // Get profile
                 case "GET_CURRENT_PROFILE":
-                    request.respond(new DataMap().with("profile", getProfile(request.getUser()).getData()));
+                    user = getProfile(request.getUser())
+                            .orElseThrow(() -> new IllegalStateException("Brugeren findes ikke"));
+
+                    request.respond(new DataMap().with("profile", user.getData()));
                     break;
                 // Get profile
                 case "GET_PROFILE":
-                    request.respond(new DataMap().with("profile", getProfile(data.getLong("uuid")).getData()));
+                    user = getProfile(data.getLong("uuid"))
+                            .orElseThrow(() -> new IllegalStateException("Brugeren findes ikke"));
+
+                    request.respond(new DataMap().with("profile", user.getData()));
                     break;
                 case "GET_PROFILES":
                     profiles = new ArrayList<>();
                     for (long id : data.getLongsArray("profiles")) {
-                        profiles.add(getProfile(id).getData());
+                        profiles.add(getProfile(id).orElseThrow(() -> new IllegalStateException("Brugeren findes ikke")).getData());
                     }
                     request.respond(new DataMap().with("profiles", profiles));
                     break;

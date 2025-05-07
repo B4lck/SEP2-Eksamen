@@ -8,17 +8,9 @@ public interface Profiles extends ServerRequestHandler {
      * Henter profilen ud fra et id
      *
      * @param uuid - id'et på brugeren
-     * @return En optional med profilen (TODO)
+     * @return En optional med profilen
      */
-    Profile getProfile(long uuid);
-
-    /**
-     * Tjekker om brugeren med ID'et findes
-     *
-     * @param uuid - ID'et på brugeren
-     * @return True hvis brugeren findes, ellers false
-     */
-    boolean doesProfileExist(long uuid);
+    Optional<Profile> getProfile(long uuid);
 
     /**
      * Henter profilen ud fra et brugernavn

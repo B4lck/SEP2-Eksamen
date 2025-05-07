@@ -17,10 +17,12 @@ public class RoomsArrayListManager implements Rooms {
     }
 
     @Override
-    public Room createRoom(String name, long user) {
-        Room chatRoom = new ArrayListRoom(name, user);
+    public Room createRoom(String name, long userId) {
+        Room chatRoom = new ArrayListRoom(name, userId);
         chatRooms.add(chatRoom);
-        model.getMessages().sendSystemMessage(chatRoom.getRoomId(), model.getProfiles().getProfile(user).getUsername() + " oprettede " + name + "!");
+
+        model.getMessages().sendSystemMessage(chatRoom.getRoomId(), model.getProfiles().getProfile(userId).map(Profile::getUsername).orElse("En bruger") + " oprettede " + name + "!");
+
         return chatRoom;
     }
 
@@ -45,7 +47,12 @@ public class RoomsArrayListManager implements Rooms {
     public void addUser(long chatroom, long newUser, long adminUser) {
         Room chatRoom = getRoomFromId(chatroom);
         chatRoom.addUser(newUser, adminUser);
-        model.getMessages().sendSystemMessage(chatroom, model.getProfiles().getProfile(adminUser).getUsername() + " tilføjede " + model.getProfiles().getProfile(newUser).getUsername() + " til chatten!");
+
+        model.getMessages().sendSystemMessage(chatroom,
+                model.getProfiles().getProfile(adminUser).map(Profile::getUsername).orElse("En bruger")
+                        + " tilføjede "
+                        + model.getProfiles().getProfile(newUser).map(Profile::getUsername).orElse("en bruger")
+                        + " fra chatten!");
     }
 
     private Room getRoomFromId(long id) {
@@ -109,24 +116,33 @@ public class RoomsArrayListManager implements Rooms {
     }
 
     @Override
-    public void removeUser(long chatroom, long user, long adminUser) {
+    public void removeUser(long chatroom, long userToRemove, long adminUser) {
         Room chatRoom = getRoomFromId(chatroom);
-        chatRoom.removeUser(user, adminUser);
-        model.getMessages().sendSystemMessage(chatroom, model.getProfiles().getProfile(adminUser).getUsername() + " fjernede " + model.getProfiles().getProfile(user).getUsername() + " fra chatten!");
+        chatRoom.removeUser(userToRemove, adminUser);
+
+        model.getMessages().sendSystemMessage(chatroom,
+                model.getProfiles().getProfile(adminUser).map(Profile::getUsername).orElse("En bruger")
+                        + " fjernede "
+                        + model.getProfiles().getProfile(userToRemove).map(Profile::getUsername).orElse("en bruger")
+                        + " fra chatten.");
     }
 
     @Override
     public void setName(long chatroom, String name, long adminUser) {
         Room chatRoom = getRoomFromId(chatroom);
         chatRoom.setName(name, adminUser);
-        model.getMessages().sendSystemMessage(chatroom, model.getProfiles().getProfile(adminUser).getUsername() + " omdøbte chatten til " + name + "!");
+        model.getMessages().sendSystemMessage(chatroom, model.getProfiles().getProfile(adminUser).map(Profile::getUsername).orElse("En bruger") + " omdøbte chatten til " + name + "!");
     }
 
     @Override
     public void muteUser(long chatroom, long user, long adminUser) {
         Room room = getRoomFromId(chatroom);
         room.muteUser(user, adminUser);
-        model.getMessages().sendSystemMessage(chatroom, model.getProfiles().getProfile(adminUser).getUsername() + " muted " + model.getProfiles().getProfile(user).getUsername() + ".");
+        model.getMessages().sendSystemMessage(chatroom,
+                model.getProfiles().getProfile(adminUser).map(Profile::getUsername).orElse("En bruger")
+                        + " muted "
+                        + model.getProfiles().getProfile(user).map(Profile::getUsername).orElse("En bruger")
+                        + ".");
     }
 
     @Override
@@ -141,7 +157,10 @@ public class RoomsArrayListManager implements Rooms {
     public void unmuteUser(long chatroom, long user, long adminUser) {
         Room room = getRoomFromId(chatroom);
         room.unmuteUser(user, adminUser);
-        model.getMessages().sendSystemMessage(chatroom, model.getProfiles().getProfile(adminUser).getUsername() + " unmuted " + model.getProfiles().getProfile(user).getUsername() + ".");
-
+        model.getMessages().sendSystemMessage(chatroom,
+                model.getProfiles().getProfile(adminUser).map(Profile::getUsername).orElse("En bruger")
+                        + " unmuted "
+                        + model.getProfiles().getProfile(user).map(Profile::getUsername).orElse("En bruger")
+                        + ".");
     }
 }

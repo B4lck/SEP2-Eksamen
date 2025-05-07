@@ -5,7 +5,6 @@ import mediator.ClientMessage;
 import util.ServerError;
 import utils.DataMap;
 
-import java.rmi.ServerException;
 import java.util.*;
 
 public class ProfileManager {
