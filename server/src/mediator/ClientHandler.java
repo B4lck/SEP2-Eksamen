@@ -118,16 +118,18 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
             file.createNewFile();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            InputStream inputStream = socket.getInputStream();
 
             // Hent filstørrelsen
             long fileSize = Long.parseLong(reader.readLine());
 
             // Hent filen, indtil alt er hentet
             try (FileOutputStream writer = new FileOutputStream(file)) {
-                InputStream inputStream = socket.getInputStream();
                 byte[] buffer = new byte[8192];
                 long totalBytesRead = 0;
                 int bytesRead;
+
+                out.println(gson.toJson(new ClientMessage("READY", new DataMap())));
 
                 while (totalBytesRead < fileSize &&
                         (bytesRead = inputStream.read(buffer, 0, (int) Math.min(buffer.length, fileSize - totalBytesRead))) != -1) {

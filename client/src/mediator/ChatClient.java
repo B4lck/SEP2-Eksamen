@@ -115,6 +115,8 @@ public class ChatClient implements PropertyChangeSubject {
         while (true) {
             ClientMessage command = waitingForReply("ChatClient attachment sender");
 
+            System.out.println(command.getType());
+
             switch (command.getType()) {
                 case "SEND_NEXT":
                     var attachmentIndex = command.getData().getString("attachmentName");
@@ -124,12 +126,17 @@ public class ChatClient implements PropertyChangeSubject {
                             .orElseThrow();
 
                     try {
-                        // Send fil-størrelse, så serveren ved hvornår hele filen er hentet
-                        out.println(attachment.getStream().getChannel().size());
-                        // Send filen
-                        attachment.getStream().transferTo(socket.getOutputStream());
+                        FileInputStream fileStream = new FileInputStream(attachment.getFile());
+
+                        out.println(fileStream.getChannel().size());
+                        waitingForReply("ChatClient attachment sender venter på ready signal");
+                        fileStream.transferTo(socket.getOutputStream());
+                        socket.getOutputStream().flush();
+
+                        fileStream.close();
                     } catch (IOException e) {
                         e.printStackTrace();
+                        throw new RuntimeException(e);
                     }
 
                     break;
