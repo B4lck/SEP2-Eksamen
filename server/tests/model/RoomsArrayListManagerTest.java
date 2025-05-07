@@ -2,6 +2,7 @@ package model;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -148,9 +149,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void getRoomWithoutBeingMember() {
-        model.getRooms().getParticipatingRooms(user2.getUUID());
-        // assertEquals (0, model.getRooms().getParticipatingRooms(user2.getUUID()));
-        // GRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
+        assertEquals (0, model.getRooms().getParticipatingRooms(user2.getUUID()).size());
     }
 
     /**
@@ -215,6 +214,14 @@ class RoomsArrayListManagerTest {
         assertThrows(IllegalStateException.class, () -> model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user2.getUUID()));
 
         assertEquals(room.getUsers().size(), 1);
+    }
+
+    /**
+     * tilføje en bruger til rummet som ikke eksistere
+     */
+    @Test
+    void addNotExistingUser() {
+        assertThrows(IllegalStateException.class, () -> model.getRooms().addUser(room.getRoomId(),123, user1.getUUID()));
     }
 
     /**
