@@ -54,7 +54,6 @@ public class MessagesManager implements PropertyChangeSubject, PropertyChangeLis
 
     public List<Message> getMessagesBefore(long chatroom, long messageId, int amount) throws ServerError {
         chatClient.sendMessage(new ClientMessage("RECEIVE_MESSAGES_BEFORE", new DataMap()
-                .with("chatroom", chatroom)
                 .with("before", messageId)
                 .with("amount", amount)));
 

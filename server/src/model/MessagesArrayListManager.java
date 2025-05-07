@@ -64,11 +64,11 @@ public class MessagesArrayListManager implements Messages {
     }
 
     @Override
-    public List<Message> getMessagesBefore(long chatroom, long messageId, int amount) {
+    public List<Message> getMessagesBefore(long messageId, int amount) {
         var beforeMessage = getMessage(messageId);
         return messages.stream()
                 .filter(
-                        msg -> msg.getChatRoom() == chatroom
+                        msg -> msg.getChatRoom() == beforeMessage.getChatRoom()
                                 && msg.getDateTime() <= beforeMessage.getDateTime()
                                 && msg.getMessageId() != messageId)
                 .sorted(Comparator.comparingLong(Message::getDateTime).reversed())
@@ -138,11 +138,10 @@ public class MessagesArrayListManager implements Messages {
                     break;
                 // Hent antal beskeder
                 case "RECEIVE_MESSAGES_BEFORE":
-                    chatRoom = request.getLong("chatroom");
                     long before = message.getData().getLong("before");
                     amount = request.getInt("amount");
 
-                    var messages = getMessagesBefore(chatRoom, before, amount);
+                    var messages = getMessagesBefore(before, amount);
 
                     if (messages.isEmpty()) {
                         message.respond(new ClientMessage("RECEIVE_MESSAGES", new DataMap()

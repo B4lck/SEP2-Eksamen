@@ -33,11 +33,28 @@ public interface Message {
      */
     DataMap getData();
 
+    /**
+     * Henter id'et på chatrummet, hvori beskeden er
+     * @return Id'et på chatrummet
+     */
     long getChatRoom();
 
+    /**
+     * Redigere beskedens body, og giver den et mærkat som redigeret
+     * @param messageBody Den nye body
+     * @param byUserId Id'et på brugeren som forsøger at ændre beskedens body
+     */
     void editBody(String messageBody, long byUserId);
 
+    /**
+     * Ændre bodyen på beskeden til "[BESKEDEN ER SLETTET]"
+     * @param byUserId Id'et på brugeren som forsøger at slette beskeden
+     */
     void deleteContent(long byUserId);
 
+    /**
+     * Tilføjer et bilag til beskeden
+     * @param fileName navnet på bilagets fil
+     */
     void addAttachment(String fileName);
 }
