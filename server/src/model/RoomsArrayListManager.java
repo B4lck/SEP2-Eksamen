@@ -130,6 +130,14 @@ public class RoomsArrayListManager implements Rooms {
     }
 
     @Override
+    public boolean doesRoomExits(long chatroom) {
+        for (Room room : chatRooms) {
+            if (room.getRoomId() == chatroom) return true;
+        }
+        return false;
+    }
+
+    @Override
     public void unmuteUser(long chatroom, long user, long adminUser) {
         Room room = getRoomFromId(chatroom);
         room.unmuteUser(user, adminUser);

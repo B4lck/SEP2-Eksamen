@@ -135,7 +135,7 @@ class RoomsArrayListManagerTest {
 
         var room = model.getRooms().createRoom("test", user.getUUID());
         var room2 = model.getRooms().createRoom("test2", user2.getUUID());
-        var room3 = model.getRooms().createRoom("test3", user2.getUUID());
+        var room3 = model.getRooms().createRoom("test", user2.getUUID());
         room3.addUser(user.getUUID(), user2.getUUID());
         var room4 = model.getRooms().createRoom("test4", user2.getUUID());
         room4.addUser(user.getUUID(), user2.getUUID());

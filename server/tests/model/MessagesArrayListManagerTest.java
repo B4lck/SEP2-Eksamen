@@ -1,27 +1,38 @@
 package model;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class MessagesArrayListManagerTest {
+    private Model model;
+    private Profile user1;
+    private Profile user2;
+    private Room room;
+    
+    @BeforeEach
+    void init() {
+        model = new ChatModel();
+        user1 = model.getProfiles().createProfile("jens123", "123");
+        user2 = model.getProfiles().createProfile("karl123", "123");
+        room = model.getRooms().createRoom("test", user1.getUUID());
+    }
 
     /**
      * Redigere en besked
      */
     @Test
     void editMessage() {
-        Model model = new ChatModel();
-        Profile user = model.getProfiles().createProfile("jens123", "123");
-        Room room = model.getRooms().createRoom("testrum", user.getUUID());
-
         // opret besked i chatrummet af user
         String oldMessage = "test1";
-        Message message = model.getMessages().sendMessage(room.getRoomId(), oldMessage, user.getUUID(), 0);
+        Message message = model.getMessages().sendMessage(room.getRoomId(), oldMessage, user1.getUUID(), 0);
 
         // rediger beskeden
         String newMessage = "test2";
-        model.getMessages().editMessage(message.getMessageId(), newMessage, user.getUUID());
+        model.getMessages().editMessage(message.getMessageId(), newMessage, user1.getUUID());
 
         // tjek
         assertEquals(newMessage + " (redigeret)", message.getBody());
@@ -32,15 +43,11 @@ class MessagesArrayListManagerTest {
      */
     @Test
     void deleteMessage() {
-        Model model = new ChatModel();
-        Profile user = model.getProfiles().createProfile("jens123", "123");
-        Room room = model.getRooms().createRoom("test", user.getUUID());
-
         // opret besked i chatrummet af user
-        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", user.getUUID(), 0);
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", user1.getUUID(), 0);
 
         // slet beskeden
-        model.getMessages().deleteMessage(message.getMessageId(), user.getUUID());
+        model.getMessages().deleteMessage(message.getMessageId(), user1.getUUID());
 
         assertEquals("[BESKEDEN ER BLEVET SLETTET]", message.getBody());
     }
@@ -50,11 +57,8 @@ class MessagesArrayListManagerTest {
      */
     @Test
     void editNonExistingMessage() {
-        Model model = new ChatModel();
-        Profile user = model.getProfiles().createProfile("jens123", "123");
-
         // Tjek om den kaster fejl
-        assertThrows(IllegalArgumentException.class, () -> model.getMessages().editMessage(-1, "ny besked", user.getUUID()));
+        assertThrows(IllegalStateException.class, () -> model.getMessages().editMessage(-1, "ny besked", user1.getUUID()));
     }
 
     /**
@@ -62,11 +66,8 @@ class MessagesArrayListManagerTest {
      */
     @Test
     void deleteNonExistingMessage() {
-        Model model = new ChatModel();
-        Profile user = model.getProfiles().createProfile("jens123", "123");
-
         // Tjek om den kaster fejl
-        assertThrows(IllegalArgumentException.class, () -> model.getMessages().deleteMessage(-1, user.getUUID()));
+        assertThrows(IllegalStateException.class, () -> model.getMessages().deleteMessage(-1, user1.getUUID()));
     }
 
     /**
@@ -74,16 +75,11 @@ class MessagesArrayListManagerTest {
      */
     @Test
     void editMessageWithoutPermission() {
-        Model model = new ChatModel();
-        Profile user1 = model.getProfiles().createProfile("jens123", "123");
-        Profile user2 = model.getProfiles().createProfile("karl123", "321");
-        Room room = model.getRooms().createRoom("test", user1.getUUID());
-
         // opret besked
         Message message = model.getMessages().sendMessage(room.getRoomId(), "test", user1.getUUID(), 0);
 
         // Tjek om den kaster fejl
-        assertThrows(IllegalArgumentException.class, () -> model.getMessages().editMessage(message.getMessageId(), "ny besked", user2.getUUID()));
+        assertThrows(IllegalStateException.class, () -> model.getMessages().editMessage(message.getMessageId(), "ny besked", user2.getUUID()));
     }
 
     /**
@@ -91,16 +87,23 @@ class MessagesArrayListManagerTest {
      */
     @Test
     void deleteMessageWithoutPermission() {
-        Model model = new ChatModel();
-        Profile user1 = model.getProfiles().createProfile("jens123", "123");
-        Profile user2 = model.getProfiles().createProfile("karl123", "321");
-        Room room = model.getRooms().createRoom("test", user1.getUUID());
-
         // opret besked
         Message message = model.getMessages().sendMessage(room.getRoomId(), "test", user1.getUUID(), 0);
 
         // Tjek om den kaster fejl
-        assertThrows(IllegalArgumentException.class, () -> model.getMessages().deleteMessage(message.getMessageId(), user2.getUUID()));
+        assertThrows(IllegalStateException.class, () -> model.getMessages().deleteMessage(message.getMessageId(), user2.getUUID()));
+    }
+
+    @Test
+    void editMessageWithNonExistingUser() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", user1.getUUID(), 0);
+        assertThrows(IllegalStateException.class, () -> model.getMessages().editMessage(message.getMessageId(), "test2", 123));
+    }
+
+    @Test
+    void deleteMessageWithNonExistingUser() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", user1.getUUID(), 0);
+        assertThrows(IllegalStateException.class, () -> model.getMessages().deleteMessage(message.getMessageId(), 123));
     }
 
     /**
@@ -108,15 +111,11 @@ class MessagesArrayListManagerTest {
      */
     @Test
     void editMessageBodyToEmptyString() {
-        Model model = new ChatModel();
-        Profile user = model.getProfiles().createProfile("jens123", "123");
-        Room room = model.getRooms().createRoom("test", user.getUUID());
-
         // opret besked
-        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", user.getUUID(), 0);
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", user1.getUUID(), 0);
 
         // Tjek om den kaster fejl
-        assertThrows(IllegalArgumentException.class, () -> model.getMessages().editMessage(message.getMessageId(), "", user.getUUID()));
+        assertThrows(IllegalArgumentException.class, () -> model.getMessages().editMessage(message.getMessageId(), "", user1.getUUID()));
     }
 
     /**
@@ -124,14 +123,153 @@ class MessagesArrayListManagerTest {
      */
     @Test
     void editMessageBodyToNull() {
-        Model model = new ChatModel();
-        Profile user = model.getProfiles().createProfile("jens123", "123");
-        Room room = model.getRooms().createRoom("test", user.getUUID());
-
         // opret besked
-        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", user.getUUID(), 0);
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", user1.getUUID(), 0);
 
         // Tjek om den kaster fejl
-        assertThrows(NullPointerException.class, () -> model.getMessages().editMessage(message.getMessageId(), null, user.getUUID()));
+        assertThrows(NullPointerException.class, () -> model.getMessages().editMessage(message.getMessageId(), null, user1.getUUID()));
     }
+
+    @Test
+    void sendNormalMessage() {
+        assertDoesNotThrow(() -> model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user1.getUUID()));
+    }
+
+    @Test
+    void sendMessageToNonExistentRoom() {
+        assertThrows(IllegalStateException.class, () -> model.getMessages().sendMessage(0, "test", new ArrayList<>(), user1.getUUID()));
+    }
+
+    @Test
+    void sendMessageToRoomUserIsNotIn() {
+        assertThrows(IllegalStateException.class, () -> model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user2.getUUID()));
+    }
+
+    @Test
+    void sendMessageAsNonExistingUser() {
+        assertThrows(IllegalStateException.class, () -> model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), 0));
+    }
+
+    @Test
+    void sendMessageWithNullBody() {
+        assertThrows(IllegalArgumentException.class, () -> model.getMessages().sendMessage(room.getRoomId(), null, new ArrayList<>(), user1.getUUID()));
+    }
+
+    @Test
+    void sendMessageWithEmptyBodyAndNoAttachments() {
+        assertThrows(IllegalArgumentException.class, () -> model.getMessages().sendMessage(room.getRoomId(), "", new ArrayList<>(), user1.getUUID()));
+    }
+
+    @Test
+    void sendMessageWithOneAttachment() {
+        ArrayList<String> attachments = new ArrayList<>();
+        attachments.add("test");
+
+        assertDoesNotThrow(() -> model.getMessages().sendMessage(room.getRoomId(), "", attachments, user1.getUUID()));
+    }
+
+    @Test
+    void sendMessagesWithMultipleAttachments() {
+        ArrayList<String> attachments = new ArrayList<>();
+        attachments.add("test1");
+        attachments.add("test2");
+        attachments.add("test3");
+
+        assertDoesNotThrow(() -> model.getMessages().sendMessage(room.getRoomId(), "", attachments, user1.getUUID()));
+    }
+
+    @Test
+    void sendMessageWithNullAttachment() {
+        assertThrows(NullPointerException.class ,() -> model.getMessages().sendMessage(room.getRoomId(), "", null, user1.getUUID()));
+    }
+
+    @Test
+    void getMessagesWithTenAmount() {
+        assertDoesNotThrow(() -> model.getMessages().getMessages(room.getRoomId(), 10));
+    }
+
+    @Test
+    void getMessagesWithNegativeAmount() {
+        assertThrows(IllegalArgumentException.class, () -> model.getMessages().getMessages(room.getRoomId(), -1));
+    }
+
+    @Test
+    void getMessagesWith0Amount() {
+        assertThrows(IllegalArgumentException.class, () -> model.getMessages().getMessages(room.getRoomId(), 0));
+    }
+
+    @Test
+    void getMessagesWith1Amount() {
+        assertDoesNotThrow(() -> model.getMessages().getMessages(room.getRoomId(), 1));
+    }
+
+    @Test
+    void getMessagesFromNonExistingRoom() {
+        assertThrows(IllegalArgumentException.class, () -> model.getMessages().getMessages(7238947, 1));
+    }
+
+    @Test
+    void getMessagesBeforeExistingMessageWithTenAmount() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user1.getUUID());
+
+        assertDoesNotThrow(() -> model.getMessages().getMessagesBefore(message.getMessageId(), 10));
+    }
+
+    @Test
+    void getMessagesBeforeExistingMessageWithOneAmount() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user1.getUUID());
+
+        assertDoesNotThrow(() -> model.getMessages().getMessagesBefore(message.getMessageId(), 1));
+    }
+
+    @Test
+    void getMessagesBeforeExistingMessageWithZeroAmount() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(),"test", new ArrayList<>(), user1.getUUID());
+
+        assertThrows(IllegalArgumentException.class, () -> model.getMessages().getMessagesBefore(message.getMessageId(), 0));
+    }
+
+    @Test
+    void getMessagesBeforeExistingMessageWithNegativeAmount() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(),"test", new ArrayList<>(), user1.getUUID());
+
+        assertThrows(IllegalArgumentException.class, () -> model.getMessages().getMessagesBefore(message.getMessageId(), -1));
+    }
+
+    @Test
+    void getMessagesBeforeNonExistingMessage() {
+        assertThrows(IllegalStateException.class, () -> model.getMessages().getMessagesBefore(123, 10));
+    }
+
+    @Test
+    void getExistingMessage() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user1.getUUID());
+        assertDoesNotThrow(() -> model.getMessages().getMessage(message.getMessageId()));
+    }
+
+    @Test
+    void getNonExistingMessage() {
+        assertThrows(IllegalStateException.class, () -> model.getMessages().getMessage(7912783));
+    }
+
+    @Test
+    void sendSystemMessageToChatroom() {
+        assertDoesNotThrow(() -> model.getMessages().sendSystemMessage(room.getRoomId(), "test"));
+    }
+
+    @Test
+    void sendSystemMessageToNonExistingChatroom() {
+        assertThrows(IllegalStateException.class, () -> model.getMessages().sendSystemMessage(123, "test"));
+    }
+
+    @Test
+    void sendNullSystemMessage() {
+        assertThrows(IllegalArgumentException.class, () -> model.getMessages().sendSystemMessage(room.getRoomId(), null));
+    }
+
+    @Test
+    void sendEmptySystemMessage() {
+        assertThrows(IllegalArgumentException.class, () -> model.getMessages().sendSystemMessage(room.getRoomId(), ""));
+    }
+
 }

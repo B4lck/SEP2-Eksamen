@@ -65,6 +65,13 @@ public interface Rooms extends ServerRequestHandler {
     void muteUser(long chatroom, long user, long adminUser);
 
     /**
+     * Tjekker om rummet eksistere
+     * @param chatroom id'et på chatrummet
+     * @return true hvis rummet findes
+     */
+    boolean doesRoomExits(long chatroom);
+
+    /**
      * Unmuter en bruger
      * @param chatroom id'et på chatrummet
      * @param user id'et på user
