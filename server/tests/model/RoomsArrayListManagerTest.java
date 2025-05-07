@@ -1,8 +1,13 @@
 package model;
 
+import model.statemachine.MutedUser;
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-class ChatRoomsArrayListManagerTest {
+class RoomsArrayListManagerTest {
 
     /**
      * Opret et rum med gyldig navn og bruger
@@ -337,5 +342,141 @@ class ChatRoomsArrayListManagerTest {
         var user = model.getProfiles().createProfile("hello", "1");
 
         assertThrows(IllegalStateException.class, () -> model.getRooms().setName(123, "", user.getUUID()));
+    }
+
+    /**
+     * Muter en bruger i et chatrum
+     */
+    @Test
+    void muteUser() {
+        Model model = new ChatModel();
+        Profile user1 = model.getProfiles().createProfile("jens123", "123");
+        Profile user2 = model.getProfiles().createProfile("karl123", "321");
+        Room room = model.getRooms().createRoom("test room", user1.getUUID());
+
+        room.addUser(user2.getUUID(), user1.getUUID());
+        room.muteUser(user2.getUUID(), user1.getUUID());
+
+        // Skal throw, fordi user2 skal ikke kunne skrive
+        assertThrows(IllegalStateException.class, () -> model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user2.getUUID()));
+    }
+
+    /**
+     * Unmuter en muted bruger i et chatrum
+     */
+    @Test
+    void unmuteUser() {
+        Model model = new ChatModel();
+        Profile user1 = model.getProfiles().createProfile("jens123", "123");
+        Profile user2 = model.getProfiles().createProfile("karl123", "321");
+        Room room = model.getRooms().createRoom("test room", user1.getUUID());
+
+        room.addUser(user2.getUUID(), user1.getUUID());
+        // mute først
+        room.muteUser(user2.getUUID(), user1.getUUID());
+        // unmute igen
+        room.unmuteUser(user2.getUUID(), user1.getUUID());
+
+        // Skal ikke kaste
+        assertDoesNotThrow(() -> model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user2.getUUID()));
+    }
+
+    /**
+     * Muter en muted bruger
+     */
+    @Test
+    void muteMutedUser() {
+        Model model = new ChatModel();
+        Profile user1 = model.getProfiles().createProfile("jens123", "123");
+        Profile user2 = model.getProfiles().createProfile("karl123", "321");
+        Room room = model.getRooms().createRoom("test room", user1.getUUID());
+
+        room.addUser(user2.getUUID(), user1.getUUID());
+        room.muteUser(user2.getUUID(), user1.getUUID());
+
+        assertThrows(IllegalStateException.class, () -> room.muteUser(user2.getUUID(), user1.getUUID()));
+    }
+
+    /**
+     * Unmuter en unmuted bruger
+     */
+    @Test
+    void unmuteUnmutedUser() {
+        Model model = new ChatModel();
+        Profile user1 = model.getProfiles().createProfile("jens123", "123");
+        Profile user2 = model.getProfiles().createProfile("karl123", "321");
+        Room room = model.getRooms().createRoom("test room", user1.getUUID());
+
+        room.addUser(user2.getUUID(), user1.getUUID());
+
+        assertThrows(IllegalStateException.class, () -> room.unmuteUser(user2.getUUID(), user1.getUUID()));
+    }
+
+    /**
+     * En bruger muter dem selv
+     */
+    @Test
+    void muteThemself() {
+        Model model = new ChatModel();
+        Profile user1 = model.getProfiles().createProfile("jens123", "123");
+        Room room = model.getRooms().createRoom("test room", user1.getUUID());
+
+        assertThrows(IllegalStateException.class, () -> room.muteUser(user1.getUUID(), user1.getUUID()));
+    }
+
+    /**
+     * Muter en bruger uden tilladelse til at mute
+     */
+    @Test
+    void muteWithoutPermission() {
+        Model model = new ChatModel();
+        Profile user1 = model.getProfiles().createProfile("jens123", "123");
+        Profile user2 = model.getProfiles().createProfile("karl123", "321");
+        Room room = model.getRooms().createRoom("test room", user1.getUUID());
+
+        room.addUser(user2.getUUID(), user1.getUUID());
+
+        assertThrows(IllegalStateException.class, () -> room.muteUser(user1.getUUID(), user2.getUUID()));
+    }
+
+    /**
+     * Unmuter en bruger uden tilladelse
+     */
+    @Test
+    void unmuteWithoutPermission() {
+        Model model = new ChatModel();
+        Profile user1 = model.getProfiles().createProfile("jens123", "123");
+        Profile user2 = model.getProfiles().createProfile("karl123", "321");
+        Room room = model.getRooms().createRoom("test room", user1.getUUID());
+
+        room.addUser(user2.getUUID(), user1.getUUID());
+
+        assertThrows(IllegalStateException.class, () -> room.unmuteUser(user1.getUUID(), user2.getUUID()));
+    }
+
+    /**
+     * Muter en bruger der ikke er i chatrummet
+     */
+    @Test
+    void muteUserNotInRoom() {
+        Model model = new ChatModel();
+        Profile user1 = model.getProfiles().createProfile("jens123", "123");
+        Profile user2 = model.getProfiles().createProfile("karl123", "321");
+        Room room = model.getRooms().createRoom("test room", user1.getUUID());
+
+        assertThrows(IllegalStateException.class, () -> room.muteUser(user2.getUUID(), user1.getUUID()));
+    }
+
+    /**
+     * Unmuter en bruger der ikke er i chatrummet
+     */
+    @Test
+    void unmuteUserNotInRoom() {
+        Model model = new ChatModel();
+        Profile user1 = model.getProfiles().createProfile("jens123", "123");
+        Profile user2 = model.getProfiles().createProfile("karl123", "321");
+        Room room = model.getRooms().createRoom("test room", user1.getUUID());
+
+        assertThrows(IllegalStateException.class, () -> room.unmuteUser(user2.getUUID(), user1.getUUID()));
     }
 }

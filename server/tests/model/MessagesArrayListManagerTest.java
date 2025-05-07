@@ -6,6 +6,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MessagesArrayListManagerTest {
 
+    /**
+     * Redigere en besked
+     */
     @Test
     void editMessage() {
         Model model = new ChatModel();
@@ -24,6 +27,9 @@ class MessagesArrayListManagerTest {
         assertEquals(newMessage + " (redigeret)", message.getBody());
     }
 
+    /**
+     * Sletter en besked
+     */
     @Test
     void deleteMessage() {
         Model model = new ChatModel();
@@ -39,6 +45,9 @@ class MessagesArrayListManagerTest {
         assertEquals("[BESKEDEN ER BLEVET SLETTET]", message.getBody());
     }
 
+    /**
+     * Rediger en ikke eksisterende besked
+     */
     @Test
     void editNonExistingMessage() {
         Model model = new ChatModel();
@@ -48,6 +57,9 @@ class MessagesArrayListManagerTest {
         assertThrows(IllegalArgumentException.class, () -> model.getMessages().editMessage(-1, "ny besked", user.getUUID()));
     }
 
+    /**
+     * Slet ikke eksisterende besked
+     */
     @Test
     void deleteNonExistingMessage() {
         Model model = new ChatModel();
@@ -57,6 +69,9 @@ class MessagesArrayListManagerTest {
         assertThrows(IllegalArgumentException.class, () -> model.getMessages().deleteMessage(-1, user.getUUID()));
     }
 
+    /**
+     * Rediger besked uden tilladelse
+     */
     @Test
     void editMessageWithoutPermission() {
         Model model = new ChatModel();
@@ -71,6 +86,9 @@ class MessagesArrayListManagerTest {
         assertThrows(IllegalArgumentException.class, () -> model.getMessages().editMessage(message.getMessageId(), "ny besked", user2.getUUID()));
     }
 
+    /**
+     * Slet besked uden tilladelse
+     */
     @Test
     void deleteMessageWithoutPermission() {
         Model model = new ChatModel();
@@ -85,6 +103,9 @@ class MessagesArrayListManagerTest {
         assertThrows(IllegalArgumentException.class, () -> model.getMessages().deleteMessage(message.getMessageId(), user2.getUUID()));
     }
 
+    /**
+     * Rediger besked til en tom besked
+     */
     @Test
     void editMessageBodyToEmptyString() {
         Model model = new ChatModel();
@@ -98,6 +119,9 @@ class MessagesArrayListManagerTest {
         assertThrows(IllegalArgumentException.class, () -> model.getMessages().editMessage(message.getMessageId(), "", user.getUUID()));
     }
 
+    /**
+     * Rediger en beskeds body til null
+     */
     @Test
     void editMessageBodyToNull() {
         Model model = new ChatModel();
