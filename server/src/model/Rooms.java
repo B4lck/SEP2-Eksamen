@@ -41,8 +41,8 @@ public interface Rooms extends ServerRequestHandler {
     /**
      * Fjerner en bruger fra et chatrum
      *
-     * @param chatroom id'et på chatrummet
-     * @param user id'et på brugeren som skal fjernes
+     * @param chatroom  id'et på chatrummet
+     * @param user      id'et på brugeren som skal fjernes
      * @param adminUser id'et på brugeren som forsøger
      */
     void removeUser(long chatroom, long user, long adminUser);
@@ -50,22 +50,24 @@ public interface Rooms extends ServerRequestHandler {
     /**
      * Sætter navnet på et chatrum
      *
-     * @param chatroom id' på chatrummet
-     * @param name det nye navn på chatrummet
+     * @param chatroom  id' på chatrummet
+     * @param name      det nye navn på chatrummet
      * @param adminUser id'et på brugeren der forsøger at ændre navnet på chatrummet
      */
     void setName(long chatroom, String name, long adminUser);
 
     /**
-     *  Muter en bruger
-     * @param chatroom id'et på chatrummet
-     * @param user id'et på user
+     * Muter en bruger
+     *
+     * @param chatroom  id'et på chatrummet
+     * @param user      id'et på user
      * @param adminUser id'et på adminUser
      */
     void muteUser(long chatroom, long user, long adminUser);
 
     /**
      * Tjekker om rummet eksistere
+     *
      * @param chatroom id'et på chatrummet
      * @return true hvis rummet findes
      */
@@ -73,8 +75,9 @@ public interface Rooms extends ServerRequestHandler {
 
     /**
      * Unmuter en bruger
-     * @param chatroom id'et på chatrummet
-     * @param user id'et på user
+     *
+     * @param chatroom  id'et på chatrummet
+     * @param user      id'et på user
      * @param adminUser id'et på adminUser
      */
     void unmuteUser(long chatroom, long user, long adminUser);

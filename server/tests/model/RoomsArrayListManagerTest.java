@@ -17,9 +17,9 @@ class RoomsArrayListManagerTest {
     @BeforeEach
     void init() {
         model = new ChatModel();
-        user1 = model.getProfiles().createProfile("Mazen","1234");
-        user2 = model.getProfiles().createProfile("TykkeBalck","6789");
-        room = model.getRooms().createRoom("HelloWorld",user1.getUUID());
+        user1 = model.getProfiles().createProfile("Mazen", "1234");
+        user2 = model.getProfiles().createProfile("TykkeBalck", "6789");
+        room = model.getRooms().createRoom("HelloWorld", user1.getUUID());
     }
 
     /**
@@ -65,7 +65,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void creatRoomWithNoneExistingUser() {
-        assertThrows(IllegalStateException.class, () -> model.getRooms().createRoom("Baby",123));
+        assertThrows(IllegalStateException.class, () -> model.getRooms().createRoom("Baby", 123));
     }
 
     /**

@@ -4,7 +4,6 @@ import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import util.Callback;
 import viewModel.ViewModel;
-import viewModel.ViewModelFactory;
 
 public abstract class PopupViewController<R, T extends ViewModel> {
 

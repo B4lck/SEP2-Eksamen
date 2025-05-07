@@ -78,7 +78,7 @@ public interface Room {
      * @param userId Id på valgte bruger
      * @param byUser Id'et på udførende
      */
-    void muteUser (long userId, long byUser);
+    void muteUser(long userId, long byUser);
 
     /**
      * Unmuter bruger i chatrummet
@@ -86,7 +86,7 @@ public interface Room {
      * @param userId Id på valgte bruger
      * @param byUser Id'et på udførende
      */
-    void unmuteUser (long userId, long byUser);
+    void unmuteUser(long userId, long byUser);
 
     /**
      * Tjekker om brugeren er muted
@@ -94,6 +94,6 @@ public interface Room {
      * @param userId Id på valgte bruger
      * @return True hvis brugeren er muted
      */
-    boolean isMuted (long userId);
+    boolean isMuted(long userId);
 }
 

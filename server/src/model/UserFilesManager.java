@@ -30,7 +30,7 @@ public class UserFilesManager implements ServerRequestHandler {
 
             File file = new File("uploads/" + fileId);
 
-            FileInputStream in = null;
+            FileInputStream in;
             try {
                 in = new FileInputStream(file);
             } catch (FileNotFoundException e) {

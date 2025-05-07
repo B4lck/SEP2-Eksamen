@@ -13,8 +13,6 @@ import util.ServerError;
 import viewModel.ViewModel;
 import viewModel.ViewModelFactory;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,27 +31,24 @@ public class ViewHandler {
         currentScene = new Scene(new Region());
 
         // Notifikationer
-        model.getMessagesManager().addListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                // Hvis primary stage er i fokus, behøves notifikationer ikke
-                if (primaryStage != null && primaryStage.isFocused()) return;
-                // Lyt efter nye beskeder
-                if (evt.getPropertyName().equals("NEW_MESSAGE")) {
-                    Message message = (Message) evt.getNewValue();
-                    // Send ikke system beskeder, eller egne beskeder som notifikationer
-                    if (message.getSentBy() == 0) return;
-                    if (message.getSentBy() == model.getProfileManager().getCurrentUserUUID()) return;
-                    // Send notifikation
-                    Platform.runLater(() -> {
-                        try {
-                            notificationManager.showNotification(model.getProfileManager().getProfile(message.getSentBy()).getUsername() + " har sendt dig en besked", message.getBody());
-                        } catch (ServerError e) {
-                            e.printStackTrace();
-                            e.showAlert();
-                        }
-                    });
-                }
+        model.getMessagesManager().addListener(evt -> {
+            // Hvis primary stage er i fokus, behøves notifikationer ikke
+            if (primaryStage != null && primaryStage.isFocused()) return;
+            // Lyt efter nye beskeder
+            if (evt.getPropertyName().equals("NEW_MESSAGE")) {
+                Message message = (Message) evt.getNewValue();
+                // Send ikke system beskeder, eller egne beskeder som notifikationer
+                if (message.getSentBy() == 0) return;
+                if (message.getSentBy() == model.getProfileManager().getCurrentUserUUID()) return;
+                // Send notifikation
+                Platform.runLater(() -> {
+                    try {
+                        notificationManager.showNotification(model.getProfileManager().getProfile(message.getSentBy()).getUsername() + " har sendt dig en besked", message.getBody());
+                    } catch (ServerError e) {
+                        e.printStackTrace();
+                        e.showAlert();
+                    }
+                });
             }
         });
     }
@@ -64,14 +59,18 @@ public class ViewHandler {
     }
 
     public void openView(ViewID view) {
-        Region root = null;
+        Region root;
 
-        root = switch (view) {
-            case LOGIN -> getRoot(view, viewModelFactory.getLogInViewModel(), this);
-            case SIGNUP -> getRoot(view, viewModelFactory.getSignUpViewModel(), this);
-            case CHATROOM -> getRoot(view, viewModelFactory.getChatRoomViewModel(), this);
-            case CREATE_EDIT_ROOM -> getRoot(view, viewModelFactory.getCreateEditChatRoomViewModel(), this);
-        };
+        try {
+            root = switch (view) {
+                case LOGIN -> getRoot(view, viewModelFactory.getLogInViewModel(), this);
+                case SIGNUP -> getRoot(view, viewModelFactory.getSignUpViewModel(), this);
+                case CHATROOM -> getRoot(view, viewModelFactory.getChatRoomViewModel(), this);
+                case CREATE_EDIT_ROOM -> getRoot(view, viewModelFactory.getCreateEditChatRoomViewModel(), this);
+            };
+        } catch (IOException e) {
+            throw new IllegalStateException("Kunne ikke indlæse siden :(");
+        }
 
         if (root == null) {
             throw new IllegalStateException("Bro siden findes ik din noob");
@@ -101,27 +100,23 @@ public class ViewHandler {
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setScene(new Scene(root, root.getPrefWidth(), root.getPrefHeight()));
-            ((PopupViewController) loader.getController()).init(this, viewModel, root, stage, callback);
+            ((PopupViewController<R, ViewModel>) loader.getController()).init(this, viewModel, root, stage, callback);
             stage.showAndWait();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private <T extends ViewModel> Region getRoot(ViewID viewId, T viewModel, ViewHandler viewHandler) {
+    private <T extends ViewModel> Region getRoot(ViewID viewId, T viewModel, ViewHandler viewHandler) throws IOException {
         ViewController<T> vc = controllers.get(viewId.name());
 
         if (vc == null) {
-            try {
-                FXMLLoader loader = new FXMLLoader();
-                loader.setLocation(getClass().getResource(viewId.getFilename()));
-                Region root = loader.load();
-                vc = loader.getController();
-                vc.init(this, viewModel, root);
-                controllers.put(viewId.name(), vc);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource(viewId.getFilename()));
+            Region root = loader.load();
+            vc = loader.getController();
+            vc.init(this, viewModel, root);
+            controllers.put(viewId.name(), vc);
         }
 
         vc.reset();

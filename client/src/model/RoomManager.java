@@ -43,9 +43,7 @@ public class RoomManager {
         client.sendMessage(new ClientMessage("CREATE_ROOM", new DataMap()
                 .with("name", name)));
 
-        long reply = Room.fromData(client.waitingForReply("RoomManager createRoom").getData().getMap("room")).getRoomId();
-
-        return reply;
+        return Room.fromData(client.waitingForReply("RoomManager createRoom").getData().getMap("room")).getRoomId();
     }
 
     public void removeUser(long chatroom, long userId) throws ServerError {

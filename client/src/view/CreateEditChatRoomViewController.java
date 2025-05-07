@@ -1,10 +1,8 @@
 package view;
 
-import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import viewModel.CreateEditChatRoomViewModel;
 import viewModel.ViewUser;
@@ -78,11 +76,11 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
 
     @FXML
     public void mute(ActionEvent actionEvent) {
-    getViewModel().muteUser(users.getSelectionModel().getSelectedItems().getFirst().userId);
+        getViewModel().muteUser(users.getSelectionModel().getSelectedItems().getFirst().userId);
     }
 
     @FXML
     public void unmute(ActionEvent actionEvent) {
-    getViewModel().unmuteUser(users.getSelectionModel().getSelectedItems().getFirst().userId);
+        getViewModel().unmuteUser(users.getSelectionModel().getSelectedItems().getFirst().userId);
     }
 }

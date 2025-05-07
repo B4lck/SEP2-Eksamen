@@ -99,7 +99,7 @@ public class ChatClient implements PropertyChangeSubject {
      *
      * @param message     - Beskeden
      * @param attachments - Liste af attachments (filer) der skal sendes til serveren
-     * @throws ServerError
+     * @throws ServerError Hvis serveren støder på en fejl
      */
     public void sendMessageWithAttachments(ClientMessage message, List<Attachment> attachments) throws ServerError {
         // Tilføj attachments til besked

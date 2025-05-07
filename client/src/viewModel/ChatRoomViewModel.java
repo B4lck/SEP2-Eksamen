@@ -47,9 +47,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
         model.getMessagesManager().addListener(this);
 
-        viewState.getCurrentChatRoomProperty().addListener((change) -> {
-            resetMessages();
-        });
+        viewState.getCurrentChatRoomProperty().addListener((change) -> resetMessages());
     }
 
     public ObservableList<ViewRoom> getChatRoomsProperty() {

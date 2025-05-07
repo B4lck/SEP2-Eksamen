@@ -12,9 +12,7 @@ public class ServerMain {
     public static void main(String[] args) {
         Model model = new ChatModel();
 
-        try {
-            ServerSocket welcomeSocket = new ServerSocket(PORT);
-
+        try (ServerSocket welcomeSocket = new ServerSocket(PORT)) {
             while (true) {
                 Socket socket = welcomeSocket.accept();
                 System.out.println("Ny forbindelse fra " + socket.getRemoteSocketAddress());

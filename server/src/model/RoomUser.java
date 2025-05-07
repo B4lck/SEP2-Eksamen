@@ -23,6 +23,7 @@ public class RoomUser {
 
     /**
      * Henter id'et
+     *
      * @return id'et på brugeren
      */
     public long getId() {
@@ -31,6 +32,7 @@ public class RoomUser {
 
     /**
      * Sætter staten
+     *
      * @param state staten der skal gives
      */
     public void setState(UserState state) {
@@ -39,6 +41,7 @@ public class RoomUser {
 
     /**
      * Henter staten
+     *
      * @return Staten
      */
     public UserState getState() {

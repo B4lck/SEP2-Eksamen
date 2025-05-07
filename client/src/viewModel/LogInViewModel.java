@@ -37,6 +37,7 @@ public class LogInViewModel implements ViewModel {
 
     /**
      * Forsøg at logge ind
+     *
      * @return Om brugeren blev logget ind.
      */
     public boolean login() {

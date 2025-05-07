@@ -25,8 +25,9 @@ public abstract class UserState {
 
     /**
      * Opretter et user state, ud fra et user state id
+     *
      * @param state User state id
-     * @param user RoomUser objektet af en profil i et chatrum
+     * @param user  RoomUser objektet af en profil i et chatrum
      * @return User state objekt
      */
     public static UserState stateFromString(UserStateId state, RoomUser user) {
