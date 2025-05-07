@@ -46,11 +46,12 @@ public class MessagesArrayListManager implements Messages {
     }
 
     @Override
-    public void sendMessage(long chatroom, String messageBody, long senderID, long time) {
+    public Message sendMessage(long chatroom, String messageBody, long senderID, long time) {
         // Kun til brug til dummy data for nu
         var message = new ArrayListMessage(senderID, messageBody, time, chatroom);
         messages.add(message);
         property.firePropertyChange("RECEIVE_MESSAGE", null, new DataMap().with("message", message.getData()));
+        return message;
     }
 
     @Override
@@ -92,13 +93,13 @@ public class MessagesArrayListManager implements Messages {
     @Override
     public void editMessage(long messageId, String messageBody, long byUserId) {
         var message = getMessage(messageId);
-        message.editBody(messageBody + " (redigeret)", byUserId);
+        message.editBody(messageBody, byUserId);
     }
 
     @Override
     public void deleteMessage(long messageId, long byUserId) {
         var message = getMessage(messageId);
-        message.editBody("[BESKEDEN ER BLEVET SLETTET]", byUserId);
+        message.deleteContent(byUserId);
     }
 
     @Override

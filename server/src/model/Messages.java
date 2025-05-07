@@ -15,7 +15,7 @@ public interface Messages extends ClientMessageHandler, PropertyChangeSubject {
      */
     Message sendMessage(long chatroom, String messageBody, List<String> attachments, long senderID);
 
-    void sendMessage(long chatroom, String messageBody, long senderID, long time);
+    Message sendMessage(long chatroom, String messageBody, long senderID, long time);
 
     /**
      * Henter alle beskeder i et chatrum
