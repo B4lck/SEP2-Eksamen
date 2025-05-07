@@ -62,49 +62,49 @@ public class RoomsArrayListManager implements Rooms {
 
 
     @Override
-    public void handleMessage(ServerRequest message) {
+    public void handleRequest(ServerRequest request) {
         try {
-            switch (message.getType()) {
+            switch (request.getType()) {
                 case "CREATE_ROOM":
-                    message.respond(new ClientMessage("GET_ROOM", new DataMap()
-                            .with("room", createRoom(message.getData().getString("name"), message.getUser()).getData())));
+                    request.respond(new DataMap()
+                            .with("room", createRoom(request.getData().getString("name"), request.getUser()).getData()));
                     break;
                 case "GET_ROOM":
-                    message.respond(new ClientMessage("GET_ROOM", new DataMap()
-                            .with("room", getRoom(message.getData().getLong("room"), message.getUser()).getData())));
+                    request.respond(new DataMap()
+                            .with("room", getRoom(request.getData().getLong("room"), request.getUser()).getData()));
                     break;
                 case "GET_MY_ROOMS":
                     ArrayList<DataMap> rooms = new ArrayList<>();
-                    for (Room room : getParticipatingRooms(message.getUser())) {
+                    for (Room room : getParticipatingRooms(request.getUser())) {
                         rooms.add(room.getData());
                     }
-                    message.respond(new ClientMessage("GET_ROOMS", new DataMap().with("rooms", rooms)));
+                    request.respond(new DataMap().with("rooms", rooms));
                     break;
                 case "ADD_USER":
-                    addUser(message.getData().getLong("room"), message.getData().getLong("user"), message.getUser());
-                    message.respond(new ClientMessage("SUCCESS", new DataMap()));
+                    addUser(request.getData().getLong("room"), request.getData().getLong("user"), request.getUser());
+                    request.respond("Bruger tilføjet til rummet");
                     break;
                 case "REMOVE_USER":
-                    removeUser(message.getData().getLong("room"), message.getData().getLong("user"), message.getUser());
-                    message.respond(new ClientMessage("SUCCESS", new DataMap()));
+                    removeUser(request.getData().getLong("room"), request.getData().getLong("user"), request.getUser());
+                    request.respond("Bruger fjernet fra rummet");
                     break;
                 case "UPDATE_ROOM_NAME":
-                    setName(message.getData().getLong("room"), message.getData().getString("name"), message.getUser());
-                    message.respond(new ClientMessage("SUCCESS", new DataMap()));
+                    setName(request.getData().getLong("room"), request.getData().getString("name"), request.getUser());
+                    request.respond("Rummets navn blev opdateret");
                     break;
                 case "MUTE_USER":
-                    muteUser(message.getData().getLong("chatroomId"), message.getData().getLong("userId"), message.getUser());
-                    message.respond(new ClientMessage("SUCCESS", new DataMap()));
+                    muteUser(request.getData().getLong("chatroomId"), request.getData().getLong("userId"), request.getUser());
+                    request.respond("Bruger er blevet muted");
                     break;
                 case "UNMUTE_USER":
-                    unmuteUser(message.getData().getLong("chatroomId"), message.getData().getLong("userId"), message.getUser());
-                    message.respond(new ClientMessage("SUCCESS", new DataMap()));
+                    unmuteUser(request.getData().getLong("chatroomId"), request.getData().getLong("userId"), request.getUser());
+                    request.respond("Bruger er blevet unmuted");
                     break;
 
             }
         } catch (Exception e) {
             e.printStackTrace();
-            message.respond(new ClientMessage(e.getMessage()));
+            request.respond(new ClientMessage(e.getMessage()));
         }
     }
 

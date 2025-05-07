@@ -8,17 +8,16 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.Socket;
-import java.util.Map;
 
 /**
  * Håndtere kommunikationen imellem serveren og en klient.
  */
 public class ClientHandler implements Runnable, PropertyChangeListener {
-    private BufferedReader in;
-    private PrintWriter out;
-    private Gson gson;
-    private Model model;
-    private Socket socket;
+    private final BufferedReader in;
+    private final PrintWriter out;
+    private final Gson gson;
+    private final Model model;
+    private final Socket socket;
 
     /**
      * Hvis forbindelsen er til en bruger der er logget ind, er dette ID'et på den bruger.
@@ -29,9 +28,9 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
     /**
      * Opret en ny client handler, for en socket.
      *
-     * @param socket Den forbindelse, der skal have en client handler
-     * @param model  Reference til modellen
-     * @throws IOException
+     * @param socket       - Den forbindelse, der skal have en client handler
+     * @param model        - Reference til modellen
+     * @throws IOException - Hvis socket'ens streams ikke kan oprettes eller bliver uventet lukket.
      */
     public ClientHandler(Socket socket, Model model) throws IOException {
         this.socket = socket;
@@ -46,14 +45,14 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
     /**
      * Set den nuværende bruger ID
      *
-     * @param userId ID'et på den bruger, som er logget ind
+     * @param userId - ID'et på den bruger, som er logget ind
      */
     public void setAuthenticatedUser(long userId) {
         currentUser = userId;
     }
 
     /**
-     * Hvis brugeren er logget ind, henter den brugerens ID
+     * Hvis brugeren er logget ind, hentes brugerens ID
      * Ellers returnere den -1
      */
     public long getAuthenticatedUser() {
@@ -70,15 +69,16 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
                 // Håndter indgående beskeder
                 String req = in.readLine();
 
+                // Logging
                 System.out.println(req);
 
-                ClientMessage clmsg = gson.fromJson(req, ClientMessage.class);
-                ServerRequest message = new ServerRequest(clmsg.type, clmsg.data, clmsg.attachments);
+                ClientMessage message = gson.fromJson(req, ClientMessage.class);
+                ServerRequest request = new ServerRequest(message.type, message.data, message.attachments);
 
-                message.setHandler(this);
+                request.setHandler(this);
 
                 // Giv videre til model
-                model.passClientMessage(message);
+                model.passServerRequest(request);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

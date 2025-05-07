@@ -103,90 +103,86 @@ public class MessagesArrayListManager implements Messages {
     }
 
     @Override
-    public void handleMessage(ServerRequest message) {
+    public void handleRequest(ServerRequest request) {
         long chatRoom;
-        var request = message.getData();
+        var data = request.getData();
         int amount;
 
         try {
-            switch (message.getType()) {
+            switch (request.getType()) {
                 // Send besked
                 case "SEND_MESSAGE":
-                    chatRoom = request.getLong("chatroom");
-                    String messageBody = request.getString("body");
+                    chatRoom = data.getLong("chatroom");
+                    String messageBody = data.getString("body");
 
                     List<String> attachments = new ArrayList<>();
 
-                    while (!message.getAttachments().isEmpty()) {
-                        var name = message.downloadNextAttachment();
+                    while (!request.getAttachments().isEmpty()) {
+                        var name = request.downloadNextAttachment();
                         System.out.println("tilføjer bilag...");
                         attachments.add(name);
                     }
 
-                    Message msg = sendMessage(chatRoom, messageBody, attachments, message.getUser());
+                    sendMessage(chatRoom, messageBody, attachments, request.getUser());
 
-                    message.respond(new ClientMessage("SUCCESS", new DataMap()
-                            .with("status", "Message sent")));
+                    request.respond("Beskeden blev sendt");
                     break;
                 // Hent antal beskeder
                 case "RECEIVE_MESSAGES":
-                    chatRoom = request.getLong("chatroom");
-                    amount = request.getInt("amount");
+                    chatRoom = data.getLong("chatroom");
+                    amount = data.getInt("amount");
 
-                    message.respond(new ClientMessage("RECEIVE_MESSAGES", new DataMap()
-                            .with("messages", toSendableData(getMessages(chatRoom, amount)))));
+                    request.respond(new DataMap().with("messages", toSendableData(getMessages(chatRoom, amount))));
                     break;
                 // Hent antal beskeder
                 case "RECEIVE_MESSAGES_BEFORE":
-                    long before = message.getData().getLong("before");
-                    amount = request.getInt("amount");
+                    long before = request.getData().getLong("before");
+                    amount = data.getInt("amount");
 
                     var messages = getMessagesBefore(before, amount);
 
                     if (messages.isEmpty()) {
-                        message.respond(new ClientMessage("RECEIVE_MESSAGES", new DataMap()
+                        request.respond(new DataMap()
                                 .with("messages", new ArrayList<DataMap>())
-                                .with("newest_time", 0)));
+                                .with("newest_time", 0));
                         return;
                     }
 
-                    message.respond(new ClientMessage("RECEIVE_MESSAGES", new DataMap()
+                    request.respond(new DataMap()
                             .with("messages", toSendableData(messages))
-                            .with("newest_time", messages.getFirst().getDateTime())));
+                            .with("newest_time", messages.getFirst().getDateTime()));
                     break;
                 case "EDIT_MESSAGE":
-                    long messageId = request.getLong("messageId");
-                    String body = request.getString("body");
+                    long messageId = data.getLong("messageId");
+                    String body = data.getString("body");
 
-                    editMessage(messageId, body, message.getUser());
+                    editMessage(messageId, body, request.getUser());
 
-                    message.respond(new ClientMessage("SUCCESS", new DataMap()
-                            .with("status", "Message updated")));
+                    request.respond("Beskeden blev ændret");
 
                     property.firePropertyChange("UPDATE_MESSAGE", null, new DataMap()
                             .with("messageId", messageId)
                             .with("body", body));
 
-                    sendSystemMessage(getMessage(messageId).getChatRoom(), model.getProfiles().getProfile(message.getUser()).getUsername() + " har ændret en besked");
+                    sendSystemMessage(getMessage(messageId).getChatRoom(), model.getProfiles().getProfile(request.getUser()).getUsername() + " har ændret en besked");
                     break;
                 case "DELETE_MESSAGE":
-                    messageId = request.getLong("messageId");
+                    messageId = data.getLong("messageId");
 
-                    deleteMessage(messageId, message.getUser());
+                    deleteMessage(messageId, request.getUser());
 
-                    message.respond(new ClientMessage("SUCCESS", new DataMap()
-                            .with("status", "Message deleted")));
+                    request.respond("Beskeden blev slettet");
 
                     property.firePropertyChange("UPDATE_MESSAGE", null, new DataMap()
                             .with("messageId", messageId)
                             .with("body", getMessage(messageId).getBody()));
 
-                    sendSystemMessage(getMessage(messageId).getChatRoom(), model.getProfiles().getProfile(message.getUser()).getUsername() + " har slettet en besked");
+                    sendSystemMessage(getMessage(messageId).getChatRoom(), model.getProfiles().getProfile(request.getUser()).getUsername() + " har slettet en besked");
                     break;
             }
         } catch (Exception e) {
             e.printStackTrace();
-            message.respond(new ClientMessage(e.getMessage()));
+            request.respond(new ClientMessage(e.getMessage()));
         }
     }
 

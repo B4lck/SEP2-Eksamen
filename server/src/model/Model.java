@@ -28,5 +28,5 @@ public interface Model extends PropertyChangeSubject
      * Sender en besked fra clienten videre til managers
      * @param message Requesten fra en client
      */
-    void passClientMessage(ServerRequest message);
+    void passServerRequest(ServerRequest message);
 }

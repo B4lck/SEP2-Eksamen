@@ -4,7 +4,7 @@ import utils.PropertyChangeSubject;
 
 import java.util.List;
 
-public interface Messages extends ClientMessageHandler, PropertyChangeSubject {
+public interface Messages extends ServerRequestHandler, PropertyChangeSubject {
     /**
      * Send besked til chatrum
      *

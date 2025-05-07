@@ -117,11 +117,11 @@ public class ChatModel implements Model, PropertyChangeListener {
     }
 
     @Override
-    public void passClientMessage(ServerRequest message) {
+    public void passServerRequest(ServerRequest message) {
         UserFilesManager.getInstance().handleMessage(message);
-        profiles.handleMessage(message);
-        messages.handleMessage(message);
-        rooms.handleMessage(message);
+        profiles.handleRequest(message);
+        messages.handleRequest(message);
+        rooms.handleRequest(message);
     }
 
     @Override

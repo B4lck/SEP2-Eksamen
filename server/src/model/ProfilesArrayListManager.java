@@ -62,78 +62,74 @@ public class ProfilesArrayListManager implements Profiles {
     }
 
     @Override
-    public void handleMessage(ServerRequest message) {
+    public void handleRequest(ServerRequest request) {
         Profile user;
         ArrayList<DataMap> profiles;
 
-        var request = message.getData();
+        var data = request.getData();
 
         try {
-            switch (message.getType()) {
+            switch (request.getType()) {
                 // Sign up
                 case "SIGN_UP":
                     // Check if username is taken
                     try {
-                        getProfileByUsername(request.getString("username"));
-                        message.respond(new ClientMessage("Username is already taken"));
+                        getProfileByUsername(data.getString("username"));
+                        request.respond(new ClientMessage("Username is already taken"));
                         return;
                     } catch (IllegalArgumentException e) {
                         // Bruger findes ikke, så vi kan oprette den
                     }
                     // Create user
-                    user = createProfile(request.getString("username"), request.getString("password"));
+                    user = createProfile(data.getString("username"), data.getString("password"));
                     // Log user in
-                    message.setUser(user.getUUID());
+                    request.setUser(user.getUUID());
                     // Respond with uuid
-                    message.respond(new ClientMessage("SIGN_UP", new DataMap()
-                            .with("uuid", user.getUUID())));
+                    request.respond(new DataMap().with("uuid", user.getUUID()));
                     break;
                 // Log in
                 case "LOG_IN":
                     // Check if user exists
                     try {
-                        user = getProfileByUsername(request.getString("username"));
+                        user = getProfileByUsername(data.getString("username"));
                     } catch (IllegalArgumentException e) {
-                        message.respond(new ClientMessage("Wrong username or password"));
+                        request.respond(new ClientMessage("Wrong username or password"));
                         return;
                     }
                     // Check password
-                    if (user.checkPassword(request.getString("password"))) {
-                        message.setUser(user.getUUID());
-                        message.respond(new ClientMessage("LOG_IN", new DataMap()
-                                .with("uuid", user.getUUID())));
+                    if (user.checkPassword(data.getString("password"))) {
+                        request.setUser(user.getUUID());
+                        request.respond(new DataMap().with("uuid", user.getUUID()));
                     } else {
-                        message.respond(new ClientMessage("Wrong username or password"));
+                        request.respond(new ClientMessage("Wrong username or password"));
                     }
                     break;
                 // Get profile
                 case "GET_CURRENT_PROFILE":
-                    message.respond(new ClientMessage("GET_PROFILE", new DataMap()
-                            .with("profile", getProfile(message.getUser()).getData())));
+                    request.respond(new DataMap().with("profile", getProfile(request.getUser()).getData()));
                     break;
                 // Get profile
                 case "GET_PROFILE":
-                    message.respond(new ClientMessage("GET_PROFILE", new DataMap()
-                            .with("profile", getProfile(request.getLong("uuid")).getData())));
+                    request.respond(new DataMap().with("profile", getProfile(data.getLong("uuid")).getData()));
                     break;
                 case "GET_PROFILES":
                     profiles = new ArrayList<>();
-                    for (long id : request.getLongsArray("profiles")) {
+                    for (long id : data.getLongsArray("profiles")) {
                         profiles.add(getProfile(id).getData());
                     }
-                    message.respond(new ClientMessage("GET_PROFILES", new DataMap().with("profiles", profiles)));
+                    request.respond(new DataMap().with("profiles", profiles));
                     break;
                 case "SEARCH_PROFILES":
                     profiles = new ArrayList<>();
-                    for (Profile profile : searchProfiles(request.getString("query"))) {
+                    for (Profile profile : searchProfiles(data.getString("query"))) {
                         profiles.add(profile.getData());
                     }
-                    message.respond(new ClientMessage("GET_PROFILES", new DataMap().with("profiles", profiles)));
+                    request.respond(new DataMap().with("profiles", profiles));
                     break;
             }
         } catch (Exception e) {
             e.printStackTrace();
-            message.respond(new ClientMessage(e.getMessage()));
+            request.respond(new ClientMessage(e.getMessage()));
         }
     }
 }

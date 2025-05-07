@@ -2,7 +2,7 @@ package model;
 
 import java.util.List;
 
-public interface Profiles extends ClientMessageHandler {
+public interface Profiles extends ServerRequestHandler {
     /**
      * Henter profilen ud fra et id
      * @param uuid id'et på brugeren

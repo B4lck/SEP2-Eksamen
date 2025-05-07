@@ -2,7 +2,7 @@ package model;
 
 import java.util.List;
 
-public interface Rooms extends ClientMessageHandler {
+public interface Rooms extends ServerRequestHandler {
     /**
      * Opretter et nyt chatrum
      *

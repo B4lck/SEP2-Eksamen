@@ -4,7 +4,6 @@ import utils.DataMap;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -58,6 +57,7 @@ public class ServerRequest {
     /**
      * Set brugeren, som har logget ind på den her forbindelse
      * Burde kun kaldes efter authentication
+     *
      * @param userId ID'et på den bruger der skal logges ind
      */
     public void setUser(long userId) {
@@ -86,27 +86,55 @@ public class ServerRequest {
 
         handler.downloadAttachment(attachmentId, attachmentName);
 
-        if (attachments.isEmpty()) respond(new ClientMessage("DONE", new DataMap()) );
+        if (attachments.isEmpty()) respond(new ClientMessage("DONE", new DataMap()));
 
         return attachmentId;
     }
 
     /**
      * Svar klienten med en ClientMessage
-     * @param message
+     *
+     * @param message - En ClientMessage, som skal sendes til klienten.
      */
     public void respond(ClientMessage message) {
-        if (handler == null) throw new IllegalStateException("Du kan kun køre respond på server messages modtaget fra klienten.");
+        if (handler == null) throw new IllegalStateException("Upsi, denne server-request har ikke en klient forbundet");
 
-        if (!attachments.isEmpty()) respond(new ClientMessage("DONE", new DataMap()) );
+        if (!attachments.isEmpty()) respond(new ClientMessage("DONE", new DataMap()));
 
         handler.sendMessage(message);
+    }
+
+    /**
+     * Svar klienten med OK + DataMap
+     *
+     * @param data - Et DataMap som skal sendes tilbage til klienten
+     */
+    public void respond(DataMap data) {
+        if (handler == null) throw new IllegalStateException("Upsi, denne server-request har ikke en klient forbundet");
+
+        if (!attachments.isEmpty()) respond(new ClientMessage("DONE", new DataMap()));
+
+        handler.sendMessage(new ClientMessage("OK", data));
+    }
+
+    /**
+     * Svar klienten med OK + besked
+     *
+     * @param message - Den besked der skal svares med. Skal være i normalt sprog.
+     */
+    public void respond(String message) {
+        if (handler == null) throw new IllegalStateException("Upsi, denne server-request har ikke en klient forbundet");
+
+        if (!attachments.isEmpty()) respond(new ClientMessage("DONE", new DataMap()));
+
+        handler.sendMessage(new ClientMessage("OK", new DataMap().with("message", message)));
     }
 
     /**
      * Svar klienten med rå data
      */
     public void respond(FileInputStream data, String name) {
+        if (handler == null) throw new IllegalStateException("Upsi, denne server-request har ikke en klient forbundet");
         handler.sendFile(data, name);
     }
 
