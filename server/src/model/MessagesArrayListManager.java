@@ -1,6 +1,5 @@
 package model;
 
-import mediator.ClientMessage;
 import mediator.ServerRequest;
 import utils.DataMap;
 
@@ -183,7 +182,7 @@ public class MessagesArrayListManager implements Messages {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            request.respond(new ClientMessage(e.getMessage()));
+            request.respondWithError(e.getMessage());
         }
     }
 

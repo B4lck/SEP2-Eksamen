@@ -1,12 +1,10 @@
 package model;
 
-import mediator.ClientMessage;
 import mediator.ServerRequest;
 import utils.DataMap;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class ProfilesArrayListManager implements Profiles {
     private ArrayList<Profile> profiles;
@@ -76,7 +74,7 @@ public class ProfilesArrayListManager implements Profiles {
                     // Check if username is taken
                     try {
                         getProfileByUsername(data.getString("username"));
-                        request.respond(new ClientMessage("Username is already taken"));
+                        request.respondWithError("Username is already taken");
                         return;
                     } catch (IllegalArgumentException e) {
                         // Bruger findes ikke, så vi kan oprette den
@@ -94,7 +92,7 @@ public class ProfilesArrayListManager implements Profiles {
                     try {
                         user = getProfileByUsername(data.getString("username"));
                     } catch (IllegalArgumentException e) {
-                        request.respond(new ClientMessage("Wrong username or password"));
+                        request.respondWithError("Wrong username or password");
                         return;
                     }
                     // Check password
@@ -102,7 +100,7 @@ public class ProfilesArrayListManager implements Profiles {
                         request.setUser(user.getUUID());
                         request.respond(new DataMap().with("uuid", user.getUUID()));
                     } else {
-                        request.respond(new ClientMessage("Wrong username or password"));
+                        request.respondWithError("Wrong username or password");
                     }
                     break;
                 // Get profile
@@ -130,7 +128,7 @@ public class ProfilesArrayListManager implements Profiles {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            request.respond(new ClientMessage(e.getMessage()));
+            request.respondWithError(e.getMessage());
         }
     }
 }

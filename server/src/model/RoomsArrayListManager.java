@@ -1,6 +1,5 @@
 package model;
 
-import mediator.ClientMessage;
 import mediator.ServerRequest;
 import utils.DataMap;
 
@@ -105,7 +104,7 @@ public class RoomsArrayListManager implements Rooms {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            request.respond(new ClientMessage(e.getMessage()));
+            request.respondWithError(e.getMessage());
         }
     }
 

@@ -138,6 +138,17 @@ public class ServerRequest {
         handler.sendFile(data, name);
     }
 
+    /**
+     * Svar klienten med en fejl
+     */
+    public void respondWithError(String error) {
+        if (handler == null) throw new IllegalStateException("Upsi, denne server-request har ikke en klient forbundet");
+
+        if (!attachments.isEmpty()) respond(new ClientMessage("DONE", new DataMap()));
+
+        handler.sendMessage(new ClientMessage(error));
+    }
+
     private String sanitizeFileName(String fileName) {
         // Fjern eventuelle directory-dele (path traversal prevention)
         fileName = new File(fileName).getName();
