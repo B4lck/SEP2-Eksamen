@@ -144,6 +144,7 @@ public class MessagesArrayListManager implements Messages {
         long chatRoom;
         var data = request.getData();
         int amount;
+        long messageId;
 
         try {
             switch (request.getType()) {
@@ -193,7 +194,7 @@ public class MessagesArrayListManager implements Messages {
                             .with("newest_time", messages.getFirst().getDateTime()));
                     break;
                 case "EDIT_MESSAGE":
-                    long messageId = data.getLong("messageId");
+                    messageId = data.getLong("messageId");
                     String body = data.getString("body");
 
                     editMessage(messageId, body, request.getUser());

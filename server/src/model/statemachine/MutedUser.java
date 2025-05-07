@@ -2,7 +2,7 @@ package model.statemachine;
 
 import model.RoomUser;
 
-public class MutedUser extends UserState{
+public class MutedUser extends UserState {
     private RoomUser user;
 
     public MutedUser(RoomUser user) {

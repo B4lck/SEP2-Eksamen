@@ -15,7 +15,8 @@ public class DataMap extends HashMap<String, Object> {
 
     /**
      * Opret er data map med et map.
-     * @param map
+     *
+     * @param map - Et map med indhold i forvejen kan angives, som DataMappet vil bruge. DataMappet vil dog ikke tjekke værdierne igennem.
      */
     public DataMap(Map<String, Object> map) {
         super(map);
@@ -23,15 +24,17 @@ public class DataMap extends HashMap<String, Object> {
 
     /**
      * Hent et felt som et DataMap.
+     *
      * @param key - Nøgle
      */
     public DataMap getMap(String key) {
-        return new DataMap((Map) super.get(key));
+        return new DataMap((Map<String, Object>) super.get(key));
     }
 
     /**
      * Gem et map.
-     * @param key - Nøgle
+     *
+     * @param key   - Nøgle
      * @param value - Mappet som skal gemmes.
      */
     public void putMap(String key, Map<String, Object> value) {
@@ -40,7 +43,8 @@ public class DataMap extends HashMap<String, Object> {
 
     /**
      * Gem et map.
-     * @param key - Nøgle
+     *
+     * @param key   - Nøgle
      * @param value - Mappet som skal gemmes.
      * @return DataMappet
      */
@@ -51,12 +55,13 @@ public class DataMap extends HashMap<String, Object> {
 
     /**
      * Hent en array af DataMaps fra mappet.
+     *
      * @param key - Nøgle
      */
     public List<DataMap> getMapArray(String key) {
         var list = (List<Map<String, Object>>) super.get(key);
 
-        return list.stream().map(m -> new DataMap(m)).toList();
+        return list.stream().map(DataMap::new).toList();
     }
 
     /**
@@ -76,8 +81,7 @@ public class DataMap extends HashMap<String, Object> {
     public <T> DataMap with(String key, List<T> value) {
         List<Object> fixedList = new ArrayList<>();
 
-        for (int i = 0; i < value.size(); i++) {
-            var v = value.get(i);
+        for (T v : value) {
             if (v instanceof Long || v instanceof Integer) fixedList.add(v.toString());
             else fixedList.add(v);
         }
@@ -128,6 +132,6 @@ public class DataMap extends HashMap<String, Object> {
     public List<Long> getLongsArray(String key) {
         var list = (List<String>) super.get(key);
 
-        return list.stream().map(v -> Long.parseLong(v)).toList();
+        return list.stream().map(Long::parseLong).toList();
     }
 }

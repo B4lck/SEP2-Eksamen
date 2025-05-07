@@ -7,6 +7,12 @@ public enum UserStateId {
 
 
     private final String stateId;
-    private UserStateId(String stateId) {this.stateId = stateId;}
-    public String getStateId() {return stateId;}
+
+    private UserStateId(String stateId) {
+        this.stateId = stateId;
+    }
+
+    public String getStateId() {
+        return stateId;
+    }
 }

@@ -76,7 +76,7 @@ public class CreateEditChatRoomViewModel implements ViewModel {
 
     public void muteUser(long _userId) {
         try {
-            model.getRoomManager().muteUser(viewState.getCurrentChatRoom(),_userId);
+            model.getRoomManager().muteUser(viewState.getCurrentChatRoom(), _userId);
         } catch (ServerError e) {
             e.showAlert();
         }
@@ -84,7 +84,7 @@ public class CreateEditChatRoomViewModel implements ViewModel {
 
     public void unmuteUser(long _userId) {
         try {
-            model.getRoomManager().unmuteUser(viewState.getCurrentChatRoom(),_userId);
+            model.getRoomManager().unmuteUser(viewState.getCurrentChatRoom(), _userId);
         } catch (ServerError e) {
             e.showAlert();
         }
@@ -113,7 +113,7 @@ public class CreateEditChatRoomViewModel implements ViewModel {
 
                 Set<Long> removedProfiles = new HashSet<>(
                         previousProfiles.stream()
-                                .filter(p -> !profiles.stream().anyMatch(p2 -> p2.userId == p))
+                                .filter(p -> profiles.stream().noneMatch(p2 -> p2.userId == p))
                                 .toList());
 
                 for (Long profile : addedProfiles) {
@@ -149,7 +149,7 @@ public class CreateEditChatRoomViewModel implements ViewModel {
         return titleText;
     }
 
-    public boolean isEdit () {
+    public boolean isEdit() {
         return edit;
     }
 }

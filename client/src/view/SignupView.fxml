@@ -4,21 +4,21 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.SignupViewController">
-   <children>
-      <ImageView fx:id="logo" fitHeight="82.0" fitWidth="327.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@viaLogo.png" />
-         </image>
-      </ImageView>
-      <TextField fx:id="viaId" layoutX="236.0" layoutY="158.0" />
-      <PasswordField fx:id="passwordField" layoutX="236.0" layoutY="204.0" />
-      <PasswordField fx:id="passwordCheck" layoutX="236.0" layoutY="247.0" />
-      <Label layoutX="150.0" layoutY="208.0" text="Password" />
-      <Label layoutX="128.0" layoutY="251.0" text="Bekræft Password" />
-      <Label layoutX="162.0" layoutY="162.0" text="Via ID" />
-      <Button fx:id="createUser" layoutX="385.0" layoutY="286.0" mnemonicParsing="false" onAction="#signUp" text="Opret Bruger" />
-      <Button fx:id="logInd" layoutX="14.0" layoutY="335.0" mnemonicParsing="false" onAction="#logIn" text="Log ind" />
-      <Label fx:id="error" alignment="TOP_LEFT" minHeight="50.0" minWidth="200.0" text="Error" textFill="RED" translateX="150.0" translateY="280.0" />
-   </children>
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.SignupViewController">
+    <ImageView fitHeight="82.0" fitWidth="327.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true"
+               preserveRatio="true">
+        <Image url="@viaLogo.png"/>
+    </ImageView>
+    <TextField fx:id="viaId" layoutX="236.0" layoutY="158.0"/>
+    <PasswordField fx:id="passwordField" layoutX="236.0" layoutY="204.0"/>
+    <PasswordField fx:id="passwordCheck" layoutX="236.0" layoutY="247.0"/>
+    <Label layoutX="150.0" layoutY="208.0" text="Password"/>
+    <Label layoutX="128.0" layoutY="251.0" text="Bekræft Password"/>
+    <Label layoutX="162.0" layoutY="162.0" text="Via ID"/>
+    <Button layoutX="385.0" layoutY="286.0" mnemonicParsing="false" onAction="#signUp"
+            text="Opret Bruger"/>
+    <Button layoutX="14.0" layoutY="335.0" mnemonicParsing="false" onAction="#logIn" text="Log ind"/>
+    <Label fx:id="error" alignment="TOP_LEFT" minHeight="50.0" minWidth="200.0" text="Error" textFill="RED"
+           translateX="150.0" translateY="280.0"/>
 </AnchorPane>

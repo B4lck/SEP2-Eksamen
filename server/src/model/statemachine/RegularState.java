@@ -2,7 +2,7 @@ package model.statemachine;
 
 import model.RoomUser;
 
-public class RegularState extends UserState{
+public class RegularState extends UserState {
     private RoomUser user;
 
     public RegularState(RoomUser user) {

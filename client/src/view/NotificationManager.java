@@ -17,8 +17,7 @@ public class NotificationManager {
         trayIcon.setToolTip("SEP2 Chat");
         try {
             tray.add(trayIcon);
-        }
-        catch (AWTException e) {
+        } catch (AWTException e) {
             e.printStackTrace();
             System.out.println("Kunne ikke oprette tray icon");
         }

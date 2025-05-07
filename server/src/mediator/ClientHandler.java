@@ -29,8 +29,8 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
     /**
      * Opret en ny client handler, for en socket.
      *
-     * @param socket       - Den forbindelse, der skal have en client handler
-     * @param model        - Reference til modellen
+     * @param socket - Den forbindelse, der skal have en client handler
+     * @param model  - Reference til modellen
      * @throws IOException - Hvis socket'ens streams ikke kan oprettes eller bliver uventet lukket.
      */
     public ClientHandler(Socket socket, Model model) throws IOException {
@@ -89,7 +89,7 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
     /**
      * Send en besked til klienten
      *
-     * @param message
+     * @param message - Beskeden, der skal sendes til klienten.
      */
     public void sendMessage(ClientMessage message) {
         message.setAuthenticatedUser(currentUser);

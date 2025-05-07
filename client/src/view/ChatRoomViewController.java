@@ -81,9 +81,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
             rooms.getChildren().clear();
             change.getList().forEach(r -> {
                 Button roomButton = new Button(r.name);
-                roomButton.addEventHandler(ActionEvent.ACTION, evt -> {
-                    getViewModel().setChatRoom(r.roomId);
-                });
+                roomButton.addEventHandler(ActionEvent.ACTION, evt -> getViewModel().setChatRoom(r.roomId));
                 rooms.getChildren().add(roomButton);
             });
         });
@@ -99,9 +97,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
 
             loadMoreButton.setText("Indlæs mere du");
 
-            loadMoreButton.addEventHandler(ActionEvent.ACTION, evt -> {
-                getViewModel().loadOlderMessages();
-            });
+            loadMoreButton.addEventHandler(ActionEvent.ACTION, evt -> getViewModel().loadOlderMessages());
 
             messages.getChildren().add(loadMoreButton);
 
@@ -154,9 +150,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
 
                         // Filen er allerede downloaded for at kunne vises, men den her metode viser hvor på computeren den er downloadet
                         Button button = new Button("Download");
-                        button.addEventHandler(ActionEvent.ACTION, evt -> {
-                            Desktop.getDesktop().browseFileDirectory(attachment);
-                        });
+                        button.addEventHandler(ActionEvent.ACTION, evt -> Desktop.getDesktop().browseFileDirectory(attachment));
                         attachmentBox.getChildren().add(button);
                     } catch (FileNotFoundException e) {
                         Label errorLabel = new Label();
@@ -210,9 +204,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
                 }
 
                 Button removeButton = new Button("Fjern");
-                removeButton.addEventHandler(ActionEvent.ACTION, evt -> {
-                    getViewModel().getAttachmentsProperty().remove(attachment);
-                });
+                removeButton.addEventHandler(ActionEvent.ACTION, evt -> getViewModel().getAttachmentsProperty().remove(attachment));
                 body.getChildren().add(removeButton);
 
                 Label fileName = new Label(attachment.getName());

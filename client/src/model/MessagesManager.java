@@ -92,11 +92,12 @@ public class MessagesManager implements PropertyChangeSubject, PropertyChangeLis
         }
         chatClient.waitingForReply("MessagesManager sendMessage");
     }
+
     /**
      * Bruges for at opdatere en besked gemt i cachen, SENDER IKKE EN BESKED TIL SERVER!
      *
      * @param messageId id'et på beskeden
-     * @param body body'et på beskeden som skal opdateres
+     * @param body      body'et på beskeden som skal opdateres
      */
     public void updateCachedMessage(long messageId, String body) {
         for (Message message : messages) {
@@ -109,9 +110,9 @@ public class MessagesManager implements PropertyChangeSubject, PropertyChangeLis
     /**
      * Sender besked til server om at redigere en besked
      *
-     * @param messageId
-     * @param body
-     * @throws ServerError
+     * @param messageId - ID'et på den besked som skal redigeres
+     * @param body      - Den nye body
+     * @throws ServerError - Hvis serveren støder på en fejl
      */
     public void editMessage(long messageId, String body) throws ServerError {
         chatClient.sendMessage(new ClientMessage("EDIT_MESSAGE", new DataMap()
@@ -123,12 +124,12 @@ public class MessagesManager implements PropertyChangeSubject, PropertyChangeLis
     /**
      * Sender besked til server om at fjerne en besked
      *
-     * @param messageId
-     * @throws ServerError
+     * @param messageId - ID'et på den besked som skal fjernes
+     * @throws ServerError - Hvis serveren støder på en fejl
      */
     public void deleteMessage(long messageId) throws ServerError {
         chatClient.sendMessage(new ClientMessage("DELETE_MESSAGE", new DataMap()
-                .with("messageId",messageId)));
+                .with("messageId", messageId)));
         chatClient.waitingForReply("SUCCESS");
     }
 
