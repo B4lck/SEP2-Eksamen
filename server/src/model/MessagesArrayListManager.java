@@ -35,6 +35,9 @@ public class MessagesArrayListManager implements Messages {
         if (model.getRooms().getRoom(chatroom,senderId).isMuted(senderId))
             throw new IllegalStateException("Du snakker for meget brormand");
 
+        if (messageBody.isEmpty() && attachments.isEmpty())
+            throw new IllegalArgumentException("Besked er tom");
+
         // Tilføj bilag
         for (String attachment : attachments) {
             if (attachment == null) throw new IllegalStateException("Attachment cannot be null");
@@ -60,6 +63,8 @@ public class MessagesArrayListManager implements Messages {
 
     @Override
     public List<Message> getMessages(long chatroom, int amount) {
+        if (amount <= 0) throw new IllegalArgumentException("Ikke nok beskeder");
+        if (!model.getRooms().doesRoomExits(chatroom)) throw new IllegalArgumentException("Rummet findes ikke brormand");
         return messages.stream()
                 .filter(msg -> msg.getChatRoom() == chatroom)
                 .sorted(Comparator.comparingLong(Message::getDateTime).reversed())
@@ -69,6 +74,7 @@ public class MessagesArrayListManager implements Messages {
 
     @Override
     public List<Message> getMessagesBefore(long messageId, int amount) {
+        if (amount <= 0) throw new IllegalArgumentException("Det er for lidt beskeder brormand");
         var beforeMessage = getMessage(messageId);
         return messages.stream()
                 .filter(
@@ -82,11 +88,13 @@ public class MessagesArrayListManager implements Messages {
 
     @Override
     public Message getMessage(long messageId) {
-        return messages.stream().filter(msg -> msg.getMessageId() == messageId).findAny().orElseThrow(() -> new IllegalArgumentException("Beskeden findes ikke."));
+        return messages.stream().filter(msg -> msg.getMessageId() == messageId).findAny().orElseThrow(() -> new IllegalStateException("Beskeden findes ikke."));
     }
 
     @Override
     public void sendSystemMessage(long chatroom, String body) {
+        if (body == null || body.isEmpty()) throw new IllegalArgumentException("Body cannot be empty");
+        if (!model.getRooms().doesRoomExits(chatroom)) throw new IllegalStateException("Room does not exist");
         var message = new ArrayListMessage(0, body, LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000L, chatroom);
 
         messages.add(message);

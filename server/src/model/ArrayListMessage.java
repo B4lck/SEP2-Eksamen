@@ -16,6 +16,8 @@ public class ArrayListMessage implements Message {
     private static long nextMessageId = 0;
 
     public ArrayListMessage(long sentBy, String body, long dateTime, long chatRoom) {
+        if (body == null)
+            throw new IllegalArgumentException("Besked er null eller tom");
         this.sentBy = sentBy;
         this.body = body;
         this.dateTime = dateTime;
@@ -63,13 +65,13 @@ public class ArrayListMessage implements Message {
     @Override
     public void editBody(String messageBody, long byUserId) {
         if (messageBody.isEmpty()) throw new IllegalArgumentException("Beskeden har intet indhold");
-        if (byUserId != sentBy) throw new IllegalArgumentException("Du har ikke tilladelse til at slette den her besked");
+        if (byUserId != sentBy) throw new IllegalStateException("Du har ikke tilladelse til at slette den her besked");
         body = messageBody + " (redigeret)";
     }
 
     @Override
     public void deleteContent(long byUserId) {
-        if (byUserId != sentBy) throw new IllegalArgumentException("Du har ikke tilladelse til at slette den her besked");
+        if (byUserId != sentBy) throw new IllegalStateException("Du har ikke tilladelse til at slette den her besked");
         body = "[BESKEDEN ER BLEVET SLETTET]";
     }
 
