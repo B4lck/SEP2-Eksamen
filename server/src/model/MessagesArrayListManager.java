@@ -29,7 +29,7 @@ public class MessagesArrayListManager implements Messages {
         if (senderId == -1)
             throw new IllegalStateException("Du skal være logget ind for at sende en besked i et chatroom");
 
-        if (model.getRooms().getRoom(chatroom,senderId).isMuted(senderId))
+        if (model.getRooms().getRoom(chatroom, senderId).isMuted(senderId))
             throw new IllegalStateException("Du snakker for meget brormand");
 
         if (messageBody.isEmpty() && attachments.isEmpty())
@@ -61,7 +61,8 @@ public class MessagesArrayListManager implements Messages {
     @Override
     public List<Message> getMessages(long chatroom, int amount) {
         if (amount <= 0) throw new IllegalArgumentException("Ikke nok beskeder");
-        if (!model.getRooms().doesRoomExits(chatroom)) throw new IllegalArgumentException("Rummet findes ikke brormand");
+        if (!model.getRooms().doesRoomExits(chatroom))
+            throw new IllegalArgumentException("Rummet findes ikke brormand");
         return messages.stream()
                 .filter(msg -> msg.getChatRoom() == chatroom)
                 .sorted(Comparator.comparingLong(Message::getDateTime).reversed())
@@ -101,14 +102,38 @@ public class MessagesArrayListManager implements Messages {
 
     @Override
     public void editMessage(long messageId, String messageBody, long byUserId) {
+        // Hent beskeden
         var message = getMessage(messageId);
+
+        // Rediger beskeden
         message.editBody(messageBody, byUserId);
+
+        // Broadcast til klienter
+        property.firePropertyChange("UPDATE_MESSAGE", null, message.getData());
+
+        // Send system besked
+        sendSystemMessage(message.getChatRoom(), model.getProfiles().getProfile(byUserId).getUsername() + " har ændret en besked");
     }
 
     @Override
     public void deleteMessage(long messageId, long byUserId) {
+        // Hent beskeden
         var message = getMessage(messageId);
+
+        // Gem bilag inden content bliver slettet
+        List<String> attachments = message.getAttachments();
+
+        // Slet selve beskeden
         message.deleteContent(byUserId);
+
+        // Slet bilagene på serveren, når beskeden er blevet slettet
+        UserFilesManager.getInstance().removeFiles(attachments);
+
+        // Broadcast til klienter
+        property.firePropertyChange("UPDATE_MESSAGE", null, message.getData());
+
+        // Send system besked
+        sendSystemMessage(message.getChatRoom(), model.getProfiles().getProfile(byUserId).getUsername() + " har slettet en besked");
     }
 
     @Override
@@ -126,6 +151,7 @@ public class MessagesArrayListManager implements Messages {
 
                     List<String> attachments = new ArrayList<>();
 
+                    // Hent attachments
                     while (!request.getAttachments().isEmpty()) {
                         var name = request.downloadNextAttachment();
                         System.out.println("tilføjer bilag...");
@@ -168,12 +194,6 @@ public class MessagesArrayListManager implements Messages {
                     editMessage(messageId, body, request.getUser());
 
                     request.respond("Beskeden blev ændret");
-
-                    property.firePropertyChange("UPDATE_MESSAGE", null, new DataMap()
-                            .with("messageId", messageId)
-                            .with("body", body));
-
-                    sendSystemMessage(getMessage(messageId).getChatRoom(), model.getProfiles().getProfile(request.getUser()).getUsername() + " har ændret en besked");
                     break;
                 case "DELETE_MESSAGE":
                     messageId = data.getLong("messageId");
@@ -181,12 +201,6 @@ public class MessagesArrayListManager implements Messages {
                     deleteMessage(messageId, request.getUser());
 
                     request.respond("Beskeden blev slettet");
-
-                    property.firePropertyChange("UPDATE_MESSAGE", null, new DataMap()
-                            .with("messageId", messageId)
-                            .with("body", getMessage(messageId).getBody()));
-
-                    sendSystemMessage(getMessage(messageId).getChatRoom(), model.getProfiles().getProfile(request.getUser()).getUsername() + " har slettet en besked");
                     break;
             }
         } catch (Exception e) {

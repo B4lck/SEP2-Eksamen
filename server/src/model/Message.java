@@ -2,6 +2,8 @@ package model;
 
 import utils.DataMap;
 
+import java.util.List;
+
 public interface Message {
     /**
      * Henter beskedens unikke id
@@ -40,6 +42,11 @@ public interface Message {
     long getChatRoom();
 
     /**
+     * Henter en kopi af attachments listen
+     */
+    List<String> getAttachments();
+
+    /**
      * Redigere beskedens body, og giver den et mærkat som redigeret
      * @param messageBody Den nye body
      * @param byUserId Id'et på brugeren som forsøger at ændre beskedens body
@@ -47,14 +54,22 @@ public interface Message {
     void editBody(String messageBody, long byUserId);
 
     /**
-     * Ændre bodyen på beskeden til "[BESKEDEN ER SLETTET]"
-     * @param byUserId Id'et på brugeren som forsøger at slette beskeden
+     * Ændre beskedens body til "[BESKEDEN ER SLETTET]"
+     * Fjerner også beskedens bilag, men sletter dog ikke selve filerne, det skal selv gøres efter
+     * @param byUserId - Id'et på brugeren som forsøger at slette beskeden
      */
     void deleteContent(long byUserId);
 
     /**
      * Tilføjer et bilag til beskeden
-     * @param fileName navnet på bilagets fil
+     * @param fileName - Navnet på bilaget, bilaget skal være uploadet for at kunne hentes!
      */
     void addAttachment(String fileName);
+
+    /**
+     * Fjerner et bilag fra beskeden
+     * Fjerner dog ikke selve filen, dette skal selv gøres efter
+     * @param fileName - Navnet på bilaget
+     */
+    void removeAttachment(String fileName);
 }

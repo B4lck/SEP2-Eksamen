@@ -63,6 +63,11 @@ public class ArrayListMessage implements Message {
     }
 
     @Override
+    public List<String> getAttachments() {
+        return List.copyOf(attachments);
+    }
+
+    @Override
     public void editBody(String messageBody, long byUserId) {
         if (messageBody.isEmpty()) throw new IllegalArgumentException("Beskeden har intet indhold");
         if (byUserId != sentBy) throw new IllegalStateException("Du har ikke tilladelse til at slette den her besked");
@@ -73,10 +78,16 @@ public class ArrayListMessage implements Message {
     public void deleteContent(long byUserId) {
         if (byUserId != sentBy) throw new IllegalStateException("Du har ikke tilladelse til at slette den her besked");
         body = "[BESKEDEN ER BLEVET SLETTET]";
+        attachments.clear();
     }
 
     @Override
     public void addAttachment(String fileName) {
         attachments.add(fileName);
+    }
+
+    @Override
+    public void removeAttachment(String fileName) {
+        attachments.remove(fileName);
     }
 }

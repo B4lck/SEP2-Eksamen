@@ -2,6 +2,7 @@ package mediator;
 
 import com.google.gson.Gson;
 import model.Model;
+import model.UserFilesManager;
 import utils.DataMap;
 
 import java.beans.PropertyChangeEvent;
@@ -112,9 +113,9 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
 
         try {
             // Opret fil
-            File dir = new File("uploads");
+            File dir = new File(UserFilesManager.UPLOADS_DIRECTORY);
             dir.mkdirs();
-            File file = new File("uploads/" + attachmentId);
+            File file = new File(UserFilesManager.UPLOADS_DIRECTORY + "/" + attachmentId);
             file.createNewFile();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));

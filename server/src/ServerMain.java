@@ -9,7 +9,6 @@ import java.net.Socket;
 public class ServerMain {
     public static final int PORT = 42069;
 
-
     public static void main(String[] args) {
         Model model = new ChatModel();
 

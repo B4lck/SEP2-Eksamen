@@ -7,10 +7,13 @@ import utils.DataMap;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.List;
 
 public class UserFilesManager implements ServerRequestHandler {
 
-    static UserFilesManager instance = new UserFilesManager();
+    public static final String UPLOADS_DIRECTORY = "uploads";
+
+    public static UserFilesManager instance = new UserFilesManager();
 
     private UserFilesManager() {
 
@@ -35,14 +38,17 @@ public class UserFilesManager implements ServerRequestHandler {
                 throw new RuntimeException(e);
             }
 
-            System.out.println("sender fil info");
-
             message.respond(new ClientMessage("FILE_INFO", new DataMap()
                     .with("name", fileId)));
 
-            System.out.println("sender fil...");
-
             message.respond(in, fileId);
+        }
+    }
+
+    public void removeFiles(List<String> attachments) {
+        for (String attachment : attachments) {
+            File file = new File(UPLOADS_DIRECTORY + "/" + attachment);
+            if (file.exists()) file.delete();
         }
     }
 }
