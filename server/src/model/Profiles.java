@@ -1,6 +1,7 @@
 package model;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface Profiles extends ServerRequestHandler {
     /**
@@ -11,11 +12,19 @@ public interface Profiles extends ServerRequestHandler {
     Profile getProfile(long uuid);
 
     /**
+     * Henter profilen ud fra et id
+     * @param uuid id'et på brugeren
+     * @return Objektet på profilen
+     */
+    boolean doesProfileExist(long uuid);
+
+    /**
      * Henter profilen ud fra et brugernavn
+     *
      * @param username Brugernavnet på brugeren
      * @return Objektet på profilen
      */
-    Profile getProfileByUsername(String username);
+    Optional<Profile> getProfileByUsername(String username);
 
     /**
      * Opretter en ny profil
