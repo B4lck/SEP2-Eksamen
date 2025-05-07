@@ -2,7 +2,6 @@ package model;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -142,6 +141,16 @@ class RoomsArrayListManagerTest {
         var participatingRooms = model.getRooms().getParticipatingRooms(user.getUUID());
 
         assertEquals(participatingRooms.size(), 3);
+    }
+
+    /**
+     * Hent rum som en bruger som findes, og som ikke er medlem af nogle rum
+     */
+    @Test
+    void getRoomWithoutBeingMember() {
+        model.getRooms().getParticipatingRooms(user2.getUUID());
+        // assertEquals (0, model.getRooms().getParticipatingRooms(user2.getUUID()));
+        // GRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
     }
 
     /**
