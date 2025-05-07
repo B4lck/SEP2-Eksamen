@@ -5,6 +5,11 @@ import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -15,10 +20,12 @@ import util.Attachment;
 import viewModel.ViewMessage;
 import viewModel.ViewRoom;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.IOException;
 
 public class ChatRoomViewController extends ViewController<viewModel.ChatRoomViewModel> {
     // References til ChatRoomView.fxml
@@ -26,6 +33,8 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
     public VBox rooms;
     @FXML
     public Label roomName;
+    @FXML
+    public VBox attachments;
     @FXML
     private TextField message;
     @FXML
@@ -91,11 +100,10 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
             loadMoreButton.setText("Indlæs mere du");
 
             loadMoreButton.addEventHandler(ActionEvent.ACTION, evt -> {
-               getViewModel().loadOlderMessages();
+                getViewModel().loadOlderMessages();
             });
 
             messages.getChildren().add(loadMoreButton);
-
 
             // Opret elementer
             change.getList().forEach(m -> {
@@ -125,13 +133,31 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
 
                 for (File attachment : m.attachments) {
                     try {
-                        Image image = new Image(new FileInputStream(attachment));
-                        ImageView imageView = new ImageView(image);
+                        HBox attachmentBox = new HBox();
+                        attachmentBox.getStyleClass().add("message-attachment");
+                        body.getChildren().add(attachmentBox);
 
-                        imageView.setFitWidth(300);
-                        imageView.setPreserveRatio(true);
+                        if (isImageFile(attachment)) {
+                            Image image = new Image(new FileInputStream(attachment));
+                            ImageView imageView = new ImageView(image);
 
-                        body.getChildren().add(imageView);
+                            imageView.setFitWidth(300);
+                            imageView.setPreserveRatio(true);
+
+                            attachmentBox.getChildren().add(imageView);
+                        } else {
+                            Label attachmentFile = new Label();
+                            attachmentFile.getStyleClass().add("message-attachment-file");
+                            attachmentFile.setText(attachment.getName());
+                            attachmentBox.getChildren().add(attachmentFile);
+                        }
+
+                        // Filen er allerede downloaded for at kunne vises, men den her metode viser hvor på computeren den er downloadet
+                        Button button = new Button("Download");
+                        button.addEventHandler(ActionEvent.ACTION, evt -> {
+                            Desktop.getDesktop().browseFileDirectory(attachment);
+                        });
+                        attachmentBox.getChildren().add(button);
                     } catch (FileNotFoundException e) {
                         Label errorLabel = new Label();
                         errorLabel.getStyleClass().add("message-error");
@@ -152,6 +178,48 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
             Platform.runLater(() -> {
                 if (scrollAfter) scrollPane.setVvalue(1.0);
             });
+        });
+
+        // Bilag
+        getViewModel().getAttachmentsProperty().addListener((ListChangeListener<Attachment>) change -> {
+            attachments.getChildren().clear();
+
+            change.getList().forEach(attachment -> {
+                VBox body = new VBox();
+                body.getStyleClass().add("attachment-body");
+                attachments.getChildren().add(body);
+
+
+                try {
+                    FileInputStream stream = new FileInputStream(attachment.getFile());
+
+                    Image image = new Image(stream);
+                    ImageView imageView = new ImageView(image);
+
+                    imageView.setFitWidth(150);
+                    imageView.setPreserveRatio(true);
+
+                    body.getChildren().add(imageView);
+
+                    stream.close();
+                } catch (IOException e) {
+                    Label errorLabel = new Label();
+                    errorLabel.getStyleClass().add("message-error");
+                    errorLabel.setText("Fejl ved at hente bilag: " + attachment.getName());
+                    body.getChildren().add(errorLabel);
+                }
+
+                Button removeButton = new Button("Fjern");
+                removeButton.addEventHandler(ActionEvent.ACTION, evt -> {
+                    getViewModel().getAttachmentsProperty().remove(attachment);
+                });
+                body.getChildren().add(removeButton);
+
+                Label fileName = new Label(attachment.getName());
+                fileName.getStyleClass().add("attachment-name");
+                body.getChildren().add(fileName);
+            });
+
         });
 
         scrollPane.setVvalue(1.0);
@@ -199,10 +267,26 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Open Resource File");
             File file = fileChooser.showOpenDialog(getRoot().getScene().getWindow());
-            FileInputStream stream = new FileInputStream(file);
-            getViewModel().addAttachment(new Attachment(file.getName(), stream));
+            getViewModel().getAttachmentsProperty().add(new Attachment(file.getName(), file));
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    // Hjælpemetode, der tjekker om en fil er af et understøttet billede-format til at kunne vises.
+    private boolean isImageFile(File file) {
+        try {
+            return ImageIO.getImageReadersBySuffix(getFileExtension(file.getName())).hasNext();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // Henter filens extension-navn ud fra filnavnet
+    private String getFileExtension(String filename) {
+        int i = filename.lastIndexOf('.');
+        // Ikke alle filer har en extension
+        if (i == -1) return "";
+        return filename.substring(i + 1);
     }
 }

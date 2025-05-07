@@ -1,21 +1,21 @@
 package util;
 
-import java.io.FileInputStream;
+import java.io.File;
 
 public class Attachment {
     private String name;
-    private FileInputStream stream;
+    private File file;
 
-    public Attachment(String name, FileInputStream stream) {
+    public Attachment(String name, File file) {
         this.name = name;
-        this.stream = stream;
+        this.file = file;
     }
 
     public String getName() {
         return name;
     }
 
-    public FileInputStream getStream() {
-        return stream;
+    public File getFile() {
+        return file;
     }
 }

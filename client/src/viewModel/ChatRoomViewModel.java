@@ -31,7 +31,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     private Model model;
     private ViewState viewState;
 
-    public List<Attachment> attachments = new ArrayList<>();
+    public ObservableList<Attachment> attachments;
 
     public ChatRoomViewModel(Model model, ViewState viewState) {
         this.model = model;
@@ -43,6 +43,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         this.roomNameProperty = new SimpleStringProperty();
 
         this.roomsProperty = FXCollections.observableArrayList();
+        this.attachments = FXCollections.observableArrayList();
         this.viewState = viewState;
 
         model.getMessagesManager().addListener(this);
@@ -138,6 +139,10 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         return roomNameProperty;
     }
 
+    public ObservableList<Attachment> getAttachmentsProperty() {
+        return attachments;
+    }
+
     @Override
     public void reset() {
         try {
@@ -180,10 +185,6 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         } catch (ServerError e) {
             e.showAlert();
         }
-    }
-
-    public void addAttachment(Attachment inputStream) {
-        attachments.add(inputStream);
     }
 
     public void editMessage(long messageId) {

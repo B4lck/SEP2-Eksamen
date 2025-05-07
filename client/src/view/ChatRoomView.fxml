@@ -5,40 +5,47 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@ChatMessages.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.ChatRoomViewController">
-    <VBox alignment="TOP_CENTER" prefWidth="150.0" spacing="20.0" styleClass="left-menu" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
+            prefWidth="600.0" stylesheets="@ChatMessages.css" xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.ChatRoomViewController">
+    <VBox alignment="TOP_CENTER" prefWidth="150.0" spacing="20.0" styleClass="left-menu" AnchorPane.bottomAnchor="0.0"
+          AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
         <padding>
-            <Insets top="20.0" />
+            <Insets top="20.0"/>
         </padding>
         <Text fx:id="greetingText" strokeType="OUTSIDE" strokeWidth="0.0" text="Hej Bruger!">
             <VBox.margin>
-                <Insets bottom="30.0" />
+                <Insets bottom="30.0"/>
             </VBox.margin>
         </Text>
-        <Button mnemonicParsing="false" onAction="#createRoom" text="Opret chatrum" />
-        <TextField />
+        <Button mnemonicParsing="false" onAction="#createRoom" text="Opret chatrum"/>
+        <TextField/>
         <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="ALWAYS" VBox.vgrow="ALWAYS">
-            <VBox fx:id="rooms" />
+            <VBox fx:id="rooms"/>
         </ScrollPane>
     </VBox>
-     <Label fx:id="roomName" text="Gruppechat navn" AnchorPane.leftAnchor="170.0" AnchorPane.topAnchor="15.0">
-         <font>
-             <Font size="16.0" />
-         </font>
-     </Label>
-     <MenuButton mnemonicParsing="false" prefHeight="30.0" text="Menu" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="10.0">
-         <items>
-             <MenuItem mnemonicParsing="false" onAction="#editRoom" text="Rediger" />
-         </items>
-     </MenuButton>
-    <ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="ALWAYS" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="50.0">
-        <VBox fx:id="messages" alignment="BOTTOM_LEFT" />
-    </ScrollPane>
-    <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="0.0">
+    <Label fx:id="roomName" text="Gruppechat navn" AnchorPane.leftAnchor="170.0" AnchorPane.topAnchor="15.0">
+        <font>
+            <Font size="16.0"/>
+        </font>
+    </Label>
+    <MenuButton mnemonicParsing="false" prefHeight="30.0" text="Menu" AnchorPane.rightAnchor="20.0"
+                AnchorPane.topAnchor="10.0">
+        <items>
+            <MenuItem mnemonicParsing="false" onAction="#editRoom" text="Rediger"/>
+        </items>
+    </MenuButton>
+    <VBox prefWidth="450.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="0.0"
+          AnchorPane.topAnchor="50.0">
+        <ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="ALWAYS"
+                    VBox.vgrow="ALWAYS">
+            <VBox fx:id="messages" alignment="BOTTOM_LEFT"/>
+        </ScrollPane>
+        <VBox fx:id="attachments"/>
         <HBox alignment="CENTER" prefHeight="50.0" spacing="20.0">
-            <Button mnemonicParsing="false" onAction="#upload" text="Tilføj..." />
-            <TextField fx:id="message" prefWidth="300.0" />
-            <Button mnemonicParsing="false" onAction="#send" text="Send" />
+            <Button mnemonicParsing="false" onAction="#upload" text="Tilføj..."/>
+            <TextField fx:id="message" prefWidth="300.0"/>
+            <Button mnemonicParsing="false" onAction="#send" text="Send"/>
         </HBox>
     </VBox>
 </AnchorPane>
