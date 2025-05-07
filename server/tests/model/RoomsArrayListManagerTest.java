@@ -1,6 +1,7 @@
 package model;
 
 import model.statemachine.MutedUser;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -8,6 +9,19 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RoomsArrayListManagerTest {
+
+    private Model model;
+    private Profile user1;
+    private Profile user2;
+    private Room room;
+
+    @BeforeEach
+    void init() {
+        model = new ChatModel();
+        user1 = model.getProfiles().createProfile("Mazen","1234");
+        user2 = model.getProfiles().createProfile("TykkeBalck","6789");
+        room = model.getRooms().createRoom("HelloWorld",user1.getUUID());
+    }
 
     /**
      * Opret et rum med gyldig navn og bruger
@@ -45,6 +59,14 @@ class RoomsArrayListManagerTest {
         var user = model.getProfiles().createProfile("hello", "1");
 
         assertThrows(IllegalArgumentException.class, () -> model.getRooms().createRoom("", user.getUUID()));
+    }
+
+    /**
+     * Opret rum med en bruger der ikke findes
+     */
+    @Test
+    void creatRoomWithNoneExistingUser() {
+        assertThrows(IllegalStateException.class, () -> model.getRooms().createRoom("Baby",123));
     }
 
     /**
@@ -91,6 +113,14 @@ class RoomsArrayListManagerTest {
             assertThrows(IllegalStateException.class, () -> model.getRooms().getRoom(124, user.getUUID()));
         else
             assertThrows(IllegalStateException.class, () -> model.getRooms().getRoom(123, user.getUUID()));
+    }
+
+    /**
+     * Hent et rum med en bruger der ikke findes
+     */
+    @Test
+    void getRoomWithNonExistingUser() {
+        assertThrows(IllegalStateException.class, () -> model.getRooms().getRoom(room.getRoomId(), 1232));
     }
 
     /**

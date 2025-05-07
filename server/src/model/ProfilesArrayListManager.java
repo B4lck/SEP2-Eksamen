@@ -24,7 +24,7 @@ public class ProfilesArrayListManager implements Profiles {
             }
         }
 
-        throw new IllegalArgumentException("User does not exist");
+        throw new IllegalStateException("User does not exist");
     }
 
     @Override
