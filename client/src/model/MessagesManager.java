@@ -1,8 +1,8 @@
 package model;
 
-import util.Attachment;
 import mediator.ChatClient;
 import mediator.ClientMessage;
+import util.Attachment;
 import util.ServerError;
 import utils.DataMap;
 import utils.PropertyChangeSubject;
@@ -139,16 +139,20 @@ public class MessagesManager implements PropertyChangeSubject, PropertyChangeLis
 
         switch (message.getType().toUpperCase()) {
             case "RECEIVE_MESSAGE":
-                Message castedMessage = Message.fromData(request.getMap("message"));
-                messages.add(castedMessage);
-                property.firePropertyChange("NEW_MESSAGE", null, castedMessage);
+                Message newMessage = Message.fromData(request.getMap("message"));
+                addMessage(newMessage);
+                property.firePropertyChange("NEW_MESSAGE", null, newMessage);
                 break;
             case "UPDATE_MESSAGE":
-                long messageId = request.getLong("messageId");
-                String messageBody = request.getString("body");
-                updateCachedMessage(messageId, messageBody);
-                property.firePropertyChange("UPDATE_VIEW_MODEL", null, 1);
+                Message updatedMessage = Message.fromData(request.getMap("message"));
+                addMessage(updatedMessage);
+                property.firePropertyChange("UPDATE_MESSAGE", null, updatedMessage);
                 break;
         }
+    }
+
+    private void addMessage(Message message) {
+        messages.removeIf(m -> m.getMessageId() == message.getMessageId());
+        messages.add(message);
     }
 }

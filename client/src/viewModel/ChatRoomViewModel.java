@@ -13,7 +13,6 @@ import util.ServerError;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -93,6 +92,9 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                     files.add(file);
                 }
 
+                // Fjern hvis det er en redigering
+                messagesProperty.removeIf(m -> m.messageId == message.getMessageId());
+
                 // Tilføj besked
                 messagesProperty.add(new ViewMessage() {{
                     sender = message.getSentBy() == 0 ? "System" : model.getProfileManager().getProfile(message.getSentBy()).getUsername();
@@ -104,7 +106,6 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                 }});
             }
         } catch (ServerError e) {
-            e.printStackTrace();
             e.showAlert();
         }
     }
@@ -114,10 +115,8 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         Platform.runLater(() -> {
             switch (evt.getPropertyName()) {
                 case "NEW_MESSAGE":
+                case "UPDATE_MESSAGE":
                     addMessage((Message) evt.getNewValue());
-                    break;
-                case "UPDATE_VIEW_MODEL":
-                    reset();
                     break;
             }
         });

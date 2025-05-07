@@ -132,7 +132,7 @@ public class MessagesArrayListManager implements Messages {
         UserFilesManager.getInstance().removeFiles(attachments);
 
         // Broadcast til klienter
-        property.firePropertyChange("UPDATE_MESSAGE", null, message.getData());
+        property.firePropertyChange("UPDATE_MESSAGE", null, new DataMap().with("message", message.getData()));
 
         // Send system besked
         String username = model.getProfiles().getProfile(byUserId).map(Profile::getUsername).orElse("En bruger");
@@ -151,6 +151,8 @@ public class MessagesArrayListManager implements Messages {
                 case "SEND_MESSAGE":
                     chatRoom = data.getLong("chatroom");
                     String messageBody = data.getString("body");
+
+                    if (messageBody == null) messageBody = "";
 
                     List<String> attachments = new ArrayList<>();
 

@@ -58,24 +58,12 @@ class ProfilesTest {
     void getProfile_Regular() {
         var profile = profiles.createProfile("test", "1234");
 
-        assertEquals(profile, profiles.getProfile(profile.getUUID()));
+        assertEquals(profile, profiles.getProfile(profile.getUUID()).orElseThrow());
     }
 
     @Test
     void getProfile_NonExisting() {
-        assertThrows(IllegalStateException.class, () -> profiles.getProfile(0));
-    }
-
-    @Test
-    void doesProfileExist_Regular() {
-        var profile = profiles.createProfile("test", "1234");
-
-        assertTrue(profiles.doesProfileExist(profile.getUUID()));
-    }
-
-    @Test
-    void doesProfileExist_NonExisting() {
-        assertFalse(profiles.doesProfileExist(0));
+        assertTrue(profiles.getProfile(0).isEmpty());
     }
 
     @Test
@@ -150,7 +138,7 @@ class ProfilesTest {
         var profile = getOnlyTestProfile("test", 1234);
         profiles.addProfile(profile);
         profiles.removeProfile(profile);
-        assertFalse(profiles.doesProfileExist(profile.getUUID()));
+        assertFalse(profiles.getProfile(profile.getUUID()).isPresent());
     }
 
     @Test
