@@ -4,7 +4,7 @@ import mediator.ServerRequest;
 import utils.PropertyChangeSubject;
 
 
-public interface Model extends PropertyChangeSubject
+public interface Model extends PropertyChangeSubject, ServerRequestPasser
 {
     /**
      * Henter profil manageren
@@ -23,10 +23,4 @@ public interface Model extends PropertyChangeSubject
      * @return room manager
      */
     Rooms getRooms();
-
-    /**
-     * Sender en besked fra clienten videre til managers
-     * @param message Requesten fra en client
-     */
-    void passServerRequest(ServerRequest message);
 }

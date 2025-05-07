@@ -7,6 +7,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 
 public class ChatModel implements Model, PropertyChangeListener {
     private Profiles profiles;
@@ -14,8 +15,14 @@ public class ChatModel implements Model, PropertyChangeListener {
     private Rooms rooms;
     private PropertyChangeSupport property;
 
+    private ArrayList<ServerRequestHandler> requestHandlers;
+
     public ChatModel() {
+        requestHandlers = new ArrayList<>();
+        addHandler(UserFilesManager.getInstance());
+
         property = new PropertyChangeSupport(this);
+
         profiles = new ProfilesArrayListManager(this);
         messages = new MessagesArrayListManager(this);
         rooms = new RoomsArrayListManager(this);
@@ -118,10 +125,9 @@ public class ChatModel implements Model, PropertyChangeListener {
 
     @Override
     public void passServerRequest(ServerRequest message) {
-        UserFilesManager.getInstance().handleMessage(message);
-        profiles.handleRequest(message);
-        messages.handleRequest(message);
-        rooms.handleRequest(message);
+        for (ServerRequestHandler handler : requestHandlers) {
+            handler.handleRequest(message);
+        }
     }
 
     @Override
@@ -137,5 +143,15 @@ public class ChatModel implements Model, PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         property.firePropertyChange(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
+    }
+
+    @Override
+    public void addHandler(ServerRequestHandler handler) {
+        requestHandlers.add(handler);
+    }
+
+    @Override
+    public void removeHandler(ServerRequestHandler handler) {
+        requestHandlers.remove(handler);
     }
 }

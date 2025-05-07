@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-public class UserFilesManager {
+public class UserFilesManager implements ServerRequestHandler {
 
     static UserFilesManager instance = new UserFilesManager();
 
@@ -20,7 +20,8 @@ public class UserFilesManager {
         return instance;
     }
 
-    public void handleMessage(ServerRequest message) {
+    @Override
+    public void handleRequest(ServerRequest message) {
         if (message.getType().equals("DOWNLOAD_FILE")) {
             String fileId = message.getData().getString("fileId");
 
