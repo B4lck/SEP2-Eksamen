@@ -13,6 +13,7 @@ public class ProfilesArrayListManager implements Profiles {
     public ProfilesArrayListManager(Model model) {
         profiles = new ArrayList<>();
         this.model = model;
+        model.addHandler(this);
     }
 
     @Override

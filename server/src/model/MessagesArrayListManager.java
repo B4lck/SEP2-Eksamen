@@ -19,6 +19,7 @@ public class MessagesArrayListManager implements Messages {
 
     public MessagesArrayListManager(Model model) {
         this.model = model;
+        model.addHandler(this);
     }
 
     @Override

@@ -13,6 +13,7 @@ public class RoomsArrayListManager implements Rooms {
     public RoomsArrayListManager(Model model) {
         chatRooms = new ArrayList<>();
         this.model = model;
+        model.addHandler(this);
     }
 
     @Override
