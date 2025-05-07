@@ -37,5 +37,7 @@ public interface Message {
 
     void editBody(String messageBody, long byUserId);
 
+    void deleteContent(long byUserId);
+
     void addAttachment(String fileName);
 }

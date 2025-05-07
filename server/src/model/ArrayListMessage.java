@@ -62,8 +62,15 @@ public class ArrayListMessage implements Message {
 
     @Override
     public void editBody(String messageBody, long byUserId) {
+        if (messageBody.isEmpty()) throw new IllegalArgumentException("Beskeden har intet indhold");
         if (byUserId != sentBy) throw new IllegalArgumentException("Du har ikke tilladelse til at slette den her besked");
-        body = messageBody;
+        body = messageBody + " (redigeret)";
+    }
+
+    @Override
+    public void deleteContent(long byUserId) {
+        if (byUserId != sentBy) throw new IllegalArgumentException("Du har ikke tilladelse til at slette den her besked");
+        body = "[BESKEDEN ER BLEVET SLETTET]";
     }
 
     @Override
