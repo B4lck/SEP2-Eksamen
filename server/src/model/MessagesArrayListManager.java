@@ -25,6 +25,9 @@ public class MessagesArrayListManager implements Messages {
     public Message sendMessage(long chatroom, String messageBody, List<String> attachments, long senderId) {
         var message = new ArrayListMessage(senderId, messageBody, LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000L, chatroom);
 
+        if (messageBody == null) throw new IllegalStateException("Body cannot be null");
+        if (messageBody.isBlank() && !attachments.isEmpty()) throw new IllegalStateException("Body cannot be blank");
+
         if (senderId == -1)
             throw new IllegalStateException("Du skal være logget ind for at sende en besked i et chatroom");
 
@@ -33,6 +36,7 @@ public class MessagesArrayListManager implements Messages {
 
         // Tilføj bilag
         for (String attachment : attachments) {
+            if (attachment == null) throw new IllegalStateException("Attachment cannot be null");
             message.addAttachment(attachment);
         }
 
