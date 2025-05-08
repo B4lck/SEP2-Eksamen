@@ -44,32 +44,11 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
     @FXML
     private Text greetingText;
 
-    // Context menu
-    @FXML
-    private ContextMenu contextMenu;
-    @FXML
-    private MenuItem editMessageItem;
-    @FXML
-    private MenuItem deleteMessageItem;
     private ViewMessage highlightedMessage;
     private boolean editing = false;
 
     @Override
     protected void init() {
-        // Context menu
-        contextMenu = new ContextMenu();
-        editMessageItem = new MenuItem("Rediger");
-        deleteMessageItem = new MenuItem("Fjern");
-
-        editMessageItem.setOnAction((_) -> {
-            editing = true;
-            message.textProperty().setValue(highlightedMessage.body);
-        });
-
-        deleteMessageItem.setOnAction((_) -> getViewModel().deleteMessage(highlightedMessage.messageId));
-
-        contextMenu.getItems().addAll(editMessageItem, deleteMessageItem);
-
         // Bindings
         message.textProperty().bindBidirectional(getViewModel().getComposeMessageProperty());
         greetingText.textProperty().bind(getViewModel().getGreetingTextProperty());
@@ -81,6 +60,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
             rooms.getChildren().clear();
             change.getList().forEach(r -> {
                 Button roomButton = new Button(r.name);
+                roomButton.setPrefWidth(150);
                 roomButton.addEventHandler(ActionEvent.ACTION, evt -> getViewModel().setChatRoom(r.roomId));
                 rooms.getChildren().add(roomButton);
             });
@@ -114,7 +94,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
 
                     Label messageSender = new Label();
                     messageSender.getStyleClass().add("message-sender");
-                    messageSender.setText(m.sender + "(" + m.messageId + ")");
+                    messageSender.setText(m.sender);
                     messageContainer.getChildren().add(messageSender);
                 }
 
@@ -160,9 +140,23 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
                     }
                 }
 
-                // TODO: Context menuen skal kun på, hvis det er brugeren egen besked
                 messageContainer.setOnContextMenuRequested(e -> {
                     highlightedMessage = m;
+                    // Context menu
+                    ContextMenu contextMenu = new ContextMenu();
+                    MenuItem editMessageItem = new MenuItem("Rediger");
+                    MenuItem deleteMessageItem = new MenuItem("Fjern");
+                    MenuItem idItem = new MenuItem("Besked-ID: " + highlightedMessage.messageId);
+                    idItem.setDisable(true);
+
+                    editMessageItem.setOnAction((_) -> {
+                        editing = true;
+                        message.textProperty().setValue(highlightedMessage.body);
+                    });
+
+                    deleteMessageItem.setOnAction((_) -> getViewModel().deleteMessage(highlightedMessage.messageId));
+
+                    contextMenu.getItems().addAll(editMessageItem, deleteMessageItem, idItem);
                     contextMenu.show(messageContainer, e.getScreenX(), e.getScreenY());
                 });
 
