@@ -186,7 +186,7 @@ class RoomsArrayListManagerTest {
     }
 
     /**
-     *  Tilføj en bruger der er allerede tilføjet
+     * Tilføj en bruger der er allerede tilføjet
      */
     @Test
     void addExistingUser() {
@@ -249,6 +249,32 @@ class RoomsArrayListManagerTest {
     }
 
     /**
+     * Fjern en bruger fra et rum, som ikke deltager af rummet
+     */
+    @Test
+    void removeUserWithoutBeingInRoom() {
+        assertThrows(IllegalStateException.class, () -> model.getRooms().removeUser(room.getRoomId(), user2.getUUID(), user3.getUUID()));
+        assertEquals(1, room.getUsers().size());
+    }
+
+    /**
+     * Fjern en bruger der ikke findes til et rum
+     */
+    @Test
+    void removeNoneExistingUser() {
+        assertThrows(IllegalStateException.class, () -> model.getRooms().removeUser(room.getRoomId(), 123, user1.getUUID()));
+    }
+
+    /**
+     * Fjern en bruger som ikke er deltager i rummet
+     */
+    @Test
+    void removeNotMember() {
+        assertThrows(IllegalStateException.class, () -> model.getRooms().removeUser(room.getRoomId(), user3.getUUID(), user1.getUUID()));
+        assertEquals(1, room.getUsers().size());
+    }
+
+    /**
      * Fjern sig selv fra et rum
      */
     @org.junit.jupiter.api.Test
@@ -271,7 +297,7 @@ class RoomsArrayListManagerTest {
     }
 
     /**
-     * Ændre navn på chatrum
+     * Ændre navn på chatrum, ikke admin
      */
     @org.junit.jupiter.api.Test
     void changeRoomNameNonAdmin() {
@@ -297,6 +323,24 @@ class RoomsArrayListManagerTest {
     void changeRoomNameToEmptyString() {
         assertThrows(IllegalArgumentException.class, () -> model.getRooms().setName(room.getRoomId(), "", user1.getUUID()));
 
+        assertEquals(model.getRooms().getRoom(room.getRoomId(), user1.getUUID()).getName(), "test");
+    }
+
+    /**
+     * Ændre navn, som ikke deltager af rummet
+     */
+    @Test
+    void changeRoomNameNotMember() {
+        assertThrows(IllegalStateException.class, () -> model.getRooms().setName(room.getRoomId(), "GRR", user3.getUUID()));
+        assertEquals(model.getRooms().getRoom(room.getRoomId(), user1.getUUID()).getName(), "test");
+    }
+
+    /**
+     * Ændre navn, som ikke eksisterende bruger
+     */
+    @Test
+    void changeRoomNameNotExistingUser() {
+        assertThrows(IllegalStateException.class, () -> model.getRooms().setName(room.getRoomId(), "GRR", 123224));
         assertEquals(model.getRooms().getRoom(room.getRoomId(), user1.getUUID()).getName(), "test");
     }
 
@@ -398,5 +442,81 @@ class RoomsArrayListManagerTest {
     @Test
     void unmuteUserNotInRoom() {
         assertThrows(IllegalStateException.class, () -> room.unmuteUser(user2.getUUID(), user1.getUUID()));
+    }
+
+    /**
+     * Mute en bruger som er admin
+     */
+    @Test
+    void muteAdmin() {
+        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
+        assertThrows(IllegalStateException.class, () -> room.muteUser(user1.getUUID(), user2.getUUID()));
+        assertFalse(false);
+    }
+
+    /**
+     * Unmute en bruger som er admin
+     */
+    @Test
+    void unmuteAdmin() {
+        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
+        assertThrows(IllegalStateException.class, () -> room.unmuteUser(user1.getUUID(), user2.getUUID()));
+        assertFalse(false);
+    }
+
+    /**
+     * Mute en bruger ikke deltager i rummet
+     */
+    @Test
+    void muteNotMemberUser() {
+        assertThrows(IllegalStateException.class, () -> room.muteUser(user2.getUUID(), user1.getUUID()));
+        assertFalse(false);
+    }
+
+    /**
+     * Unmute en bruger ikke deltager i rummet
+     */
+    @Test
+    void unmuteNotMemberUser() {
+        assertThrows(IllegalStateException.class, () -> room.unmuteUser(user2.getUUID(), user1.getUUID()));
+        assertFalse(false);
+    }
+
+    /**
+     * Mute en bruger som en bruger der ikke findes
+     */
+    @Test
+    void muteMemberWithoutBeingExisting() {
+        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
+        assertThrows(IllegalStateException.class, () -> room.muteUser(user2.getUUID(), 1234));
+        assertFalse(false);
+    }
+
+    /**
+     * Unmute en bruger som en bruger der ikke findes
+     */
+    @Test
+    void unmuteMemberWithoutBeingExisting() {
+        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
+        assertThrows(IllegalStateException.class, () -> room.unmuteUser(user2.getUUID(), 1234));
+        assertFalse(false);
+    }
+
+    /**
+     * Mute en bruger der ikke findes
+     */
+    @Test
+    void muteNotExistingUser() {
+        assertThrows(IllegalStateException.class, () -> room.muteUser(1234, user1.getUUID()));
+        assertFalse(false);
+    }
+
+    /**
+     * Unmute en bruger der ikke findes
+     */
+    @Test
+    void unmuteNotExistingUser() {
+        assertThrows(IllegalStateException.class, () -> room.unmuteUser(1234, user1.getUUID()));
+        assertFalse(false);
     }
 }
