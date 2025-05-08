@@ -98,18 +98,24 @@ class ProfilesTest {
     @Test
     void createProfile_NullPassword() {
         assertThrows(IllegalArgumentException.class, () -> profiles.createProfile("test", null));
+
+        assertFalse(profiles.getProfileByUsername("test").isPresent());
     }
 
     @Test
     void createProfile_TakenUsername() {
-        profiles.createProfile("test", "1234");
+        var originalProfile = profiles.createProfile("test", "1234");
         assertThrows(IllegalStateException.class, () -> profiles.createProfile("test", "1234"));
+
+        assertEquals(originalProfile, profiles.getProfileByUsername("test").orElseThrow());
     }
 
     @Test
     void addProfile_Regular() {
         var profile = getOnlyTestProfile("test", 1234);
         profiles.addProfile(profile);
+
+        assertEquals(profile, profiles.getProfileByUsername("test").orElseThrow());
     }
 
     @Test
@@ -122,7 +128,10 @@ class ProfilesTest {
         var profile1 = getOnlyTestProfile("test", 1234);
         var profile2 = getOnlyTestProfile("test2", 1234);
         profiles.addProfile(profile1);
+
         assertThrows(IllegalStateException.class, () -> profiles.addProfile(profile2));
+
+        assertFalse(profiles.getProfileByUsername("test2").isPresent());
     }
 
     @Test
@@ -130,7 +139,10 @@ class ProfilesTest {
         var profile1 = getOnlyTestProfile("test", 1234);
         var profile2 = getOnlyTestProfile("test", 1235);
         profiles.addProfile(profile1);
+
         assertThrows(IllegalStateException.class, () -> profiles.addProfile(profile2));
+
+        assertEquals(profile1, profiles.getProfileByUsername("test").orElseThrow());
     }
 
     @Test
@@ -138,6 +150,7 @@ class ProfilesTest {
         var profile = getOnlyTestProfile("test", 1234);
         profiles.addProfile(profile);
         profiles.removeProfile(profile);
+
         assertFalse(profiles.getProfile(profile.getUUID()).isPresent());
     }
 
@@ -150,6 +163,8 @@ class ProfilesTest {
     void removeProfile_NonExisting() {
         var profile1 = getOnlyTestProfile("test", 1234);
         profiles.removeProfile(profile1);
+
+        assertFalse(profiles.getProfile(profile1.getUUID()).isPresent());
     }
 
     @Test
