@@ -12,6 +12,7 @@ class RoomsArrayListManagerTest {
     private Model model;
     private Profile user1;
     private Profile user2;
+    private Profile user3;
     private Room room;
 
     @BeforeEach
@@ -19,6 +20,7 @@ class RoomsArrayListManagerTest {
         model = new ChatModel();
         user1 = model.getProfiles().createProfile("Mazen", "1234");
         user2 = model.getProfiles().createProfile("TykkeBalck", "6789");
+        user3 = model.getProfiles().createProfile("Malthe", "1234");
         room = model.getRooms().createRoom("test", user1.getUUID());
     }
 
@@ -113,7 +115,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void getRoomWithoutBeingMember() {
-        assertEquals (0, model.getRooms().getParticipatingRooms(user2.getUUID()).size());
+        assertEquals(0, model.getRooms().getParticipatingRooms(user2.getUUID()).size());
     }
 
     /**
@@ -157,13 +159,40 @@ class RoomsArrayListManagerTest {
     }
 
     /**
-     * tilføje en bruger til rummet som ikke eksistere
+     * Tilføj en bruger til rummet som ikke eksistere
      */
     @Test
     void addNotExistingUser() {
-        assertThrows(IllegalStateException.class, () -> model.getRooms().addUser(room.getRoomId(),123, user1.getUUID()));
+        assertThrows(IllegalStateException.class, () -> model.getRooms().addUser(room.getRoomId(), 123, user1.getUUID()));
 
         assertEquals(1, room.getUsers().size());
+    }
+
+    /**
+     * Tilføj en bruger til et rum, som ikke deltager af rummet
+     */
+    @Test
+    void addUserWithoutBeingInRoom() {
+        assertThrows(IllegalStateException.class, () -> model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user3.getUUID()));
+        assertEquals(1, room.getUsers().size());
+    }
+
+    /**
+     * Tilføje en bruger der ikke findes til et rum
+     */
+    @Test
+    void addNoneExistingUser() {
+        assertThrows(IllegalStateException.class, () -> model.getRooms().addUser(room.getRoomId(), 123, user1.getUUID()));
+    }
+
+    /**
+     *  Tilføj en bruger der er allerede tilføjet
+     */
+    @Test
+    void addExistingUser() {
+        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
+        assertThrows(IllegalStateException.class, () -> model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID()));
+        assertEquals(2, room.getUsers().size());
     }
 
     /**
@@ -196,6 +225,15 @@ class RoomsArrayListManagerTest {
         assertThrows(IllegalStateException.class, () -> model.getRooms().removeUser(room.getRoomId(), user2.getUUID(), user3.getUUID()));
 
         assertEquals(room.getUsers().size(), 2);
+    }
+
+    /**
+     * Fjern en bruger fra et rum som bruger som ikke findes
+     */
+    @Test
+    void removeNotExistingUser() {
+        assertThrows(IllegalStateException.class, () -> model.getRooms().removeUser(room.getRoomId(), 123, user1.getUUID()));
+
     }
 
     /**
