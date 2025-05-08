@@ -18,6 +18,8 @@ public class RoomsArrayListManager implements Rooms {
 
     @Override
     public Room createRoom(String name, long userId) {
+        if (model.getProfiles().getProfile(userId).isEmpty()) throw new IllegalStateException("Brugeren findes ikke brormand");
+
         Room chatRoom = new ArrayListRoom(name, userId);
         chatRooms.add(chatRoom);
 
@@ -45,6 +47,8 @@ public class RoomsArrayListManager implements Rooms {
 
     @Override
     public void addUser(long chatroom, long newUser, long adminUser) {
+        if (model.getProfiles().getProfile(newUser).isEmpty()) throw new IllegalStateException("Brugeren findes ikke");
+
         Room chatRoom = getRoomFromId(chatroom);
         chatRoom.addUser(newUser, adminUser);
 
