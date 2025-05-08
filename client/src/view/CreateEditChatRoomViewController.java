@@ -7,6 +7,8 @@ import javafx.scene.text.Text;
 import viewModel.CreateEditChatRoomViewModel;
 import viewModel.ViewUser;
 
+import java.util.List;
+
 public class CreateEditChatRoomViewController extends ViewController<CreateEditChatRoomViewModel> {
     @FXML
     public Text title;
@@ -51,9 +53,12 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
 
     @FXML
     public void addUser() {
-        getViewHandler().openPopup(PopupViewID.USER_PICKER, (Long userId) -> {
-            if (userId != null)
-                getViewModel().addUser(userId);
+        getViewHandler().openPopup(PopupViewID.USER_PICKER, (List<Long> userId) -> {
+            if (userId != null) {
+                for (Long id : userId) {
+                    getViewModel().addUser(id);
+                }
+            }
         });
     }
 

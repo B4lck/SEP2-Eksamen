@@ -4,11 +4,14 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextField;
 import viewModel.UserPickerViewModel;
 import viewModel.ViewUser;
 
-public class UserPicker extends PopupViewController<Long, UserPickerViewModel> {
+import java.util.List;
+
+public class UserPickerController extends PopupViewController<List<Long>, UserPickerViewModel> {
     @FXML
     public TextField search;
     @FXML
@@ -19,6 +22,7 @@ public class UserPicker extends PopupViewController<Long, UserPickerViewModel> {
         getViewModel().reset();
 
         search.textProperty().bindBidirectional(getViewModel().getSearchProperty());
+        list.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         list.setItems(getViewModel().getResultsProperty());
         list.setCellFactory(cell -> new ListCell<>() {
             @Override
@@ -48,6 +52,6 @@ public class UserPicker extends PopupViewController<Long, UserPickerViewModel> {
     @FXML
     public void submit(ActionEvent actionEvent) {
         getStage().close();
-        callback(list.getSelectionModel().getSelectedItems().getFirst().userId);
+        callback(list.getSelectionModel().getSelectedItems().stream().map(viewUser -> viewUser.userId).toList());
     }
 }
