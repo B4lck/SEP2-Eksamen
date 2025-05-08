@@ -59,10 +59,13 @@ public class MessagesArrayListManager implements Messages {
     }
 
     @Override
-    public List<Message> getMessages(long chatroom, int amount) {
+    public List<Message> getMessages(long chatroom, int amount, long userId) {
         if (amount <= 0) throw new IllegalArgumentException("Ikke nok beskeder");
-        if (!model.getRooms().doesRoomExits(chatroom))
-            throw new IllegalArgumentException("Rummet findes ikke brormand");
+        if (!model.getRooms().doesRoomExits(chatroom)) throw new IllegalArgumentException("Rummet findes ikke brormand");
+
+        // Thrower hvis brugeren ikk har adgang til rummet
+        model.getRooms().getRoom(chatroom, userId);
+
         return messages.stream()
                 .filter(msg -> msg.getChatRoom() == chatroom)
                 .sorted(Comparator.comparingLong(Message::getDateTime).reversed())
@@ -71,9 +74,14 @@ public class MessagesArrayListManager implements Messages {
     }
 
     @Override
-    public List<Message> getMessagesBefore(long messageId, int amount) {
+    public List<Message> getMessagesBefore(long messageId, int amount, long userId) {
         if (amount <= 0) throw new IllegalArgumentException("Det er for lidt beskeder brormand");
-        var beforeMessage = getMessage(messageId);
+
+        var beforeMessage = getMessage(messageId, userId);
+
+        // Thrower hvis brugeren ikk har adgang til rummet
+        model.getRooms().getRoom(beforeMessage.getChatRoom(), userId);
+
         return messages.stream()
                 .filter(
                         msg -> msg.getChatRoom() == beforeMessage.getChatRoom()
@@ -85,8 +93,11 @@ public class MessagesArrayListManager implements Messages {
     }
 
     @Override
-    public Message getMessage(long messageId) {
-        return messages.stream().filter(msg -> msg.getMessageId() == messageId).findAny().orElseThrow(() -> new IllegalStateException("Beskeden findes ikke."));
+    public Message getMessage(long messageId, long userId) {
+        return messages.stream().filter(msg ->
+                msg.getMessageId() == messageId &&
+                model.getRooms().getRoom(msg.getChatRoom(), userId) != null
+                ).findAny().orElseThrow(() -> new IllegalStateException("Beskeden findes ikke."));
     }
 
     @Override
@@ -103,7 +114,7 @@ public class MessagesArrayListManager implements Messages {
     @Override
     public void editMessage(long messageId, String messageBody, long byUserId) {
         // Hent beskeden
-        var message = getMessage(messageId);
+        var message = getMessage(messageId, byUserId);
 
         // Rediger beskeden
         message.editBody(messageBody, byUserId);
@@ -120,7 +131,7 @@ public class MessagesArrayListManager implements Messages {
     @Override
     public void deleteMessage(long messageId, long byUserId) {
         // Hent beskeden
-        var message = getMessage(messageId);
+        var message = getMessage(messageId, byUserId);
 
         // Gem bilag inden content bliver slettet
         List<String> attachments = message.getAttachments();
@@ -173,14 +184,14 @@ public class MessagesArrayListManager implements Messages {
                     chatRoom = data.getLong("chatroom");
                     amount = data.getInt("amount");
 
-                    request.respond(new DataMap().with("messages", toSendableData(getMessages(chatRoom, amount))));
+                    request.respond(new DataMap().with("messages", toSendableData(getMessages(chatRoom, amount, request.getUser()))));
                     break;
                 // Hent antal beskeder
                 case "RECEIVE_MESSAGES_BEFORE":
                     long before = request.getData().getLong("before");
                     amount = data.getInt("amount");
 
-                    var messages = getMessagesBefore(before, amount);
+                    var messages = getMessagesBefore(before, amount, request.getUser());
 
                     if (messages.isEmpty()) {
                         request.respond(new DataMap()

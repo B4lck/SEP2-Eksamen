@@ -185,71 +185,109 @@ class MessagesArrayListManagerTest {
 
     @Test
     void getMessagesWithTenAmount() {
-        assertDoesNotThrow(() -> model.getMessages().getMessages(room.getRoomId(), 10));
+        assertDoesNotThrow(() -> model.getMessages().getMessages(room.getRoomId(), 10, user1.getUUID()));
     }
 
     @Test
     void getMessagesWithNegativeAmount() {
-        assertThrows(IllegalArgumentException.class, () -> model.getMessages().getMessages(room.getRoomId(), -1));
+        assertThrows(IllegalArgumentException.class, () -> model.getMessages().getMessages(room.getRoomId(), -1, user1.getUUID()));
     }
 
     @Test
     void getMessagesWith0Amount() {
-        assertThrows(IllegalArgumentException.class, () -> model.getMessages().getMessages(room.getRoomId(), 0));
+        assertThrows(IllegalArgumentException.class, () -> model.getMessages().getMessages(room.getRoomId(), 0, user1.getUUID()));
     }
 
     @Test
     void getMessagesWith1Amount() {
-        assertDoesNotThrow(() -> model.getMessages().getMessages(room.getRoomId(), 1));
+        assertDoesNotThrow(() -> model.getMessages().getMessages(room.getRoomId(), 1, user1.getUUID()));
     }
 
     @Test
     void getMessagesFromNonExistingRoom() {
-        assertThrows(IllegalArgumentException.class, () -> model.getMessages().getMessages(7238947, 1));
+        assertThrows(IllegalArgumentException.class, () -> model.getMessages().getMessages(7238947, 1, user1.getUUID()));
+    }
+
+    @Test
+    void getMessagesFromRoomWithNoAcces() {
+        assertThrows(IllegalStateException.class, () -> model.getMessages().getMessages(room.getRoomId(), 10, user2.getUUID()));
+    }
+
+    @Test
+    void getMessagesFromRoomWithNonExistingProfile() {
+        assertThrows(IllegalStateException.class, () -> model.getMessages().getMessages(room.getRoomId(), 10, 123));
     }
 
     @Test
     void getMessagesBeforeExistingMessageWithTenAmount() {
         Message message = model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user1.getUUID());
 
-        assertDoesNotThrow(() -> model.getMessages().getMessagesBefore(message.getMessageId(), 10));
+        assertDoesNotThrow(() -> model.getMessages().getMessagesBefore(message.getMessageId(), 10, user1.getUUID()));
     }
 
     @Test
     void getMessagesBeforeExistingMessageWithOneAmount() {
         Message message = model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user1.getUUID());
 
-        assertDoesNotThrow(() -> model.getMessages().getMessagesBefore(message.getMessageId(), 1));
+        assertDoesNotThrow(() -> model.getMessages().getMessagesBefore(message.getMessageId(), 1, user1.getUUID()));
     }
 
     @Test
     void getMessagesBeforeExistingMessageWithZeroAmount() {
         Message message = model.getMessages().sendMessage(room.getRoomId(),"test", new ArrayList<>(), user1.getUUID());
 
-        assertThrows(IllegalArgumentException.class, () -> model.getMessages().getMessagesBefore(message.getMessageId(), 0));
+        assertThrows(IllegalArgumentException.class, () -> model.getMessages().getMessagesBefore(message.getMessageId(), 0, user1.getUUID()));
     }
 
     @Test
     void getMessagesBeforeExistingMessageWithNegativeAmount() {
         Message message = model.getMessages().sendMessage(room.getRoomId(),"test", new ArrayList<>(), user1.getUUID());
 
-        assertThrows(IllegalArgumentException.class, () -> model.getMessages().getMessagesBefore(message.getMessageId(), -1));
+        assertThrows(IllegalArgumentException.class, () -> model.getMessages().getMessagesBefore(message.getMessageId(), -1, user1.getUUID()));
     }
 
     @Test
     void getMessagesBeforeNonExistingMessage() {
-        assertThrows(IllegalStateException.class, () -> model.getMessages().getMessagesBefore(123, 10));
+        assertThrows(IllegalStateException.class, () -> model.getMessages().getMessagesBefore(123, 10, user1.getUUID()));
+    }
+
+    @Test
+    void getMessagesBeforeFromRoomWithNoAccess() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user1.getUUID());
+
+        assertThrows(IllegalStateException.class, () -> model.getMessages().getMessagesBefore(message.getMessageId(), 1, user2.getUUID()));
+    }
+
+    @Test
+    void getMessagesBeforeFromRoomWithNonExistingUser() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user1.getUUID());
+
+        assertThrows(IllegalStateException.class, () -> model.getMessages().getMessagesBefore(message.getMessageId(), 1, 123));
     }
 
     @Test
     void getExistingMessage() {
         Message message = model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user1.getUUID());
-        assertDoesNotThrow(() -> model.getMessages().getMessage(message.getMessageId()));
+        assertDoesNotThrow(() -> model.getMessages().getMessage(message.getMessageId(), user1.getUUID()));
     }
 
     @Test
     void getNonExistingMessage() {
-        assertThrows(IllegalStateException.class, () -> model.getMessages().getMessage(7912783));
+        assertThrows(IllegalStateException.class, () -> model.getMessages().getMessage(7912783, user1.getUUID()));
+    }
+
+    @Test
+    void getMessageWithNoAccess() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user1.getUUID());
+
+        assertThrows(IllegalStateException.class, () -> model.getMessages().getMessage(message.getMessageId(), user2.getUUID()));
+    }
+
+    @Test
+    void getMessageWithNonExistingUser() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user1.getUUID());
+
+        assertThrows(IllegalStateException.class, () -> model.getMessages().getMessage(message.getMessageId(), 123));
     }
 
     @Test
