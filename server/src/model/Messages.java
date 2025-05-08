@@ -31,25 +31,28 @@ public interface Messages extends ServerRequestHandler, PropertyChangeSubject {
      *
      * @param chatroom Chatrummets id
      * @param amount   Antal beskeder
+     * @param userId   Id'et på brugeren som henter beskederne
      * @return Returnere antal beskeder ud fra amount
      */
-    List<Message> getMessages(long chatroom, int amount);
+    List<Message> getMessages(long chatroom, int amount, long userId);
 
     /**
      * Henter alle beskeder x antal beskeder før en givet besked
      *
      * @param messageId id'et på beskeden
      * @param amount    antal beskeder
+     * @param userId    id'et på brugeren som henter beskederne
      */
-    List<Message> getMessagesBefore(long messageId, int amount);
+    List<Message> getMessagesBefore(long messageId, int amount, long userId);
 
     /**
      * Henter en besked objekt, ud fra et id
      *
      * @param messageId id'et på beskeden
+     * @param userId    id'et på brugeren som henter beskeden
      * @return beskeden som objekt
      */
-    Message getMessage(long messageId);
+    Message getMessage(long messageId, long userId);
 
     /**
      * Sender en system besked til et chatrum
