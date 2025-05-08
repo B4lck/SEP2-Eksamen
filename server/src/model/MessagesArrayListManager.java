@@ -109,7 +109,7 @@ public class MessagesArrayListManager implements Messages {
         message.editBody(messageBody, byUserId);
 
         // Broadcast til klienter
-        property.firePropertyChange("UPDATE_MESSAGE", null, message.getData());
+        property.firePropertyChange("UPDATE_MESSAGE", null, new DataMap().with("message", message.getData()));
 
         // Send system besked
         sendSystemMessage(message.getChatRoom(),
