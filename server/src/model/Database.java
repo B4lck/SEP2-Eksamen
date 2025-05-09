@@ -1,7 +1,9 @@
 package model;
 
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Wrapper;
 
 public class Database {
 
@@ -23,7 +25,7 @@ public class Database {
         return instance;
     }
 
-    public java.sql.Connection getConnection() throws SQLException {
+    public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection("jdbc:postgresql://localhost:5432/sep2_chat", "sep2_chat", "");
     }
 
