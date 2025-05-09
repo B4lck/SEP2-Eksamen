@@ -175,7 +175,8 @@ class MessagesArrayListManagerTest {
         ArrayList<String> attachments = new ArrayList<>();
         attachments.add("test");
 
-        assertDoesNotThrow(() -> model.getMessages().sendMessage(room.getRoomId(), "", attachments, user1.getUUID()));
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "", attachments, user1.getUUID());
+        assertEquals(1, message.getAttachments().size());
     }
 
     @Test
@@ -185,7 +186,8 @@ class MessagesArrayListManagerTest {
         attachments.add("test2");
         attachments.add("test3");
 
-        assertDoesNotThrow(() -> model.getMessages().sendMessage(room.getRoomId(), "", attachments, user1.getUUID()));
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "", attachments, user1.getUUID());
+        assertEquals(3, message.getAttachments().size());
     }
 
     @Test
