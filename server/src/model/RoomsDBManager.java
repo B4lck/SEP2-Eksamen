@@ -10,10 +10,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DBRoomsManager implements Rooms {
+public class RoomsDBManager implements Rooms {
     private final Model model;
 
-    public DBRoomsManager(Model model) {
+    public RoomsDBManager(Model model) {
         this.model = model;
         this.model.addHandler(this);
     }
