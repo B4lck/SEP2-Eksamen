@@ -28,4 +28,9 @@ public class RegularState extends UserState {
     public void unmute() {
         throw new IllegalStateException("User is not muted, therefor cannot be unmuted");
     }
+
+    @Override
+    public String getStateAsString() {
+        return "Regular";
+    }
 }

@@ -2,6 +2,7 @@ package model;
 
 import model.statemachine.RegularState;
 import model.statemachine.UserState;
+import model.statemachine.UserStateId;
 
 public class RoomUser {
     /**
@@ -19,6 +20,15 @@ public class RoomUser {
     public RoomUser(long id) {
         this.id = id;
         this.state = new RegularState(this);
+    }
+
+    /**
+     * @param id Id'et på profilen som RoomUser skal tilknyttes
+     * @param state Staten på profilen
+     */
+    public RoomUser(long id, UserStateId state) {
+        this.id = id;
+        this.state = UserState.stateFromString(state, this);
     }
 
     /**

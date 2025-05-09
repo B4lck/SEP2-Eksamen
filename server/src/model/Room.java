@@ -50,13 +50,6 @@ public interface Room {
     DataMap getData();
 
     /**
-     * Sætter navnet på chatrummet
-     *
-     * @param name navnet på chatrummet
-     */
-    void setName(String name);
-
-    /**
      * Tjekker om en bruger er i chatrummet
      *
      * @param user Id'et på brugeren
@@ -95,5 +88,13 @@ public interface Room {
      * @return True hvis brugeren er muted
      */
     boolean isMuted(long userId);
+
+    /**
+     * Tjekker om en bruger er admin
+     *
+     * @param userId id'et på brugeren der skal tjekkes
+     * @return True hvis brugeren er admin
+     */
+    boolean isAdmin(long userId);
 }
 

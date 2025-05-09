@@ -1,9 +1,9 @@
 package model.statemachine;
 
 public enum UserStateId {
-    ADMIN("admin"),
-    MUTED("muted"),
-    REGULAR("regular");
+    ADMIN("Admin"),
+    MUTED("Muted"),
+    REGULAR("Regular");
 
 
     private final String stateId;

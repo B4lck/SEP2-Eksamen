@@ -28,4 +28,9 @@ public class AdministratorState extends UserState {
     public void unmute() {
         throw new IllegalStateException("Admin is not muted");
     }
+
+    @Override
+    public String getStateAsString() {
+        return "Admin";
+    }
 }

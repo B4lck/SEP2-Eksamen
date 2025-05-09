@@ -24,6 +24,12 @@ public abstract class UserState {
     public abstract void unmute();
 
     /**
+     * Henter staten som String
+     * @return staten som String
+     */
+    public abstract String getStateAsString();
+
+    /**
      * Opretter et user state, ud fra et user state id
      *
      * @param state User state id
@@ -32,9 +38,9 @@ public abstract class UserState {
      */
     public static UserState stateFromString(UserStateId state, RoomUser user) {
         return switch (state.getStateId()) {
-            case "regular" -> new RegularState(user);
-            case "muted" -> new MutedUser(user);
-            case "admin" -> new AdministratorState(user);
+            case "Regular" -> new RegularState(user);
+            case "Muted" -> new MutedUser(user);
+            case "Admin" -> new AdministratorState(user);
             default -> throw new IllegalStateException("State does not exist");
         };
     }

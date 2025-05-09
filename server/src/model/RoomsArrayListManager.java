@@ -6,6 +6,9 @@ import utils.DataMap;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @deprecated
+ */
 public class RoomsArrayListManager implements Rooms {
     private ArrayList<Room> chatRooms;
     private Model model;

@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * @deprecated
+ */
 public class ArrayListRoom implements Room {
     private String name;
     private long chatRoomId;
@@ -51,16 +54,10 @@ public class ArrayListRoom implements Room {
 
     @Override
     public DataMap getData() {
-        // Jeg har ingen ide om hvad der skal være her?!??!
         return new DataMap()
                 .with("name", name)
                 .with("chatroomId", chatRoomId)
                 .with("users", users.stream().map(RoomUser::getId).toList());
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
     }
 
     @Override
@@ -110,6 +107,11 @@ public class ArrayListRoom implements Room {
     public boolean isMuted(long userId) {
         RoomUser user = getUserFromUserId(userId);
         return user.getState() instanceof MutedUser;
+    }
+
+    @Override
+    public boolean isAdmin(long userId) {
+        return getUserFromUserId(userId).getState() instanceof AdministratorState;
     }
 
     public RoomUser getUserFromUserId(long userId) {

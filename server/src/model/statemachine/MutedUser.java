@@ -28,4 +28,9 @@ public class MutedUser extends UserState {
     public void unmute() {
         user.setState(new RegularState(user));
     }
+
+    @Override
+    public String getStateAsString() {
+        return "Muted";
+    }
 }
