@@ -3,60 +3,84 @@ package model;
 import mediator.ServerRequest;
 import utils.DataMap;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * @deprecated
- */
-public class ProfilesArrayListManager implements Profiles {
-    private ArrayList<Profile> profiles;
-    private Model model;
-
-    public ProfilesArrayListManager(Model model) {
-        profiles = new ArrayList<>();
-        this.model = model;
-        model.addHandler(this);
-    }
-
+public class ProfilesDBManager implements Profiles {
     @Override
     public Optional<Profile> getProfile(long uuid) {
-        for (Profile profile : profiles) {
-            if (profile.getUUID() == uuid) {
-                return Optional.of(profile);
+        try (Connection connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM profile WHERE id = ?");
+            statement.setLong(1, uuid);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return Optional.of(new DBProfile(resultSet.getLong("id"), resultSet.getString("username")));
+            } else {
+                return Optional.empty();
             }
+        } catch (SQLException error) {
+            throw new RuntimeException(error);
         }
-
-        return Optional.empty();
     }
 
     @Override
     public Optional<Profile> getProfileByUsername(String username) {
         if (username == null) throw new IllegalArgumentException("Username må ikke være null");
-
-        for (Profile profile : profiles) {
-            if (username.equals(profile.getUsername())) {
-                return Optional.of(profile);
+        try (Connection connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM profile WHERE username = ?");
+            statement.setString(1, username);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return Optional.of(new DBProfile(resultSet.getLong("id"), resultSet.getString("username")));
+            } else {
+                return Optional.empty();
             }
+        } catch (SQLException error) {
+            throw new RuntimeException(error);
         }
-
-        return Optional.empty();
     }
 
     @Override
     public Profile createProfile(String username, String password) {
         if (username == null) throw new IllegalArgumentException("Username må ikke være null");
         if (password == null) throw new IllegalArgumentException("Password må ikke være null");
-        var profile = new ArrayListProfile(username, password);
-        profiles.add(profile);
-        return profile;
+        try (Connection connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO profile (username, password) VALUES (?, ?)", PreparedStatement.RETURN_GENERATED_KEYS);
+            statement.setString(1, username);
+            statement.setString(2, password);
+            statement.executeUpdate();
+            ResultSet resultSet = statement.getGeneratedKeys();
+            if (resultSet.next()) {
+                return new DBProfile(resultSet.getLong("id"), username);
+            } else {
+                throw new RuntimeException("Profilen kunne ikke oprettes");
+            }
+        } catch (SQLException error) {
+            throw new RuntimeException(error);
+        }
     }
 
     @Override
     public List<Profile> searchProfiles(String query) {
         if (query == null) throw new IllegalArgumentException("Query må ikke være null");
-        return profiles.stream().filter(p -> p.getUsername().toLowerCase().contains(query.toLowerCase())).toList();
+        try (Connection connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM profile WHERE username ILIKE ?");
+            statement.setString(1, query);
+            ResultSet resultSet = statement.executeQuery();
+            ArrayList<Profile> profiles = new ArrayList<>();
+
+            while (resultSet.next()) {
+                profiles.add(new DBProfile(resultSet.getLong("id"), resultSet.getString("username")));
+            }
+            return profiles;
+        } catch (SQLException error) {
+            throw new RuntimeException(error);
+        }
     }
 
     @Override

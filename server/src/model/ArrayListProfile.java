@@ -4,6 +4,9 @@ import utils.DataMap;
 
 import java.util.Random;
 
+/**
+ * @deprecated
+ */
 public class ArrayListProfile implements Profile {
     private String username;
     private String password;

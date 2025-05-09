@@ -29,11 +29,12 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../Pro/postgresql-42.7.5.jar!/" />
+          <root url="jar://$USER_HOME$/Pro/postgresql-42.7.5.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="postgresql-42.7.5" level="application" />
   </component>
 </module>
