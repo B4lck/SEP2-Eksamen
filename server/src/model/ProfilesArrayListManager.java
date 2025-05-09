@@ -46,23 +46,8 @@ public class ProfilesArrayListManager implements Profiles {
         if (username == null) throw new IllegalArgumentException("Username må ikke være null");
         if (password == null) throw new IllegalArgumentException("Password må ikke være null");
         var profile = new ArrayListProfile(username, password);
-        addProfile(profile);
-        return profile;
-    }
-
-    @Override
-    public void addProfile(Profile profile) {
-        if (profile == null) throw new IllegalArgumentException("Profile må ikke være null");
-        if (getProfile(profile.getUUID()).isPresent()) throw new IllegalStateException("Profilen findes allerede");
-        if (getProfileByUsername(profile.getUsername()).isPresent())
-            throw new IllegalStateException("Brugernavnet er allerede taget");
         profiles.add(profile);
-    }
-
-    @Override
-    public void removeProfile(Profile profile) {
-        if (profile == null) throw new IllegalArgumentException("Profile må ikke være null");
-        profiles.remove(profile);
+        return profile;
     }
 
     @Override

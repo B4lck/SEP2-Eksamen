@@ -34,24 +34,6 @@ public interface Profiles extends ServerRequestHandler {
     Profile createProfile(String username, String password);
 
     /**
-     * Gemmer en profil i manageren
-     *
-     * @param profile - Et profil objekt
-     * @throws IllegalArgumentException - Hvis profilen er null
-     * @throws IllegalStateException    - Hvis en profil med samme UUID allerede findes
-     * @throws IllegalStateException    - Hvis en profil med samme brugernavn allerede findes
-     */
-    void addProfile(Profile profile);
-
-    /**
-     * Fjerner profil fra manageren
-     *
-     * @param profile - Profilen som skal fjernes
-     * @throws IllegalArgumentException - Profile cannot be null
-     */
-    void removeProfile(Profile profile);
-
-    /**
      * Henter en array af profiler ud fra matchende query
      *
      * @param query - Søgeord

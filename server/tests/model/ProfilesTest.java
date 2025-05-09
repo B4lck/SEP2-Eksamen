@@ -111,63 +111,6 @@ class ProfilesTest {
     }
 
     @Test
-    void addProfile_Regular() {
-        var profile = getOnlyTestProfile("test", 1234);
-        profiles.addProfile(profile);
-
-        assertEquals(profile, profiles.getProfileByUsername("test").orElseThrow());
-    }
-
-    @Test
-    void addProfile_Null() {
-        assertThrows(IllegalArgumentException.class, () -> profiles.addProfile(null));
-    }
-
-    @Test
-    void addProfile_ExistingUUID() {
-        var profile1 = getOnlyTestProfile("test", 1234);
-        var profile2 = getOnlyTestProfile("test2", 1234);
-        profiles.addProfile(profile1);
-
-        assertThrows(IllegalStateException.class, () -> profiles.addProfile(profile2));
-
-        assertFalse(profiles.getProfileByUsername("test2").isPresent());
-    }
-
-    @Test
-    void addProfile_ExistingName() {
-        var profile1 = getOnlyTestProfile("test", 1234);
-        var profile2 = getOnlyTestProfile("test", 1235);
-        profiles.addProfile(profile1);
-
-        assertThrows(IllegalStateException.class, () -> profiles.addProfile(profile2));
-
-        assertEquals(profile1, profiles.getProfileByUsername("test").orElseThrow());
-    }
-
-    @Test
-    void removeProfile_Regular() {
-        var profile = getOnlyTestProfile("test", 1234);
-        profiles.addProfile(profile);
-        profiles.removeProfile(profile);
-
-        assertFalse(profiles.getProfile(profile.getUUID()).isPresent());
-    }
-
-    @Test
-    void removeProfile_Null() {
-        assertThrows(IllegalArgumentException.class, () -> profiles.removeProfile(null));
-    }
-
-    @Test
-    void removeProfile_NonExisting() {
-        var profile1 = getOnlyTestProfile("test", 1234);
-        profiles.removeProfile(profile1);
-
-        assertFalse(profiles.getProfile(profile1.getUUID()).isPresent());
-    }
-
-    @Test
     void searchProfiles_Regular() {
         profiles.createProfile("test1", "1234");
         profiles.createProfile("test2", "1234");
