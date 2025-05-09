@@ -16,17 +16,6 @@ public interface Messages extends ServerRequestHandler, PropertyChangeSubject {
     Message sendMessage(long chatroom, String messageBody, List<String> attachments, long senderID);
 
     /**
-     * PLACEHOLDER TIL DUMMY DATA, FINGRENE VÆK!
-     *
-     * @param chatroom    id'et på chatrummet
-     * @param messageBody bodyen på beskeden
-     * @param senderID    id'et på senderen
-     * @param time        tidspunkt i unix tid
-     * @return Message objekt for beskeden som er blevet sendt
-     */
-    Message sendMessage(long chatroom, String messageBody, long senderID, long time);
-
-    /**
      * Henter alle beskeder i et chatrum
      *
      * @param chatroom Chatrummets id

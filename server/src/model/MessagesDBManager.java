@@ -5,51 +5,58 @@ import utils.DataMap;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.sql.*;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
-/**
- * @deprecated
- */
-public class MessagesArrayListManager implements Messages {
-    private ArrayList<Message> messages = new ArrayList<>();
+public class MessagesDBManager implements Messages {
 
-    private PropertyChangeSupport property = new PropertyChangeSupport(this);
     private Model model;
+    private PropertyChangeSupport property = new PropertyChangeSupport(this);
 
-    public MessagesArrayListManager(Model model) {
+    public MessagesDBManager(Model model) {
         this.model = model;
         model.addHandler(this);
     }
 
     @Override
     public Message sendMessage(long chatroom, String messageBody, List<String> attachments, long senderId) {
-        var message = new ArrayListMessage(senderId, messageBody, LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000L, chatroom);
-
         if (senderId == -1)
             throw new IllegalStateException("Du skal være logget ind for at sende en besked i et chatroom");
 
-        if (model.getRooms().getRoom(chatroom, senderId).isMuted(senderId))
+        if (senderId != 0 && model.getRooms().getRoom(chatroom, senderId).isMuted(senderId))
             throw new IllegalStateException("Du snakker for meget brormand");
+
+        if (messageBody == null)
+            throw new IllegalArgumentException("Besked må ikke være null");
 
         if (messageBody.isEmpty() && attachments.isEmpty())
             throw new IllegalArgumentException("Besked er tom");
 
-        // Tilføj bilag
-        for (String attachment : attachments) {
-            if (attachment == null) throw new IllegalStateException("Attachment cannot be null");
-            message.addAttachment(attachment);
+        try (Connection connection = Database.getConnection()) {
+            var currentTime = System.currentTimeMillis();
+
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO message (body, sent_by_id, room_id, time) VALUES (?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+            statement.setString(1, messageBody);
+            statement.setLong(2, senderId);
+            statement.setLong(3, chatroom);
+            statement.setLong(4, currentTime);
+            statement.executeUpdate();
+            ResultSet res = statement.getGeneratedKeys();
+
+            if (res.next()) {
+                var message = new DBMessage(res.getLong(1), senderId, messageBody, currentTime, chatroom);
+
+                property.firePropertyChange("RECEIVE_MESSAGE", null, new DataMap().with("message", message.getData()));
+
+                return message;
+            }
+            else {
+                throw new RuntimeException("Kunne ikke oprette besked i databasen, måske");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-
-        messages.add(message);
-
-        // Broadcast besked
-        property.firePropertyChange("RECEIVE_MESSAGE", null, new DataMap().with("message", message.getData()));
-
-        return message;
     }
 
     @Override
@@ -57,52 +64,104 @@ public class MessagesArrayListManager implements Messages {
         if (amount <= 0) throw new IllegalArgumentException("Ikke nok beskeder");
         if (!model.getRooms().doesRoomExits(chatroom)) throw new IllegalArgumentException("Rummet findes ikke brormand");
 
-        // Thrower hvis brugeren ikk har adgang til rummet
-        model.getRooms().getRoom(chatroom, userId);
+        try (Connection connection = Database.getConnection()) {
+            // burde throw hvis brugeren ikke har adgang til rummet
+            // TODO: Lav en .hasAccessTo(chatroom, userId)
+            model.getRooms().getRoom(chatroom, userId);
 
-        return messages.stream()
-                .filter(msg -> msg.getChatRoom() == chatroom)
-                .sorted(Comparator.comparingLong(Message::getDateTime).reversed())
-                .limit(amount)
-                .toList();
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM message WHERE room_id = ? LIMIT ?");
+            statement.setLong(1, chatroom);
+            statement.setInt(2, amount);
+            statement.executeUpdate();
+            ResultSet res = statement.getResultSet();
+
+            List<Message> messages = new ArrayList<>();
+
+            while (res.next()) {
+                messages.add(new DBMessage(
+                        res.getLong("id"),
+                        res.getLong("sent_by_id"),
+                        res.getString("body"),
+                        res.getLong("time"),
+                        res.getLong("room_id")
+                ));
+            }
+
+            return messages;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public List<Message> getMessagesBefore(long messageId, int amount, long userId) {
         if (amount <= 0) throw new IllegalArgumentException("Det er for lidt beskeder brormand");
 
-        var beforeMessage = getMessage(messageId, userId);
+        try (Connection connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("WITH beforeThis (time, room_id) AS (SELECT time, room_id FROM message WHERE id = ?)\n" +
+                    "SELECT * FROM message, beforeThis WHERE message.time < beforeThis.time AND message.room_id = beforeThis.room_id ORDER BY message.time DESC LIMIT ?;");
+            statement.setLong(1, messageId);
+            statement.setInt(2, amount);
+            statement.executeUpdate();
+            ResultSet res = statement.getResultSet();
 
-        // Thrower hvis brugeren ikk har adgang til rummet
-        model.getRooms().getRoom(beforeMessage.getChatRoom(), userId);
+            List<Message> messages = new ArrayList<>();
 
-        return messages.stream()
-                .filter(
-                        msg -> msg.getChatRoom() == beforeMessage.getChatRoom()
-                                && msg.getDateTime() <= beforeMessage.getDateTime()
-                                && msg.getMessageId() != messageId)
-                .sorted(Comparator.comparingLong(Message::getDateTime).reversed())
-                .limit(amount)
-                .toList();
+            if (res.next()) {
+                model.getRooms().getRoom(res.getLong("room_id"), userId);
+                messages.add(new DBMessage(
+                        res.getLong("id"),
+                        res.getLong("sent_by_id"),
+                        res.getString("body"),
+                        res.getLong("time"),
+                        res.getLong("room_id")
+                ));
+            }
+
+            while (res.next()) {
+                messages.add(new DBMessage(
+                        res.getLong("id"),
+                        res.getLong("sent_by_id"),
+                        res.getString("body"),
+                        res.getLong("time"),
+                        res.getLong("room_id")
+                ));
+            }
+
+            return messages;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public Message getMessage(long messageId, long userId) {
-        return messages.stream().filter(msg ->
-                msg.getMessageId() == messageId &&
-                model.getRooms().getRoom(msg.getChatRoom(), userId) != null
-                ).findAny().orElseThrow(() -> new IllegalStateException("Beskeden findes ikke."));
+        try (Connection connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM message WHERE id = ?");
+            statement.setLong(1, messageId);
+            statement.executeUpdate();
+            ResultSet res = statement.getResultSet();
+            if (res.next()) {
+                return new DBMessage(
+                        res.getLong("id"),
+                        res.getLong("sent_by_id"),
+                        res.getString("body"),
+                        res.getLong("time"),
+                        res.getLong("room_id")
+                );
+            }
+            else {
+                throw new IllegalStateException("Kunne ikke finde besked med id " + messageId);
+            }
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public void sendSystemMessage(long chatroom, String body) {
-        if (body == null || body.isEmpty()) throw new IllegalArgumentException("Body cannot be empty");
-        if (!model.getRooms().doesRoomExits(chatroom)) throw new IllegalStateException("Room does not exist");
-        var message = new ArrayListMessage(0, body, LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000L, chatroom);
-
-        messages.add(message);
-
-        property.firePropertyChange("RECEIVE_MESSAGE", null, new DataMap().with("message", message.getData()));
+    public void sendSystemMessage(long chatroom, String message) {
+        sendMessage(chatroom, message, new ArrayList<>(), 0);
     }
 
     @Override

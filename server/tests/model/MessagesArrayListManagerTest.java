@@ -28,7 +28,7 @@ class MessagesArrayListManagerTest {
     void editMessage() {
         // opret besked i chatrummet af user
         String oldMessage = "test1";
-        Message message = model.getMessages().sendMessage(room.getRoomId(), oldMessage, user1.getUUID(), 0);
+        Message message = model.getMessages().sendMessage(room.getRoomId(), oldMessage, new ArrayList<>(), user1.getUUID());
 
         // rediger beskeden
         String newMessage = "test2";
@@ -44,7 +44,7 @@ class MessagesArrayListManagerTest {
     @Test
     void deleteMessage() {
         // opret besked i chatrummet af user
-        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", user1.getUUID(), 0);
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user1.getUUID());
 
         // slet beskeden
         model.getMessages().deleteMessage(message.getMessageId(), user1.getUUID());
@@ -76,7 +76,7 @@ class MessagesArrayListManagerTest {
     @Test
     void editMessageWithoutPermission() {
         // opret besked
-        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", user1.getUUID(), 0);
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user1.getUUID());
 
         // Tjek om den kaster fejl
         assertThrows(IllegalStateException.class, () -> model.getMessages().editMessage(message.getMessageId(), "ny besked", user2.getUUID()));
@@ -88,7 +88,7 @@ class MessagesArrayListManagerTest {
     @Test
     void deleteMessageWithoutPermission() {
         // opret besked
-        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", user1.getUUID(), 0);
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user1.getUUID());
 
         // Tjek om den kaster fejl
         assertThrows(IllegalStateException.class, () -> model.getMessages().deleteMessage(message.getMessageId(), user2.getUUID()));
@@ -96,13 +96,13 @@ class MessagesArrayListManagerTest {
 
     @Test
     void editMessageWithNonExistingUser() {
-        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", user1.getUUID(), 0);
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user1.getUUID());
         assertThrows(IllegalStateException.class, () -> model.getMessages().editMessage(message.getMessageId(), "test2", 123));
     }
 
     @Test
     void deleteMessageWithNonExistingUser() {
-        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", user1.getUUID(), 0);
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user1.getUUID());
         assertThrows(IllegalStateException.class, () -> model.getMessages().deleteMessage(message.getMessageId(), 123));
     }
 
@@ -112,7 +112,7 @@ class MessagesArrayListManagerTest {
     @Test
     void editMessageBodyToEmptyString() {
         // opret besked
-        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", user1.getUUID(), 0);
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user1.getUUID());
 
         // Tjek om den kaster fejl
         assertThrows(IllegalArgumentException.class, () -> model.getMessages().editMessage(message.getMessageId(), "", user1.getUUID()));
@@ -124,7 +124,7 @@ class MessagesArrayListManagerTest {
     @Test
     void editMessageBodyToNull() {
         // opret besked
-        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", user1.getUUID(), 0);
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user1.getUUID());
 
         // Tjek om den kaster fejl
         assertThrows(NullPointerException.class, () -> model.getMessages().editMessage(message.getMessageId(), null, user1.getUUID()));

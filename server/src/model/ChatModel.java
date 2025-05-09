@@ -22,7 +22,7 @@ public class ChatModel implements Model, PropertyChangeListener {
         property = new PropertyChangeSupport(this);
 
         profiles = new ProfilesArrayListManager(this);
-        messages = new MessagesArrayListManager(this);
+        messages = new MessagesDBManager(this);
         rooms = new RoomsArrayListManager(this);
 
         messages.addListener(this);

@@ -5,6 +5,9 @@ import utils.DataMap;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @deprecated
+ */
 public class ArrayListMessage implements Message {
     private long sentBy;
     private String body;
