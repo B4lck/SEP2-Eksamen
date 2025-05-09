@@ -1,9 +1,10 @@
 package model;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import utils.DataMap;
 
+import java.sql.SQLException;
 import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -11,47 +12,18 @@ import static org.junit.jupiter.api.Assertions.*;
 class ProfilesTest {
     Profiles profiles;
 
-    Profile getOnlyTestProfile(String username, long uuid) {
-        return new Profile() {
-            @Override
-            public long getUUID() {
-                return uuid;
-            }
-
-            @Override
-            public String getUsername() {
-                return username;
-            }
-
-            @Override
-            public void setUsername(String username) {
-                // Tom
-            }
-
-            @Override
-            public boolean checkPassword(String password) {
-                // Tom
-                return false;
-            }
-
-            @Override
-            public void setPassword(String password) {
-                // Tom
-            }
-
-            @Override
-            public DataMap getData() {
-                // Tom
-                return null;
-            }
-        };
-    }
-
     @BeforeEach
-    void setUp() {
+    void setUp() throws SQLException {
+        Database.startTestingContext();
+
         var model = new ChatModel();
 
         profiles = model.getProfiles();
+    }
+
+    @AfterEach
+    void tearDown() throws SQLException {
+        Database.endTestingContext();
     }
 
     @Test
@@ -63,7 +35,7 @@ class ProfilesTest {
 
     @Test
     void getProfile_NonExisting() {
-        assertTrue(profiles.getProfile(0).isEmpty());
+        assertTrue(profiles.getProfile(1).isEmpty());
     }
 
     @Test
@@ -105,6 +77,7 @@ class ProfilesTest {
     @Test
     void createProfile_TakenUsername() {
         var originalProfile = profiles.createProfile("test", "1234");
+
         assertThrows(IllegalStateException.class, () -> profiles.createProfile("test", "1234"));
 
         assertEquals(originalProfile, profiles.getProfileByUsername("test").orElseThrow());
@@ -119,7 +92,7 @@ class ProfilesTest {
 
         assertEquals(3, profiles.searchProfiles("test").size());
     }
-    
+
     @Test
     void searchProfiles_Null() {
         assertThrows(IllegalArgumentException.class, () -> profiles.searchProfiles(null));

@@ -15,4 +15,13 @@ public enum UserStateId {
     public String getStateId() {
         return stateId;
     }
+
+    public static UserStateId fromString(String stateId) {
+        for (UserStateId id : UserStateId.values()) {
+            if (id.getStateId().equals(stateId)) {
+                return id;
+            }
+        }
+        throw new IllegalArgumentException("No state with id " + stateId);
+    }
 }

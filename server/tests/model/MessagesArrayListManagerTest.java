@@ -1,8 +1,10 @@
 package model;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,11 +16,19 @@ class MessagesArrayListManagerTest {
     private Room room;
     
     @BeforeEach
-    void init() {
+    void init() throws SQLException {
+        Database.startTestingContext();
+
         model = new ChatModel();
+
         user1 = model.getProfiles().createProfile("jens123", "123");
         user2 = model.getProfiles().createProfile("karl123", "123");
         room = model.getRooms().createRoom("test", user1.getUUID());
+    }
+
+    @AfterEach
+    void tearDown() throws SQLException {
+        Database.endTestingContext();
     }
 
     /**
@@ -35,7 +45,7 @@ class MessagesArrayListManagerTest {
         model.getMessages().editMessage(message.getMessageId(), newMessage, user1.getUUID());
 
         // tjek
-        assertEquals(newMessage + " (redigeret)", message.getBody());
+        assertEquals(newMessage + " (redigeret)", model.getMessages().getMessage(message.getMessageId(), user1.getUUID()).getBody());
     }
 
     /**
@@ -49,7 +59,7 @@ class MessagesArrayListManagerTest {
         // slet beskeden
         model.getMessages().deleteMessage(message.getMessageId(), user1.getUUID());
 
-        assertEquals("[BESKEDEN ER BLEVET SLETTET]", message.getBody());
+        assertEquals("[BESKEDEN ER BLEVET SLETTET]", model.getMessages().getMessage(message.getMessageId(), user1.getUUID()).getBody());
     }
 
     /**
@@ -147,7 +157,7 @@ class MessagesArrayListManagerTest {
 
     @Test
     void sendMessageAsNonExistingUser() {
-        assertThrows(IllegalStateException.class, () -> model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), 0));
+        assertThrows(IllegalStateException.class, () -> model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), 1));
     }
 
     @Test

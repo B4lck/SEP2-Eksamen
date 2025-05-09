@@ -62,10 +62,9 @@ public class DBMessage implements Message {
     @Override
     public List<String> getAttachments() {
         try (Connection connection = Database.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM attachments WHERE message_id = ?");
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM attachment WHERE message_id = ?");
             statement.setLong(1, id);
-            statement.execute();
-            ResultSet res = statement.getResultSet();
+            ResultSet res = statement.executeQuery();
             List<String> attachments = new ArrayList<>();
             while (res.next()) {
                 attachments.add(res.getString("file_name"));
@@ -84,7 +83,7 @@ public class DBMessage implements Message {
         //       for lidt ekstra flair i rapporten
 
         try (Connection connection = Database.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("UPDATE messages SET body = ? WHERE id = ?");
+            PreparedStatement statement = connection.prepareStatement("UPDATE message SET body = ? WHERE id = ?");
             statement.setString(1, messageBody + " (redigeret)");
             statement.setLong(2, id);
             statement.execute();
@@ -97,12 +96,12 @@ public class DBMessage implements Message {
     public void deleteContent(long byUserId) {
         try (Connection connection = Database.getConnection()) {
             // Slet indholdet af beskeden
-            PreparedStatement statement = connection.prepareStatement("UPDATE messages SET body = ? WHERE id = ?");
+            PreparedStatement statement = connection.prepareStatement("UPDATE message SET body = ? WHERE id = ?");
             statement.setString(1, "[BESKEDEN ER BLEVET SLETTET]");
             statement.setLong(2, id);
             statement.execute();
             // Slet beskedens bilag
-            PreparedStatement statement2 = connection.prepareStatement("DELETE FROM attachments WHERE message_id = ?");
+            PreparedStatement statement2 = connection.prepareStatement("DELETE FROM attachment WHERE message_id = ?");
             statement2.setLong(1, id);
             statement2.execute();
         } catch (Exception e) {
@@ -114,7 +113,7 @@ public class DBMessage implements Message {
     public void addAttachment(String fileName) {
         try (Connection connection = Database.getConnection()) {
             // Tilføj bilag til beskeden
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO attachments (message_id, file_name) VALUES (?, ?)");
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO attachment (message_id, file_name) VALUES (?, ?)");
             statement.setLong(1, id);
             statement.setString(2, fileName);
             statement.execute();
@@ -127,7 +126,7 @@ public class DBMessage implements Message {
     public void removeAttachment(String fileName) {
         try (Connection connection = Database.getConnection()) {
             // Tilføj bilag til beskeden
-            PreparedStatement statement = connection.prepareStatement("DELETE FROM attachments WHERE message_id = ? AND file_name = ?");
+            PreparedStatement statement = connection.prepareStatement("DELETE FROM attachment WHERE message_id = ? AND file_name = ?");
             statement.setLong(1, id);
             statement.setString(2, fileName);
             statement.execute();

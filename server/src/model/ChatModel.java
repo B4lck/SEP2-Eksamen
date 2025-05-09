@@ -5,6 +5,7 @@ import mediator.ServerRequest;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.sql.Connection;
 import java.util.ArrayList;
 
 public class ChatModel implements Model, PropertyChangeListener {
@@ -20,6 +21,13 @@ public class ChatModel implements Model, PropertyChangeListener {
         addHandler(UserFilesManager.getInstance());
 
         property = new PropertyChangeSupport(this);
+
+        try (Connection connection = Database.getConnection()) {
+            connection.prepareStatement("INSERT INTO profile (id, username) VALUES (0, 'System') ON CONFLICT DO NOTHING").executeUpdate();
+        }
+        catch (Exception e) {
+            throw new RuntimeException("grrr");
+        }
 
         profiles = new ProfilesDBManager();
         messages = new MessagesDBManager(this);

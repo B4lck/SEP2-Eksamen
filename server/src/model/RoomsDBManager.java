@@ -1,6 +1,7 @@
 package model;
 
 import mediator.ServerRequest;
+import model.statemachine.UserStateId;
 import utils.DataMap;
 
 import java.sql.Connection;
@@ -20,12 +21,14 @@ public class RoomsDBManager implements Rooms {
 
     @Override
     public Room createRoom(String name, long user) {
+        if (name == null || name.isEmpty()) throw new IllegalArgumentException("Rummet må ikke have et tomt navn");
         if (model.getProfiles().getProfile(user).isEmpty()) throw new IllegalStateException("Brugeren findes ikke");
 
         try (Connection connection = Database.getConnection()) {
             // Opret rummet
             PreparedStatement statement = connection.prepareStatement("INSERT INTO room (name) VALUES (?)", PreparedStatement.RETURN_GENERATED_KEYS);
             statement.setString(1, name);
+
             statement.executeUpdate();
 
             ResultSet res = statement.getGeneratedKeys();
@@ -38,21 +41,20 @@ public class RoomsDBManager implements Rooms {
             statement = connection.prepareStatement("INSERT INTO room_user (room_id, profile_id, state) VALUES (?,?,?)");
             statement.setLong(1, room.getRoomId());
             statement.setLong(2, user);
-            statement.setString(3, "Admin");
+            statement.setString(3, UserStateId.ADMIN.getStateId());
 
             statement.executeUpdate();
+
+            return room;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
-
-        return null;
     }
 
     @Override
     public Room getRoom(long roomId, long user) {
         Room room = new DBRoom(roomId);
-        if (!room.isInRoom(user)) throw new RuntimeException("Du har ikke adgang til dette rum");
+        if (!room.isInRoom(user)) throw new IllegalStateException("Du har ikke adgang til dette rum");
         return room;
     }
 
@@ -68,7 +70,7 @@ public class RoomsDBManager implements Rooms {
             while (res.next()) {
                 rooms.add(getRoom(res.getLong("room_id"), user));
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
@@ -77,6 +79,8 @@ public class RoomsDBManager implements Rooms {
 
     @Override
     public void addUser(long chatroom, long newUser, long adminUser) {
+        if (model.getProfiles().getProfile(newUser).isEmpty()) throw new IllegalStateException("Brugeren findes ikke");
+
         Room room = getRoom(chatroom, adminUser);
         room.addUser(newUser, adminUser);
     }
@@ -106,7 +110,7 @@ public class RoomsDBManager implements Rooms {
             statement.setLong(1, chatroom);
             statement.executeQuery();
             return statement.getResultSet().next();
-        } catch (Exception e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }

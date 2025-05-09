@@ -8,7 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class DBProfile implements Profile {
-    private Long id;
+    private long id;
     private String username;
 
     public DBProfile(long id, String username) {
@@ -71,5 +71,12 @@ public class DBProfile implements Profile {
         return new DataMap()
                 .with("username", username)
                 .with("uuid", id);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        DBProfile dbProfile = (DBProfile) o;
+        return id == dbProfile.id;
     }
 }

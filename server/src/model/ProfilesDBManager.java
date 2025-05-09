@@ -49,6 +49,7 @@ public class ProfilesDBManager implements Profiles {
     public Profile createProfile(String username, String password) {
         if (username == null) throw new IllegalArgumentException("Username må ikke være null");
         if (password == null) throw new IllegalArgumentException("Password må ikke være null");
+        if (getProfileByUsername(username).isPresent()) throw new IllegalStateException("Brugernavnet er taget");
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("INSERT INTO profile (username, password) VALUES (?, ?)", PreparedStatement.RETURN_GENERATED_KEYS);
             statement.setString(1, username);
@@ -70,13 +71,14 @@ public class ProfilesDBManager implements Profiles {
         if (query == null) throw new IllegalArgumentException("Query må ikke være null");
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM profile WHERE username ILIKE ?");
-            statement.setString(1, query);
+            statement.setString(1, "%" + query + "%");
             ResultSet resultSet = statement.executeQuery();
             ArrayList<Profile> profiles = new ArrayList<>();
 
             while (resultSet.next()) {
                 profiles.add(new DBProfile(resultSet.getLong("id"), resultSet.getString("username")));
             }
+
             return profiles;
         } catch (SQLException error) {
             throw new RuntimeException(error);

@@ -1,8 +1,10 @@
 package model;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,12 +18,19 @@ class RoomsArrayListManagerTest {
     private Room room;
 
     @BeforeEach
-    void init() {
+    void init() throws SQLException {
+        Database.startTestingContext();
+
         model = new ChatModel();
         user1 = model.getProfiles().createProfile("Mazen", "1234");
         user2 = model.getProfiles().createProfile("TykkeBalck", "6789");
         user3 = model.getProfiles().createProfile("Malthe", "1234");
         room = model.getRooms().createRoom("test", user1.getUUID());
+    }
+
+    @AfterEach
+    void tearDown() throws SQLException {
+        Database.endTestingContext();
     }
 
     /**

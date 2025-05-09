@@ -24,6 +24,9 @@ public class MessagesDBManager implements Messages {
         if (senderId == -1)
             throw new IllegalStateException("Du skal være logget ind for at sende en besked i et chatroom");
 
+        if (!model.getRooms().doesRoomExits(chatroom))
+            throw new IllegalStateException("Rummet findes ikke");
+
         if (senderId != 0 && model.getRooms().getRoom(chatroom, senderId).isMuted(senderId))
             throw new IllegalStateException("Du snakker for meget brormand");
 
@@ -72,8 +75,7 @@ public class MessagesDBManager implements Messages {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM message WHERE room_id = ? LIMIT ?");
             statement.setLong(1, chatroom);
             statement.setInt(2, amount);
-            statement.executeUpdate();
-            ResultSet res = statement.getResultSet();
+            ResultSet res = statement.executeQuery();
 
             List<Message> messages = new ArrayList<>();
 
@@ -96,27 +98,16 @@ public class MessagesDBManager implements Messages {
     @Override
     public List<Message> getMessagesBefore(long messageId, int amount, long userId) {
         if (amount <= 0) throw new IllegalArgumentException("Det er for lidt beskeder brormand");
+        if (getMessage(messageId, userId) == null) throw new IllegalStateException("Beskeden findes ikke, eller du har ikke adgang til rummet.");
 
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("WITH beforeThis (time, room_id) AS (SELECT time, room_id FROM message WHERE id = ?)\n" +
                     "SELECT * FROM message, beforeThis WHERE message.time < beforeThis.time AND message.room_id = beforeThis.room_id ORDER BY message.time DESC LIMIT ?;");
             statement.setLong(1, messageId);
             statement.setInt(2, amount);
-            statement.executeUpdate();
-            ResultSet res = statement.getResultSet();
+            ResultSet res = statement.executeQuery();
 
             List<Message> messages = new ArrayList<>();
-
-            if (res.next()) {
-                model.getRooms().getRoom(res.getLong("room_id"), userId);
-                messages.add(new DBMessage(
-                        res.getLong("id"),
-                        res.getLong("sent_by_id"),
-                        res.getString("body"),
-                        res.getLong("time"),
-                        res.getLong("room_id")
-                ));
-            }
 
             while (res.next()) {
                 messages.add(new DBMessage(
@@ -139,9 +130,10 @@ public class MessagesDBManager implements Messages {
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM message WHERE id = ?");
             statement.setLong(1, messageId);
-            statement.executeUpdate();
-            ResultSet res = statement.getResultSet();
+            ResultSet res = statement.executeQuery();
             if (res.next()) {
+                model.getRooms().getRoom(res.getLong("room_id"), userId);
+
                 return new DBMessage(
                         res.getLong("id"),
                         res.getLong("sent_by_id"),
