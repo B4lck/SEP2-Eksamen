@@ -50,6 +50,10 @@ public class MessagesDBManager implements Messages {
             if (res.next()) {
                 var message = new DBMessage(res.getLong(1), senderId, messageBody, currentTime, chatroom);
 
+                for (String attachment : attachments) {
+                    message.addAttachment(attachment);
+                }
+
                 property.firePropertyChange("RECEIVE_MESSAGE", null, new DataMap().with("message", message.getData()));
 
                 return message;

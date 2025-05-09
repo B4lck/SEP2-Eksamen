@@ -29,7 +29,7 @@ public class ChatModel implements Model, PropertyChangeListener {
             throw new RuntimeException("grrr");
         }
 
-        profiles = new ProfilesDBManager();
+        profiles = new ProfilesDBManager(this);
         messages = new MessagesDBManager(this);
         rooms = new RoomsDBManager(this);
 

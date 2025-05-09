@@ -12,6 +12,11 @@ import java.util.List;
 import java.util.Optional;
 
 public class ProfilesDBManager implements Profiles {
+
+    public ProfilesDBManager(Model model) {
+        model.addHandler(this);
+    }
+
     @Override
     public Optional<Profile> getProfile(long uuid) {
         try (Connection connection = Database.getConnection()) {
