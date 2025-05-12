@@ -12,20 +12,20 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class CreateEditChatRoomViewModel implements ViewModel {
-    private StringProperty nameField;
-    private ObservableList<ViewUser> profiles;
-    private StringProperty titleText;
-    private StringProperty errorText;
+    private StringProperty nameProperty;
+    private ObservableList<ViewUser> membersProperty;
+    private StringProperty titleProperty;
+    private StringProperty errorProperty;
     private Model model;
     private ViewState viewState;
 
     private boolean edit = false;
 
     public CreateEditChatRoomViewModel(Model model, ViewState viewState) {
-        nameField = new SimpleStringProperty();
-        errorText = new SimpleStringProperty();
-        titleText = new SimpleStringProperty();
-        profiles = FXCollections.observableArrayList();
+        nameProperty = new SimpleStringProperty();
+        errorProperty = new SimpleStringProperty();
+        titleProperty = new SimpleStringProperty();
+        membersProperty = FXCollections.observableArrayList();
         this.model = model;
         this.viewState = viewState;
     }
@@ -34,16 +34,16 @@ public class CreateEditChatRoomViewModel implements ViewModel {
     public void reset() {
         if (viewState.getCurrentChatRoom() == -1) {
             edit = false;
-            titleText.set("Opret chat rum");
-            profiles.clear();
-            nameField.set("");
+            titleProperty.set("Opret chat rum");
+            membersProperty.clear();
+            nameProperty.set("");
         } else {
             edit = true;
-            titleText.set("Rediger chat rum");
-            profiles.clear();
+            titleProperty.set("Rediger chat rum");
+            membersProperty.clear();
             try {
                 var room = model.getRoomManager().getChatRoom(viewState.getCurrentChatRoom());
-                nameField.set(room.getName());
+                nameProperty.set(room.getName());
                 for (long userId : room.getUsers()) {
                     addUser(userId);
                 }
@@ -53,12 +53,20 @@ public class CreateEditChatRoomViewModel implements ViewModel {
         }
     }
 
-    public StringProperty getNameField() {
-        return nameField;
+    public StringProperty getNameProperty() {
+        return nameProperty;
     }
 
-    public ObservableList<ViewUser> getProfiles() {
-        return profiles;
+    public ObservableList<ViewUser> getMembersProperty() {
+        return membersProperty;
+    }
+
+    public StringProperty getTitleProperty() {
+        return titleProperty;
+    }
+
+    public StringProperty getErrorProperty() {
+        return errorProperty;
     }
 
     public void addUser(long _userId) {
@@ -68,35 +76,35 @@ public class CreateEditChatRoomViewModel implements ViewModel {
                 userId = _userId;
                 username = profile.getUsername();
             }};
-            profiles.add(viewUser);
-        } catch (ServerError e) {
-            e.showAlert();
-        }
-    }
-
-    public void muteUser(long _userId) {
-        try {
-            model.getRoomManager().muteUser(viewState.getCurrentChatRoom(), _userId);
-        } catch (ServerError e) {
-            e.showAlert();
-        }
-    }
-
-    public void unmuteUser(long _userId) {
-        try {
-            model.getRoomManager().unmuteUser(viewState.getCurrentChatRoom(), _userId);
+            membersProperty.add(viewUser);
         } catch (ServerError e) {
             e.showAlert();
         }
     }
 
     public void removeUser(long userId) {
-        profiles.removeIf(p -> p.userId == userId);
+        membersProperty.removeIf(p -> p.userId == userId);
+    }
+
+    public void muteUser(long userId) {
+        try {
+            model.getRoomManager().muteUser(viewState.getCurrentChatRoom(), userId);
+        } catch (ServerError e) {
+            e.showAlert();
+        }
+    }
+
+    public void unmuteUser(long userId) {
+        try {
+            model.getRoomManager().unmuteUser(viewState.getCurrentChatRoom(), userId);
+        } catch (ServerError e) {
+            e.showAlert();
+        }
     }
 
     public boolean confirm() {
-        if (nameField.isEmpty().get()) {
-            errorText.setValue("Brormand der mangler et navn!!!");
+        if (nameProperty.isEmpty().get()) {
+            errorProperty.setValue("Brormand der mangler et navn!!!");
             return false;
         }
         try {
@@ -107,13 +115,13 @@ public class CreateEditChatRoomViewModel implements ViewModel {
                 var previousProfiles = room.getUsers();
 
                 Set<Long> addedProfiles = new HashSet<>(
-                        profiles.stream()
+                        membersProperty.stream()
                                 .map(p -> p.userId)
                                 .filter(p -> !previousProfiles.contains(p)).toList());
 
                 Set<Long> removedProfiles = new HashSet<>(
                         previousProfiles.stream()
-                                .filter(p -> profiles.stream().noneMatch(p2 -> p2.userId == p))
+                                .filter(p -> membersProperty.stream().noneMatch(p2 -> p2.userId == p))
                                 .toList());
 
                 for (Long profile : addedProfiles) {
@@ -125,12 +133,12 @@ public class CreateEditChatRoomViewModel implements ViewModel {
                 }
 
                 // Opdater gruppenavn
-                if (!nameField.getValue().equals(room.getName()))
-                    model.getRoomManager().setName(room.getRoomId(), nameField.get());
+                if (!nameProperty.getValue().equals(room.getName()))
+                    model.getRoomManager().setName(room.getRoomId(), nameProperty.get());
             } else {
                 // Opret et nyt chat rum
-                long room = model.getRoomManager().createRoom(nameField.getValue());
-                for (ViewUser profile : profiles) {
+                long room = model.getRoomManager().createRoom(nameProperty.getValue());
+                for (ViewUser profile : membersProperty) {
                     model.getRoomManager().addUser(room, profile.userId);
                 }
             }
@@ -139,14 +147,6 @@ public class CreateEditChatRoomViewModel implements ViewModel {
             return false;
         }
         return true;
-    }
-
-    public StringProperty getErrorTextProperty() {
-        return errorText;
-    }
-
-    public StringProperty getTitleTextProperty() {
-        return titleText;
     }
 
     public boolean isEdit() {

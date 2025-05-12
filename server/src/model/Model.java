@@ -2,7 +2,7 @@ package model;
 
 import utils.PropertyChangeSubject;
 
-public interface Model extends PropertyChangeSubject, ServerRequestPasser {
+public interface Model extends PropertyChangeSubject, ServerRequestForwarder {
     /**
      * Henter profil manageren
      *

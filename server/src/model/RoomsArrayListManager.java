@@ -153,7 +153,7 @@ public class RoomsArrayListManager implements Rooms {
     }
 
     @Override
-    public boolean doesRoomExits(long chatroom) {
+    public boolean doesRoomExists(long chatroom) {
         for (Room room : chatRooms) {
             if (room.getRoomId() == chatroom) return true;
         }

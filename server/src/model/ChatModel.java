@@ -52,9 +52,9 @@ public class ChatModel implements Model, PropertyChangeListener {
     }
 
     @Override
-    public void passServerRequest(ServerRequest message) {
+    public void forwardServerRequest(ServerRequest request) {
         for (ServerRequestHandler handler : requestHandlers) {
-            handler.handleRequest(message);
+            handler.handleRequest(request);
         }
     }
 

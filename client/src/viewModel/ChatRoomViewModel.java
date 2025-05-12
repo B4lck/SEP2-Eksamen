@@ -30,7 +30,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     private Model model;
     private ViewState viewState;
 
-    public ObservableList<Attachment> attachments;
+    private ObservableList<Attachment> attachments;
 
     public ChatRoomViewModel(Model model, ViewState viewState) {
         this.model = model;
@@ -52,6 +52,26 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
     public ObservableList<ViewRoom> getChatRoomsProperty() {
         return roomsProperty;
+    }
+
+    public ObservableList<ViewMessage> getMessagesProperty() {
+        return messagesProperty;
+    }
+
+    public StringProperty getComposeMessageProperty() {
+        return composeMessageProperty;
+    }
+
+    public StringProperty getGreetingTextProperty() {
+        return greetingTextProperty;
+    }
+
+    public StringProperty getRoomNameProperty() {
+        return roomNameProperty;
+    }
+
+    public ObservableList<Attachment> getAttachmentsProperty() {
+        return attachments;
     }
 
     public void setChatRoom(long chatRoom) {
@@ -118,26 +138,6 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                     break;
             }
         });
-    }
-
-    public ObservableList<ViewMessage> getMessagesProperty() {
-        return messagesProperty;
-    }
-
-    public StringProperty getComposeMessageProperty() {
-        return composeMessageProperty;
-    }
-
-    public StringProperty getGreetingTextProperty() {
-        return greetingTextProperty;
-    }
-
-    public StringProperty getRoomNameProperty() {
-        return roomNameProperty;
-    }
-
-    public ObservableList<Attachment> getAttachmentsProperty() {
-        return attachments;
     }
 
     @Override

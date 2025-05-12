@@ -55,7 +55,7 @@ public class MessagesArrayListManager implements Messages {
     @Override
     public List<Message> getMessages(long chatroom, int amount, long userId) {
         if (amount <= 0) throw new IllegalArgumentException("Ikke nok beskeder");
-        if (!model.getRooms().doesRoomExits(chatroom)) throw new IllegalArgumentException("Rummet findes ikke brormand");
+        if (!model.getRooms().doesRoomExists(chatroom)) throw new IllegalArgumentException("Rummet findes ikke brormand");
 
         // Thrower hvis brugeren ikk har adgang til rummet
         model.getRooms().getRoom(chatroom, userId);
@@ -97,7 +97,7 @@ public class MessagesArrayListManager implements Messages {
     @Override
     public void sendSystemMessage(long chatroom, String body) {
         if (body == null || body.isEmpty()) throw new IllegalArgumentException("Body cannot be empty");
-        if (!model.getRooms().doesRoomExits(chatroom)) throw new IllegalStateException("Room does not exist");
+        if (!model.getRooms().doesRoomExists(chatroom)) throw new IllegalStateException("Room does not exist");
         var message = new ArrayListMessage(0, body, LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000L, chatroom);
 
         messages.add(message);

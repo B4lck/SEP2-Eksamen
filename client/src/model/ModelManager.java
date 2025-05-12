@@ -28,7 +28,7 @@ public class ModelManager implements Model {
     }
 
     @Override
-    public UserFileManager getUserFileManager() {
-        return UserFileManager.getInstance();
+    public UserFilesManager getUserFileManager() {
+        return UserFilesManager.getInstance();
     }
 }

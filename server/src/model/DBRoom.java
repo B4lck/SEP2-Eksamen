@@ -82,8 +82,8 @@ public class DBRoom implements Room {
     }
 
     @Override
-    public void removeUser(long user, long adminUser) {
-        if (!isAdmin(adminUser) && user != adminUser) throw new IllegalStateException("Brugeren har ikke tilladelse til at fjerne brugere fra dette chatrum");
+    public void removeUser(long user, long removedByUser) {
+        if (!isAdmin(removedByUser) && user != removedByUser) throw new IllegalStateException("Brugeren har ikke tilladelse til at fjerne brugere fra dette chatrum");
         if (!isInRoom(user)) throw new IllegalStateException("Brugeren er ikke i rummet");
 
         try (var connection = Database.getConnection()) {

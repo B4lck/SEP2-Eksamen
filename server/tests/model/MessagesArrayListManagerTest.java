@@ -17,7 +17,7 @@ class MessagesArrayListManagerTest {
     
     @BeforeEach
     void init() throws SQLException {
-        Database.startTestingContext();
+        Database.startTesting();
 
         model = new ChatModel();
 
@@ -28,7 +28,7 @@ class MessagesArrayListManagerTest {
 
     @AfterEach
     void tearDown() throws SQLException {
-        Database.endTestingContext();
+        Database.endTesting();
     }
 
     /**

@@ -19,7 +19,7 @@ class RoomsArrayListManagerTest {
 
     @BeforeEach
     void init() throws SQLException {
-        Database.startTestingContext();
+        Database.startTesting();
 
         model = new ChatModel();
         user1 = model.getProfiles().createProfile("Mazen", "1234");
@@ -30,7 +30,7 @@ class RoomsArrayListManagerTest {
 
     @AfterEach
     void tearDown() throws SQLException {
-        Database.endTestingContext();
+        Database.endTesting();
     }
 
     /**

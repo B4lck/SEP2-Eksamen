@@ -46,11 +46,11 @@ public class DBMessage implements Message {
     @Override
     public DataMap getData() {
         return new DataMap()
-                .with("sentBy", sentBy)
-                .with("body", body)
-                .with("dateTime", dateTime)
-                .with("id", id)
-                .with("chatRoom", chatRoom)
+                .with("sentBy", getSentBy())
+                .with("body", getBody())
+                .with("dateTime", getDateTime())
+                .with("id", getMessageId())
+                .with("chatRoom", getChatRoom())
                 .with("attachments", getAttachments());
     }
 

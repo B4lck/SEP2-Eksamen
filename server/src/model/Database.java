@@ -8,7 +8,7 @@ public class Database {
 
     private static Database instance;
 
-    private static boolean testingContext = false;
+    private static boolean testing = false;
 
     private Database() {
         try {
@@ -19,25 +19,22 @@ public class Database {
         }
     }
 
-    public static Database getInstance() {
+    public static Connection getConnection() throws SQLException {
         if (instance == null) {
             instance = new Database();
         }
-        return instance;
-    }
 
-    public static Connection getConnection() throws SQLException {
         var context = DriverManager.getConnection("jdbc:postgresql://localhost:5432/sep2_chat", "sep2_chat", "sep2_chat_kode");
-        if (testingContext) context.setSchema("test");
+        if (testing) context.setSchema("test");
         return context;
     }
 
-    public static void startTestingContext() throws SQLException {
-        testingContext = true;
+    public static void startTesting() throws SQLException {
+        testing = true;
     }
 
-    public static void endTestingContext() throws SQLException {
-        if (testingContext) {
+    public static void endTesting() throws SQLException {
+        if (testing) {
             try (Connection connection = Database.getConnection()) {
                 connection.prepareStatement("DELETE FROM room_user CASCADE").executeUpdate();
                 connection.prepareStatement("DELETE FROM attachment CASCADE").executeUpdate();

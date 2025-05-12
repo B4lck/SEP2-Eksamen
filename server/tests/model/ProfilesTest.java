@@ -14,7 +14,7 @@ class ProfilesTest {
 
     @BeforeEach
     void setUp() throws SQLException {
-        Database.startTestingContext();
+        Database.startTesting();
 
         var model = new ChatModel();
 
@@ -23,7 +23,7 @@ class ProfilesTest {
 
     @AfterEach
     void tearDown() throws SQLException {
-        Database.endTestingContext();
+        Database.endTesting();
     }
 
     @Test

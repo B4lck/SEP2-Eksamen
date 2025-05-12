@@ -94,20 +94,6 @@ public class MessagesManager implements PropertyChangeSubject, PropertyChangeLis
     }
 
     /**
-     * Bruges for at opdatere en besked gemt i cachen, SENDER IKKE EN BESKED TIL SERVER!
-     *
-     * @param messageId id'et på beskeden
-     * @param body      body'et på beskeden som skal opdateres
-     */
-    public void updateCachedMessage(long messageId, String body) {
-        for (Message message : messages) {
-            if (message.getMessageId() == messageId) {
-                message.setBody(body);
-            }
-        }
-    }
-
-    /**
      * Sender besked til server om at redigere en besked
      *
      * @param messageId - ID'et på den besked som skal redigeres

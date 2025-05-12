@@ -38,9 +38,9 @@ public interface Room {
      * Fjerner en bruger fra chatrummet
      *
      * @param user      id'et på brugeren der skal fjernes
-     * @param adminUser id'et på brugeren som forsøger at fjerne
+     * @param removedByUser id'et på brugeren som forsøger at fjerne
      */
-    void removeUser(long user, long adminUser);
+    void removeUser(long user, long removedByUser);
 
     /**
      * Laver objektet om til et map, så det kan sendes med JSON til clienten uden fejl

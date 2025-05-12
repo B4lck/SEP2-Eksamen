@@ -10,10 +10,10 @@ public interface Messages extends ServerRequestHandler, PropertyChangeSubject {
      *
      * @param chatroom    Chatrummets id
      * @param messageBody Beskedens body
-     * @param senderID    Id'et på sender
+     * @param senderId    Id'et på sender
      * @return Message objekt for beskeden som er blevet sendt
      */
-    Message sendMessage(long chatroom, String messageBody, List<String> attachments, long senderID);
+    Message sendMessage(long chatroom, String messageBody, List<String> attachments, long senderId);
 
     /**
      * Henter alle beskeder i et chatrum

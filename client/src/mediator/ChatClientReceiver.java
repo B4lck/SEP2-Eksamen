@@ -1,6 +1,6 @@
 package mediator;
 
-import model.UserFileManager;
+import model.UserFilesManager;
 
 import java.io.*;
 import java.net.Socket;
@@ -32,11 +32,11 @@ public class ChatClientReceiver implements Runnable {
                     long fileSize = Long.parseLong(in.readLine());
 
                     // Opret mappe til downloads, hvis den ikke findes
-                    File dir = new File(UserFileManager.DOWNLOADS_DIRECTORY);
+                    File dir = new File(UserFilesManager.DOWNLOADS_DIRECTORY);
                     dir.mkdirs();
 
                     // Opret fil
-                    File file = new File(UserFileManager.DOWNLOADS_DIRECTORY + "/" + fileName);
+                    File file = new File(UserFilesManager.DOWNLOADS_DIRECTORY + "/" + fileName);
                     file.createNewFile();
 
                     // Hent filen, indtil alt er hentet

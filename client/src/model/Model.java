@@ -7,5 +7,5 @@ public interface Model {
 
     RoomManager getRoomManager();
 
-    UserFileManager getUserFileManager();
+    UserFilesManager getUserFileManager();
 }

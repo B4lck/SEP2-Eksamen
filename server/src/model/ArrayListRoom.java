@@ -70,13 +70,13 @@ public class ArrayListRoom implements Room {
     }
 
     @Override
-    public void removeUser(long user, long adminUser) {
+    public void removeUser(long user, long removedByUser) {
         if (!isInRoom(user)) throw new IllegalStateException("User is not in the room");
-        if (user == adminUser) {
+        if (user == removedByUser) {
             users.remove(getUserFromUserId(user));
             return;
         }
-        if (!isUserAdmin(adminUser)) throw new IllegalStateException("User does not have permission to remove users");
+        if (!isUserAdmin(removedByUser)) throw new IllegalStateException("User does not have permission to remove users");
         if (isUserAdmin(user)) throw new IllegalStateException("User cannot be removed");
         users.remove(getUserFromUserId(user));
     }

@@ -24,7 +24,7 @@ public class MessagesDBManager implements Messages {
         if (senderId == -1)
             throw new IllegalStateException("Du skal være logget ind for at sende en besked i et chatroom");
 
-        if (!model.getRooms().doesRoomExits(chatroom))
+        if (!model.getRooms().doesRoomExists(chatroom))
             throw new IllegalStateException("Rummet findes ikke");
 
         if (senderId != 0 && model.getRooms().getRoom(chatroom, senderId).isMuted(senderId))
@@ -69,7 +69,7 @@ public class MessagesDBManager implements Messages {
     @Override
     public List<Message> getMessages(long chatroom, int amount, long userId) {
         if (amount <= 0) throw new IllegalArgumentException("Ikke nok beskeder");
-        if (!model.getRooms().doesRoomExits(chatroom)) throw new IllegalArgumentException("Rummet findes ikke brormand");
+        if (!model.getRooms().doesRoomExists(chatroom)) throw new IllegalArgumentException("Rummet findes ikke brormand");
 
         try (Connection connection = Database.getConnection()) {
             // burde throw hvis brugeren ikke har adgang til rummet

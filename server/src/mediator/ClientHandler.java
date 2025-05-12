@@ -79,7 +79,7 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
                 request.setHandler(this);
 
                 // Giv videre til model
-                model.passServerRequest(request);
+                model.forwardServerRequest(request);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

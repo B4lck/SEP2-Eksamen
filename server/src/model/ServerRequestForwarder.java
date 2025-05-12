@@ -2,7 +2,7 @@ package model;
 
 import mediator.ServerRequest;
 
-public interface ServerRequestPasser {
+public interface ServerRequestForwarder {
     void addHandler(ServerRequestHandler handler);
 
     void removeHandler(ServerRequestHandler handler);
@@ -12,5 +12,5 @@ public interface ServerRequestPasser {
      *
      * @param request Requesten fra en client
      */
-    void passServerRequest(ServerRequest request);
+    void forwardServerRequest(ServerRequest request);
 }

@@ -13,7 +13,7 @@ public class UserFilesManager implements ServerRequestHandler {
 
     public static final String UPLOADS_DIRECTORY = "uploads";
 
-    public static UserFilesManager instance = new UserFilesManager();
+    private static UserFilesManager instance = new UserFilesManager();
 
     private UserFilesManager() {
 

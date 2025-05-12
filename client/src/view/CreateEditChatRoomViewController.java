@@ -25,11 +25,11 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
 
     @Override
     protected void init() {
-        nameTextField.textProperty().bindBidirectional(getViewModel().getNameField());
-        errorLabel.textProperty().bind(getViewModel().getErrorTextProperty());
-        title.textProperty().bind(getViewModel().getTitleTextProperty());
+        nameTextField.textProperty().bindBidirectional(getViewModel().getNameProperty());
+        errorLabel.textProperty().bind(getViewModel().getErrorProperty());
+        title.textProperty().bind(getViewModel().getTitleProperty());
 
-        users.setItems(getViewModel().getProfiles());
+        users.setItems(getViewModel().getMembersProperty());
 
         users.setCellFactory(cell -> new ListCell<>() {
             @Override

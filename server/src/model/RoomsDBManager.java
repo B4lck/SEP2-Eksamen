@@ -104,7 +104,7 @@ public class RoomsDBManager implements Rooms {
     }
 
     @Override
-    public boolean doesRoomExits(long chatroom) {
+    public boolean doesRoomExists(long chatroom) {
         try (var connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM room WHERE id=?");
             statement.setLong(1, chatroom);

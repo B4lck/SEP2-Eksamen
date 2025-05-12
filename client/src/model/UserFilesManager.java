@@ -5,17 +5,17 @@ import util.ServerError;
 
 import java.io.File;
 
-public class UserFileManager {
+public class UserFilesManager {
 
-    static private UserFileManager instance;
+    static private UserFilesManager instance;
 
     static public final String DOWNLOADS_DIRECTORY = "downloads";
 
     private ChatClient chatClient = ChatClient.getInstance();
 
-    public static UserFileManager getInstance() {
+    public static UserFilesManager getInstance() {
         if (instance == null) {
-            instance = new UserFileManager();
+            instance = new UserFilesManager();
         }
         return instance;
     }
