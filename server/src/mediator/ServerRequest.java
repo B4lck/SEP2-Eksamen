@@ -84,7 +84,7 @@ public class ServerRequest {
 
         String attachmentId = randomIdString + "-" + sanitizeFileName(attachmentName);
 
-        handler.downloadAttachment(attachmentId, attachmentName);
+        handler.uploadAttachment(attachmentId, attachmentName);
 
         if (attachments.isEmpty()) respond(new ClientMessage("DONE", new DataMap()));
 

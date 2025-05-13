@@ -107,7 +107,7 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
         out.println(gson.toJson(message));
     }
 
-    public void downloadAttachment(String attachmentId, String attachmentName) {
+    public void uploadAttachment(String attachmentId, String attachmentName) {
         out.println(gson.toJson(new ClientMessage("SEND_NEXT", new DataMap()
                 .with("attachmentName", attachmentName))));
 
