@@ -1,23 +1,27 @@
-DROP TABLE IF EXISTS public;
+DROP SCHEMA IF EXISTS public CASCADE;
+CREATE SCHEMA public;
+
+CREATE DOMAIN username AS TEXT;
 
 CREATE TABLE profile
 (
     id       BIGSERIAL PRIMARY KEY,
-    username VARCHAR(30),
+    username username,
     password TEXT
 );
 
 CREATE TABLE room
 (
     id   BIGSERIAL PRIMARY KEY,
-    name VARCHAR(30)
+    name username
 );
 
 CREATE TABLE room_user
 (
     room_id    BIGINT,
     profile_id BIGINT,
-    state      VARCHAR(10) CHECK ( state IN ('Muted', 'Admin', 'Regular')),
+    state      VARCHAR(7) CHECK ( state IN ('Muted', 'Admin', 'Regular')),
+    nickname   username,
 
     PRIMARY KEY (room_id, profile_id),
     FOREIGN KEY (room_id) REFERENCES room (id),
