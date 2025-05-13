@@ -156,7 +156,7 @@ public class DBMessage implements Message {
     }
 
     @Override
-    public void addReaction(String reaction, long userId) {
+    public void setReaction(String reaction, long userId) {
         try (Connection connection = Database.getConnection()) {
             if (reaction == null) {
                 PreparedStatement statement = connection.prepareStatement("DELETE FROM reaction WHERE message_id = ? AND reacted_by = ?");

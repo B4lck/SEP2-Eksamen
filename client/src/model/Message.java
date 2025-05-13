@@ -11,14 +11,16 @@ public class Message {
     private long messageId;
     private long chatRoom;
     private List<String> attachments;
+    private List<Reaction> reactions;
 
-    public Message(long sentBy, String body, long dateTime, long messageId, long chatRoom, List<String> attachments) {
+    public Message(long sentBy, String body, long dateTime, long messageId, long chatRoom, List<String> attachments, List<Reaction> reactions) {
         this.sentBy = sentBy;
         this.body = body;
         this.dateTime = dateTime;
         this.messageId = messageId;
         this.chatRoom = chatRoom;
         this.attachments = attachments;
+        this.reactions = reactions;
     }
 
     public static Message fromData(DataMap message) {
@@ -28,7 +30,8 @@ public class Message {
                 message.getLong("dateTime"),
                 message.getLong("id"),
                 message.getLong("chatRoom"),
-                message.getArray("attachments")
+                message.getArray("attachments"),
+                message.getMapArray("reactions").stream().map(Reaction::fromData).toList()
         );
     }
 
@@ -54,5 +57,9 @@ public class Message {
 
     public List<String> getAttachments() {
         return attachments;
+    }
+
+    public List<Reaction> getReactions() {
+        return reactions;
     }
 }

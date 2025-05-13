@@ -51,9 +51,9 @@ CREATE TABLE attachment
 
 CREATE TABLE reaction
 (
-    reacted_by BIGINT REFERENCES profile(id),
-    message_id BIGINT REFERENCES message(id),
-    reaction TEXT
+    reacted_by BIGINT REFERENCES profile (id),
+    message_id BIGINT REFERENCES message (id),
+    reaction   TEXT
 );
 
 GRANT ALL PRIVILEGES ON DATABASE sep2_chat TO sep2_chat;

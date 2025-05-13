@@ -121,6 +121,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                     messageId = message.getMessageId();
                     isSystemMessage = message.getSentBy() == 0;
                     attachments = files;
+                    reactions = message.getReactions();
                 }});
             }
         } catch (ServerError e) {
@@ -196,6 +197,15 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         try {
             model.getMessagesManager().deleteMessage(messageId);
         } catch (ServerError e) {
+            e.showAlert();
+        }
+    }
+
+    public void setReaction(long messageId, String reaction) {
+        try {
+            model.getMessagesManager().setReaction(messageId, reaction);
+        }
+        catch (ServerError e) {
             e.showAlert();
         }
     }

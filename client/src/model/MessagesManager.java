@@ -142,4 +142,12 @@ public class MessagesManager implements PropertyChangeSubject, PropertyChangeLis
         messages.removeIf(m -> m.getMessageId() == message.getMessageId());
         messages.add(message);
     }
+
+    public void setReaction(long messageId, String reaction) throws ServerError {
+        chatClient.sendMessage(new ClientMessage("SET_REACTION", new DataMap()
+                .with("messageId", messageId)
+                .with("reaction", reaction)));
+
+        chatClient.waitingForReply("Set reaction");
+    }
 }

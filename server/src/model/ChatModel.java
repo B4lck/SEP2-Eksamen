@@ -58,6 +58,10 @@ public class ChatModel implements Model, PropertyChangeListener {
         for (ServerRequestHandler handler : requestHandlers) {
             handler.handleRequest(request);
         }
+
+        if (!request.hasBeenResponded()) {
+            request.respondWithError("Ugyldig/Ukendt request");
+        }
     }
 
     @Override

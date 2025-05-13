@@ -16,6 +16,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import model.Reaction;
 import util.Attachment;
 import viewModel.ViewMessage;
 import viewModel.ViewRoom;
@@ -73,13 +74,13 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
 
             messages.getChildren().clear();
 
-            Button loadMoreButton = new Button();
-
-            loadMoreButton.setText("Indlæs mere du");
-
-            loadMoreButton.addEventHandler(ActionEvent.ACTION, evt -> getViewModel().loadOlderMessages());
-
-            messages.getChildren().add(loadMoreButton);
+//            Button loadMoreButton = new Button();
+//
+//            loadMoreButton.setText("Indlæs mere du");
+//
+//            loadMoreButton.addEventHandler(ActionEvent.ACTION, evt -> getViewModel().loadOlderMessages());
+//
+//            messages.getChildren().add(loadMoreButton);
 
             // Opret elementer
             change.getList().forEach(m -> {
@@ -140,14 +141,30 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
                     }
                 }
 
+                HBox reactionsBox = new HBox();
+                reactionsBox.getStyleClass().add("message-reactionsBox");
+                body.getChildren().add(reactionsBox);
+
+                for (Reaction reaction : m.reactions) {
+                    Label reactionLabel = new Label();
+                    reactionLabel.getStyleClass().add("message-reaction");
+                    reactionLabel.setText(reaction.getReaction());
+                    reactionsBox.getChildren().add(reactionLabel);
+                }
+
                 messageContainer.setOnContextMenuRequested(e -> {
                     highlightedMessage = m;
                     // Context menu
                     ContextMenu contextMenu = new ContextMenu();
+                    MenuItem addReactionItem = new MenuItem("Tilføj reaktion 😩");
                     MenuItem editMessageItem = new MenuItem("Rediger");
                     MenuItem deleteMessageItem = new MenuItem("Fjern");
                     MenuItem idItem = new MenuItem("Besked-ID: " + highlightedMessage.messageId);
                     idItem.setDisable(true);
+
+                    addReactionItem.setOnAction((_) -> {
+                        getViewModel().setReaction(m.messageId, "😩");
+                    });
 
                     editMessageItem.setOnAction((_) -> {
                         editing = true;
@@ -156,7 +173,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
 
                     deleteMessageItem.setOnAction((_) -> getViewModel().deleteMessage(highlightedMessage.messageId));
 
-                    contextMenu.getItems().addAll(editMessageItem, deleteMessageItem, idItem);
+                    contextMenu.getItems().addAll(addReactionItem, editMessageItem, deleteMessageItem, idItem);
                     contextMenu.show(messageContainer, e.getScreenX(), e.getScreenY());
                 });
 

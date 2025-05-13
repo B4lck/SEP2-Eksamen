@@ -18,6 +18,8 @@ public class ServerRequest {
     private ClientHandler handler;
     private List<String> attachments;
 
+    private boolean hasResponded = false;
+
     public ServerRequest(String type, Map<String, Object> data, List<String> attachments) {
         this.type = type;
         this.data = data;
@@ -92,11 +94,19 @@ public class ServerRequest {
     }
 
     /**
+     * Har serveren svaret klienten?
+     */
+    public boolean hasBeenResponded() {
+        return hasResponded;
+    }
+
+    /**
      * Svar klienten med en ClientMessage
      *
      * @param message - En ClientMessage, som skal sendes til klienten.
      */
     public void respond(ClientMessage message) {
+        hasResponded = true;
         if (handler == null) throw new IllegalStateException("Upsi, denne server-request har ikke en klient forbundet");
 
         if (!attachments.isEmpty()) respond(new ClientMessage("DONE", new DataMap()));
@@ -110,6 +120,7 @@ public class ServerRequest {
      * @param data - Et DataMap som skal sendes tilbage til klienten
      */
     public void respond(DataMap data) {
+        hasResponded = true;
         if (handler == null) throw new IllegalStateException("Upsi, denne server-request har ikke en klient forbundet");
 
         if (!attachments.isEmpty()) respond(new ClientMessage("DONE", new DataMap()));
@@ -123,6 +134,7 @@ public class ServerRequest {
      * @param message - Den besked der skal svares med. Skal være i normalt sprog.
      */
     public void respond(String message) {
+        hasResponded = true;
         if (handler == null) throw new IllegalStateException("Upsi, denne server-request har ikke en klient forbundet");
 
         if (!attachments.isEmpty()) respond(new ClientMessage("DONE", new DataMap()));
@@ -134,6 +146,7 @@ public class ServerRequest {
      * Svar klienten med rå data
      */
     public void respond(FileInputStream data, String name) {
+        hasResponded = true;
         if (handler == null) throw new IllegalStateException("Upsi, denne server-request har ikke en klient forbundet");
         handler.sendFile(data, name);
     }
@@ -142,6 +155,7 @@ public class ServerRequest {
      * Svar klienten med en fejl
      */
     public void respondWithError(String error) {
+        hasResponded = true;
         if (handler == null) throw new IllegalStateException("Upsi, denne server-request har ikke en klient forbundet");
 
         if (!attachments.isEmpty()) respond(new ClientMessage("DONE", new DataMap()));

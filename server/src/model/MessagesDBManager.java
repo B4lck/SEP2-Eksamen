@@ -198,6 +198,15 @@ public class MessagesDBManager implements Messages {
         sendSystemMessage(message.getChatRoom(), username + " har slettet en besked.");
     }
 
+    public void setReaction (long messageId, String reaction, long userId) {
+        Message message = getMessage(messageId, userId);
+
+        message.setReaction(reaction, userId);
+
+        // Broadcast til klienter
+        property.firePropertyChange("UPDATE_MESSAGE", null, new DataMap().with("message", message.getData()));
+    }
+
     @Override
     public void handleRequest(ServerRequest request) {
         long chatRoom;
@@ -268,8 +277,7 @@ public class MessagesDBManager implements Messages {
                     request.respond("Beskeden blev slettet");
                     break;
                 case "SET_REACTION":
-                    Message message = getMessage(data.getLong("messageId"), request.getUser());
-                    message.addReaction(data.getString("reaction"), request.getUser());
+                    setReaction(data.getLong("messageId"), data.getString("reaction"), request.getUser());
                     request.respond("Reaktionen blev opdateret");
                     break;
             }
