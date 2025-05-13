@@ -1,7 +1,5 @@
 package viewModel;
 
-import model.Reaction;
-
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,5 +11,5 @@ public class ViewMessage {
     public long messageId;
     public boolean isSystemMessage;
     public List<File> attachments;
-    public List<Reaction> reactions;
+    public List<ViewReaction> reactions;
 }

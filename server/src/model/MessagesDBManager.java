@@ -198,10 +198,21 @@ public class MessagesDBManager implements Messages {
         sendSystemMessage(message.getChatRoom(), username + " har slettet en besked.");
     }
 
-    public void setReaction (long messageId, String reaction, long userId) {
+    @Override
+    public void addReaction(long messageId, String reaction, long userId) {
         Message message = getMessage(messageId, userId);
 
-        message.setReaction(reaction, userId);
+        message.addReaction(reaction, userId);
+
+        // Broadcast til klienter
+        property.firePropertyChange("UPDATE_MESSAGE", null, new DataMap().with("message", message.getData()));
+    }
+
+    @Override
+    public void removeReaction(long messageId, String reaction, long userId) {
+        Message message = getMessage(messageId, userId);
+
+        message.removeReaction(reaction, userId);
 
         // Broadcast til klienter
         property.firePropertyChange("UPDATE_MESSAGE", null, new DataMap().with("message", message.getData()));
@@ -276,9 +287,13 @@ public class MessagesDBManager implements Messages {
 
                     request.respond("Beskeden blev slettet");
                     break;
-                case "SET_REACTION":
-                    setReaction(data.getLong("messageId"), data.getString("reaction"), request.getUser());
-                    request.respond("Reaktionen blev opdateret");
+                case "ADD_REACTION":
+                    addReaction(data.getLong("messageId"), data.getString("reaction"), request.getUser());
+                    request.respond("Reaktionen blev tilføjet");
+                    break;
+                case "REMOVE_REACTION":
+                    removeReaction(data.getLong("messageId"), data.getString("reaction"), request.getUser());
+                    request.respond("Reaktionen blev fjernet");
                     break;
             }
         } catch (Exception e) {

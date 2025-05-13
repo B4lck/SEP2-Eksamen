@@ -53,8 +53,12 @@ CREATE TABLE reaction
 (
     reacted_by BIGINT REFERENCES profile (id),
     message_id BIGINT REFERENCES message (id),
-    reaction   TEXT
+    reaction   TEXT,
+
+    PRIMARY KEY (reacted_by, message_id, reaction)
 );
+
+-- PRIVILEGES
 
 GRANT ALL PRIVILEGES ON DATABASE sep2_chat TO sep2_chat;
 GRANT ALL PRIVILEGES ON SCHEMA public TO sep2_chat;

@@ -156,21 +156,30 @@ public class DBMessage implements Message {
     }
 
     @Override
-    public void setReaction(String reaction, long userId) {
+    public void addReaction(String reaction, long userId) {
+        if (reaction == null) throw new IllegalArgumentException("Reaction må ikke være null");
+
         try (Connection connection = Database.getConnection()) {
-            if (reaction == null) {
-                PreparedStatement statement = connection.prepareStatement("DELETE FROM reaction WHERE message_id = ? AND reacted_by = ?");
-                statement.setLong(1, id);
-                statement.setLong(2, userId);
-                statement.executeUpdate();
-            }
-            else {
-                PreparedStatement statement = connection.prepareStatement("INSERT INTO reaction (message_id, reacted_by, reaction) VALUES (?,?,?)");
-                statement.setLong(1, id);
-                statement.setLong(2, userId);
-                statement.setString(3, reaction);
-                statement.executeUpdate();
-            }
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO reaction (message_id, reacted_by, reaction) VALUES (?,?,?)");
+            statement.setLong(1, id);
+            statement.setLong(2, userId);
+            statement.setString(3, reaction);
+            statement.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void removeReaction(String reaction, long userId) {
+        if (reaction == null) throw new IllegalArgumentException("Reaction må ikke være null");
+
+        try (Connection connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("DELETE FROM reaction WHERE message_id = ? AND reacted_by = ? AND reaction = ?");
+            statement.setLong(1, id);
+            statement.setLong(2, userId);
+            statement.setString(3, reaction);
+            statement.executeUpdate();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -1,13 +1,12 @@
 package viewModel;
 
 import javafx.application.Platform;
-import javafx.beans.property.*;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import model.*;
 import util.Attachment;
-import model.Message;
-import model.Room;
-import model.Model;
 import util.ServerError;
 
 import java.beans.PropertyChangeEvent;
@@ -113,6 +112,21 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                 // Fjern hvis det er en redigering
                 messagesProperty.removeIf(m -> m.messageId == message.getMessageId());
 
+                List<ViewReaction> messageReactions = new ArrayList<>();
+
+                for (Reaction reaction : message.getReactions()) {
+                    Profile reactedBy = model.getProfileManager().getProfile(reaction.getReactedBy());
+                    messageReactions.add(new ViewReaction(
+                            reaction.getReaction(),
+                            new ViewUser() {{
+                                username = reactedBy.getUsername();
+                                userId = reaction.getReactedBy();
+                            }},
+                            reaction.getReactedBy() == model.getProfileManager().getCurrentUserUUID()
+                    ));
+
+                }
+
                 // Tilføj besked
                 messagesProperty.add(new ViewMessage() {{
                     sender = message.getSentBy() == 0 ? "System" : model.getProfileManager().getProfile(message.getSentBy()).getUsername();
@@ -121,8 +135,10 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                     messageId = message.getMessageId();
                     isSystemMessage = message.getSentBy() == 0;
                     attachments = files;
-                    reactions = message.getReactions();
+                    reactions = messageReactions;
                 }});
+
+                messagesProperty.sort(Comparator.comparing(o -> o.dateTime));
             }
         } catch (ServerError e) {
             e.showAlert();
@@ -201,11 +217,18 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         }
     }
 
-    public void setReaction(long messageId, String reaction) {
+    public void addReaction(long messageId, String reaction) {
         try {
-            model.getMessagesManager().setReaction(messageId, reaction);
+            model.getMessagesManager().addReaction(messageId, reaction);
+        } catch (ServerError e) {
+            e.showAlert();
         }
-        catch (ServerError e) {
+    }
+
+    public void removeReaction(long messageId, String reaction) {
+        try {
+            model.getMessagesManager().removeReaction(messageId, reaction);
+        } catch (ServerError e) {
             e.showAlert();
         }
     }

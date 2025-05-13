@@ -7,6 +7,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -16,9 +17,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
-import model.Reaction;
 import util.Attachment;
 import viewModel.ViewMessage;
+import viewModel.ViewReaction;
 import viewModel.ViewRoom;
 
 import javax.imageio.ImageIO;
@@ -145,10 +146,10 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
                 reactionsBox.getStyleClass().add("message-reactionsBox");
                 body.getChildren().add(reactionsBox);
 
-                for (Reaction reaction : m.reactions) {
+                for (ViewReaction reaction : m.reactions) {
                     Label reactionLabel = new Label();
                     reactionLabel.getStyleClass().add("message-reaction");
-                    reactionLabel.setText(reaction.getReaction());
+                    reactionLabel.setText(reaction.reaction);
                     reactionsBox.getChildren().add(reactionLabel);
                 }
 
@@ -156,15 +157,34 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
                     highlightedMessage = m;
                     // Context menu
                     ContextMenu contextMenu = new ContextMenu();
-                    MenuItem addReactionItem = new MenuItem("Tilføj reaktion 😩");
                     MenuItem editMessageItem = new MenuItem("Rediger");
                     MenuItem deleteMessageItem = new MenuItem("Fjern");
                     MenuItem idItem = new MenuItem("Besked-ID: " + highlightedMessage.messageId);
                     idItem.setDisable(true);
 
-                    addReactionItem.setOnAction((_) -> {
-                        getViewModel().setReaction(m.messageId, "😩");
-                    });
+                    Menu addReactionsMenu = new Menu("Tilføj reaktion");
+
+                    String[] testReactions = {"😩", "👌", "🤔"};
+                    for (String reaction : testReactions) {
+                        var reactionItem = new MenuItem(reaction);
+
+                        addReactionsMenu.getItems().add(reactionItem);
+
+                        reactionItem.setOnAction((_) -> {
+                            System.out.println(reaction);
+                            getViewModel().addReaction(m.messageId, reaction);
+                        });
+                    }
+
+                    for (ViewReaction reaction : m.reactions) {
+                        if (reaction.isMyReaction) {
+                            MenuItem removeReactionItem = new MenuItem("Fjern reaktion " + reaction.reaction);
+                            removeReactionItem.setOnAction((_) -> {
+                                getViewModel().removeReaction(m.messageId, reaction.reaction);
+                            });
+                            contextMenu.getItems().add(removeReactionItem);
+                        }
+                    }
 
                     editMessageItem.setOnAction((_) -> {
                         editing = true;
@@ -173,7 +193,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
 
                     deleteMessageItem.setOnAction((_) -> getViewModel().deleteMessage(highlightedMessage.messageId));
 
-                    contextMenu.getItems().addAll(addReactionItem, editMessageItem, deleteMessageItem, idItem);
+                    contextMenu.getItems().addAll(addReactionsMenu, editMessageItem, deleteMessageItem, idItem);
                     contextMenu.show(messageContainer, e.getScreenX(), e.getScreenY());
                 });
 

@@ -143,11 +143,19 @@ public class MessagesManager implements PropertyChangeSubject, PropertyChangeLis
         messages.add(message);
     }
 
-    public void setReaction(long messageId, String reaction) throws ServerError {
-        chatClient.sendMessage(new ClientMessage("SET_REACTION", new DataMap()
+    public void addReaction(long messageId, String reaction) throws ServerError {
+        chatClient.sendMessage(new ClientMessage("ADD_REACTION", new DataMap()
                 .with("messageId", messageId)
                 .with("reaction", reaction)));
 
-        chatClient.waitingForReply("Set reaction");
+        chatClient.waitingForReply("Add reaction");
+    }
+
+    public void removeReaction(long messageId, String reaction) throws ServerError {
+        chatClient.sendMessage(new ClientMessage("REMOVE_REACTION", new DataMap()
+                .with("messageId", messageId)
+                .with("reaction", reaction)));
+
+        chatClient.waitingForReply("Remove reaction");
     }
 }

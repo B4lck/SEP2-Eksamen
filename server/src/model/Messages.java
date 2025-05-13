@@ -67,4 +67,8 @@ public interface Messages extends ServerRequestHandler, PropertyChangeSubject {
      * @param byUserId  id'et på brugeren, som forsøger at slette beskeden
      */
     void deleteMessage(long messageId, long byUserId);
+
+    void addReaction(long messageId, String reaction, long userId);
+
+    void removeReaction(long messageId, String reaction, long userId);
 }

@@ -94,5 +94,7 @@ public interface Message {
      * @param reaction - Reaktionen der skal tilføjes
      * @param userId   - Personen der reagere
      */
-    void setReaction(String reaction, long userId);
+    void addReaction(String reaction, long userId);
+
+    void removeReaction(String reaction, long userId);
 }
