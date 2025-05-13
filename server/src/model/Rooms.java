@@ -75,6 +75,22 @@ public interface Rooms extends ServerRequestHandler {
     void unmuteUser(long chatroom, long user, long adminUser);
 
     /**
+     * Forfremmer en bruger
+     * @param chatroom  Id på chatRoom
+     * @param user Id på brugeren der skal forfremmes
+     * @param adminUser Id på udførende
+     */
+    void promoteUser(long chatroom, long user, long adminUser);
+
+    /**
+     * Degradere en bruger
+     * @param chatroom  Id på chatRoom
+     * @param user Id på brugeren der skal degraderes
+     * @param adminUser Id på udførende
+     */
+    void demoteUser(long chatroom, long user, long adminUser);
+
+    /**
      * Tjekker om rummet eksistere
      *
      * @param chatroom id'et på chatrummet

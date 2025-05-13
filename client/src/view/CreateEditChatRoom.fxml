@@ -4,39 +4,40 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0"
-            prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="view.CreateEditChatRoomViewController">
-    <VBox alignment="CENTER" spacing="20.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0"
-          AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
-        <Label fx:id="errorLabel" text="Fejl" textFill="RED"/>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.CreateEditChatRoomViewController">
+    <VBox alignment="CENTER" spacing="20.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+        <Label fx:id="errorLabel" text="Fejl" textFill="RED" />
         <Text fx:id="title" strokeType="OUTSIDE" strokeWidth="0.0" text="Titel">
             <font>
-                <Font size="24.0"/>
+                <Font size="24.0" />
             </font>
         </Text>
         <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0" spacing="30.0">
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Navn:"/>
-            <TextField fx:id="nameTextField"/>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Navn:" />
+            <TextField fx:id="nameTextField" />
         </HBox>
-        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Deltagere:"/>
-        <HBox alignment="CENTER" layoutX="10.0" layoutY="26.0" prefHeight="50.0" prefWidth="200.0" spacing="7.0"
-              VBox.vgrow="ALWAYS">
-            <ListView fx:id="users"/>
-            <VBox alignment="CENTER" prefHeight="204.0" prefWidth="171.0" spacing="10.0">
-                <Button mnemonicParsing="false" onAction="#addUser" prefWidth="150.0" text="Tilføj ny deltager"/>
-                <Button mnemonicParsing="false" onAction="#removeUser" prefWidth="150.0" text="Tilintetgør deltager"/>
+        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Deltagere:" />
+        <HBox alignment="CENTER" layoutX="10.0" layoutY="26.0" prefHeight="50.0" prefWidth="200.0" spacing="7.0" VBox.vgrow="ALWAYS">
+            <ListView fx:id="users" />
+            <VBox alignment="CENTER" prefHeight="175.0" prefWidth="171.0" spacing="10.0">
+                <Button mnemonicParsing="false" onAction="#addUser" prefWidth="150.0" text="Tilføj ny deltager" />
+                <Button mnemonicParsing="false" onAction="#removeUser" prefWidth="150.0" text="Tilintetgør deltager" />
                 <HBox alignment="CENTER" prefHeight="31.0" prefWidth="156.0" spacing="15.0">
-                    <Button fx:id="muteButton" mnemonicParsing="false" onAction="#mute" text="Mute"/>
-                    <Button fx:id="unmuteButton" mnemonicParsing="false" onAction="#unmute" prefHeight="25.0"
-                            prefWidth="65.0" text="Unmute"/>
+                    <Button fx:id="muteButton" mnemonicParsing="false" onAction="#mute" text="Mute" />
+                    <Button fx:id="unmuteButton" mnemonicParsing="false" onAction="#unmute" prefHeight="25.0" prefWidth="65.0" text="Unmute" />
                 </HBox>
+            <HBox alignment="CENTER" prefHeight="31.0" prefWidth="156.0" spacing="15.0">
+               <children>
+                  <Button fx:id="promoteButton" mnemonicParsing="false" onAction="#promote" text="Forfrem" textAlignment="CENTER" />
+                  <Button fx:id="demoteButton" mnemonicParsing="false" onAction="#demote" text="Degrader" textAlignment="CENTER" />
+               </children>
+            </HBox>
             </VBox>
         </HBox>
         <ButtonBar prefHeight="40.0" prefWidth="200.0">
             <buttons>
-                <Button mnemonicParsing="false" onAction="#cancel" text="Annuller"/>
-                <Button mnemonicParsing="false" onAction="#confirm" text="Opret"/>
+                <Button mnemonicParsing="false" onAction="#cancel" text="Annuller" />
+                <Button mnemonicParsing="false" onAction="#confirm" text="Opret" />
             </buttons>
         </ButtonBar>
     </VBox>

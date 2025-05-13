@@ -102,6 +102,22 @@ public class CreateEditChatRoomViewModel implements ViewModel {
         }
     }
 
+    public void promoteUser(long userId) {
+        try {
+            model.getRoomManager().promoteUser(viewState.getCurrentChatRoom(), userId);
+        } catch (ServerError e) {
+            e.showAlert();
+        }
+    }
+
+    public void demoteUser(long userId) {
+        try {
+            model.getRoomManager().demoteUser(viewState.getCurrentChatRoom(), userId);
+        } catch (ServerError e) {
+            e.showAlert();
+        }
+    }
+
     public boolean confirm() {
         if (nameProperty.isEmpty().get()) {
             errorProperty.setValue("Brormand der mangler et navn!!!");

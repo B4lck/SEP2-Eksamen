@@ -212,6 +212,58 @@ public class DBRoom implements Room {
     }
 
     @Override
+    public void promoteUser(long userId, long promotedByUser) {
+        if (!isAdmin(promotedByUser)) throw new IllegalStateException("Brugeren har ikke tilladelse forfremme brugere");
+        try (var connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM room_user WHERE room_id=? AND profile_id=?");
+            statement.setLong(1, roomId);
+            statement.setLong(2, userId);
+            ResultSet res = statement.executeQuery();
+
+            if (res.next()) {
+                RoomUser roomUser = new RoomUser(userId, UserStateId.fromString(res.getString("state")));
+                roomUser.getState().promote();
+
+                statement = connection.prepareStatement("UPDATE room_user SET state=? WHERE profile_id=? AND room_id=?");
+                statement.setString(1, roomUser.getState().getStateAsString());
+                statement.setLong(2, userId);
+                statement.setLong(3, roomId);
+                statement.executeUpdate();
+            } else {
+                throw new IllegalStateException("Brugeren findes ikke i rummet");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void demoteUser(long userId, long promotedByUser) {
+        if (!isAdmin(promotedByUser)) throw new IllegalStateException("Brugeren har ikke tilladelse");
+        try (var connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM room_user WHERE room_id=? AND profile_id=?");
+            statement.setLong(1, roomId);
+            statement.setLong(2, userId);
+            ResultSet res = statement.executeQuery();
+
+            if (res.next()) {
+                RoomUser roomUser = new RoomUser(userId, UserStateId.fromString(res.getString("state")));
+                roomUser.getState().demote();
+
+                statement = connection.prepareStatement("UPDATE room_user SET state=? WHERE profile_id=? AND room_id=?");
+                statement.setString(1, roomUser.getState().getStateAsString());
+                statement.setLong(2, userId);
+                statement.setLong(3, roomId);
+                statement.executeUpdate();
+            } else {
+                throw new IllegalStateException("Brugeren findes ikke i rummet");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public boolean isAdmin(long userId) {
         try (var connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM room_user WHERE profile_id = ? AND room_id = ? AND state = ?");

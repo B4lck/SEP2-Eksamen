@@ -122,6 +122,18 @@ public class RoomsDBManager implements Rooms {
     }
 
     @Override
+    public void promoteUser(long chatroom, long user, long adminUser) {
+        Room room = getRoom(chatroom, adminUser);
+        room.promoteUser(user, adminUser);
+    }
+
+    @Override
+    public void demoteUser(long chatroom, long user, long adminUser) {
+        Room room = getRoom(chatroom, adminUser);
+        room.demoteUser(user, adminUser);
+    }
+
+    @Override
     public void handleRequest(ServerRequest request) {
         try {
             switch (request.getType()) {
@@ -153,14 +165,21 @@ public class RoomsDBManager implements Rooms {
                     request.respond("Rummets navn blev opdateret");
                     break;
                 case "MUTE_USER":
-                    muteUser(request.getData().getLong("chatroomId"), request.getData().getLong("userId"), request.getUser());
+                    muteUser(request.getData().getLong("chatroomId"), request.getData().getLong("user"), request.getUser());
                     request.respond("Bruger er blevet muted");
                     break;
                 case "UNMUTE_USER":
-                    unmuteUser(request.getData().getLong("chatroomId"), request.getData().getLong("userId"), request.getUser());
+                    unmuteUser(request.getData().getLong("chatroomId"), request.getData().getLong("user"), request.getUser());
                     request.respond("Bruger er blevet unmuted");
                     break;
-
+                case "PROMOTE_USER":
+                    promoteUser(request.getData().getLong("chatroomId"), request.getData().getLong("user"), request.getUser());
+                    request.respond("Bruger er blevet promoted");
+                    break;
+                case "DEMOTE_USER":
+                    demoteUser(request.getData().getLong("chatroomId"), request.getData().getLong("user"), request.getUser());
+                    request.respond("Bruger er blevet degraderet");
+                    break;
             }
         } catch (Exception e) {
             e.printStackTrace();

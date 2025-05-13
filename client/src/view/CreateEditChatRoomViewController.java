@@ -17,6 +17,10 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
     @FXML
     private Button unmuteButton;
     @FXML
+    private Button promoteButton;
+    @FXML
+    private Button demoteButton;
+    @FXML
     private TextField nameTextField;
     @FXML
     private ListView<ViewUser> users;
@@ -49,6 +53,8 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
         super.reset();
         muteButton.setVisible(getViewModel().isEdit());
         unmuteButton.setVisible(getViewModel().isEdit());
+        promoteButton.setVisible(getViewModel().isEdit());
+        demoteButton.setVisible(getViewModel().isEdit());
     }
 
     @FXML
@@ -87,5 +93,15 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
     @FXML
     public void unmute(ActionEvent actionEvent) {
         getViewModel().unmuteUser(users.getSelectionModel().getSelectedItems().getFirst().userId);
+    }
+
+    @FXML
+    public void promote(ActionEvent actionEvent) {
+        getViewModel().promoteUser(users.getSelectionModel().getSelectedItems().getFirst().userId);
+    }
+
+    @FXML
+    public void demote(ActionEvent actionEvent) {
+        getViewModel().demoteUser(users.getSelectionModel().getSelectedItems().getFirst().userId);
     }
 }

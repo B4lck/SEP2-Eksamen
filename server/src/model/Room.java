@@ -90,6 +90,22 @@ public interface Room {
     boolean isMuted(long userId);
 
     /**
+     * Forfremmer en bruger i rummet
+     *
+     * @param userId Id på valgte bruger
+     * @param promotedByUser Id på udførende
+     */
+    void promoteUser(long userId, long promotedByUser);
+
+    /**
+     * Degraderer en bruger i rummet
+     *
+     * @param userId Id på valgte bruger
+     * @param promotedByUser Id på udførende
+     */
+    void demoteUser(long userId, long promotedByUser);
+
+    /**
      * Tjekker om en bruger er admin
      *
      * @param userId id'et på brugeren der skal tjekkes
