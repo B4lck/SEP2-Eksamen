@@ -57,8 +57,7 @@ public class MessagesDBManager implements Messages {
                 property.firePropertyChange("RECEIVE_MESSAGE", null, new DataMap().with("message", message.getData()));
 
                 return message;
-            }
-            else {
+            } else {
                 throw new RuntimeException("Kunne ikke oprette besked i databasen, måske");
             }
         } catch (SQLException e) {
@@ -69,7 +68,8 @@ public class MessagesDBManager implements Messages {
     @Override
     public List<Message> getMessages(long chatroom, int amount, long userId) {
         if (amount <= 0) throw new IllegalArgumentException("Ikke nok beskeder");
-        if (!model.getRooms().doesRoomExists(chatroom)) throw new IllegalArgumentException("Rummet findes ikke brormand");
+        if (!model.getRooms().doesRoomExists(chatroom))
+            throw new IllegalArgumentException("Rummet findes ikke brormand");
 
         try (Connection connection = Database.getConnection()) {
             // burde throw hvis brugeren ikke har adgang til rummet
@@ -102,7 +102,8 @@ public class MessagesDBManager implements Messages {
     @Override
     public List<Message> getMessagesBefore(long messageId, int amount, long userId) {
         if (amount <= 0) throw new IllegalArgumentException("Det er for lidt beskeder brormand");
-        if (getMessage(messageId, userId) == null) throw new IllegalStateException("Beskeden findes ikke, eller du har ikke adgang til rummet.");
+        if (getMessage(messageId, userId) == null)
+            throw new IllegalStateException("Beskeden findes ikke, eller du har ikke adgang til rummet.");
 
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("WITH beforeThis (time, room_id) AS (SELECT time, room_id FROM message WHERE id = ?)\n" +
@@ -145,12 +146,10 @@ public class MessagesDBManager implements Messages {
                         res.getLong("time"),
                         res.getLong("room_id")
                 );
-            }
-            else {
+            } else {
                 throw new IllegalStateException("Kunne ikke finde besked med id " + messageId);
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
@@ -267,6 +266,11 @@ public class MessagesDBManager implements Messages {
                     deleteMessage(messageId, request.getUser());
 
                     request.respond("Beskeden blev slettet");
+                    break;
+                case "SET_REACTION":
+                    Message message = getMessage(data.getLong("messageId"), request.getUser());
+                    message.addReaction(data.getString("reaction"), request.getUser());
+                    request.respond("Reaktionen blev opdateret");
                     break;
             }
         } catch (Exception e) {

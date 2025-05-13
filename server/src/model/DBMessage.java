@@ -51,7 +51,8 @@ public class DBMessage implements Message {
                 .with("dateTime", getDateTime())
                 .with("id", getMessageId())
                 .with("chatRoom", getChatRoom())
-                .with("attachments", getAttachments());
+                .with("attachments", getAttachments())
+                .with("reactions", getReactions());
     }
 
     @Override
@@ -76,9 +77,28 @@ public class DBMessage implements Message {
     }
 
     @Override
+    public List<DataMap> getReactions() {
+        try (Connection connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM reaction WHERE message_id = ?");
+            statement.setLong(1, id);
+            ResultSet res = statement.executeQuery();
+            List<DataMap> reactions = new ArrayList<>();
+            while (res.next()) {
+                reactions.add(new DataMap()
+                        .with("reaction", res.getString("reaction"))
+                        .with("reactedBy", res.getLong("reacted_by")));
+            }
+            return reactions;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public void editBody(String messageBody, long byUserId) {
         if (messageBody.isEmpty()) throw new IllegalArgumentException("Beskeden har intet indhold");
-        if (byUserId != sentBy) throw new IllegalStateException("Du har ikke tilladelse til at redigere den her besked");
+        if (byUserId != sentBy)
+            throw new IllegalStateException("Du har ikke tilladelse til at redigere den her besked");
         // TODO: Man kunne godt tilføje noget ligende de her exceptions som triggers på serveren
         //       for lidt ekstra flair i rapporten
 
@@ -130,6 +150,27 @@ public class DBMessage implements Message {
             statement.setLong(1, id);
             statement.setString(2, fileName);
             statement.execute();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void addReaction(String reaction, long userId) {
+        try (Connection connection = Database.getConnection()) {
+            if (reaction == null) {
+                PreparedStatement statement = connection.prepareStatement("DELETE FROM reaction WHERE message_id = ? AND reacted_by = ?");
+                statement.setLong(1, id);
+                statement.setLong(2, userId);
+                statement.executeUpdate();
+            }
+            else {
+                PreparedStatement statement = connection.prepareStatement("INSERT INTO reaction (message_id, reacted_by, reaction) VALUES (?,?,?)");
+                statement.setLong(1, id);
+                statement.setLong(2, userId);
+                statement.setString(3, reaction);
+                statement.executeUpdate();
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

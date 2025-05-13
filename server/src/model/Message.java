@@ -48,9 +48,14 @@ public interface Message {
     long getChatRoom();
 
     /**
-     * Henter en kopi af attachments listen
+     * Henter alle bilag
      */
     List<String> getAttachments();
+
+    /**
+     * Henter alle reaktioner
+     */
+    List<DataMap> getReactions();
 
     /**
      * Redigere beskedens body, og giver den et mærkat som redigeret
@@ -82,4 +87,12 @@ public interface Message {
      * @param fileName - Navnet på bilaget
      */
     void removeAttachment(String fileName);
+
+    /**
+     * Tilføj en reaktion til beskeden
+     *
+     * @param reaction - Reaktionen der skal tilføjes
+     * @param userId   - Personen der reagere
+     */
+    void addReaction(String reaction, long userId);
 }
