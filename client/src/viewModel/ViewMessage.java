@@ -10,6 +10,7 @@ public class ViewMessage {
     public LocalDateTime dateTime;
     public long messageId;
     public boolean isSystemMessage;
+    public boolean isMyMessage;
     public List<File> attachments;
     public List<ViewReaction> reactions;
 }

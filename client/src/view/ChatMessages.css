@@ -1,11 +1,13 @@
 .message-container {
-
+  -fx-background-color: #e2e2e2;
+  -fx-padding: 4px;
+  -fx-background-radius: 4px;
 }
 
 .message-time {
   -fx-text-fill:     gray;
   /*Til fremtidig reference, så er det TOP, RIGHT, BOTTOM, LEFT*/
-  -fx-label-padding: 1px 4px 1px 4px;
+  -fx-padding: 1px 4px 1px 4px;
 }
 
 .message-sender {
@@ -19,4 +21,14 @@
 
 .left-menu {
   -fx-background-color: #979797;
+}
+
+.message-reactions {
+  -fx-spacing: 2px;
+}
+
+.message-reaction-box {
+  -fx-background-color: #fff;
+  -fx-padding: 1px 4px 1px 4px;
+  -fx-background-radius: 6px;
 }

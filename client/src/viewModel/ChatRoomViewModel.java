@@ -14,9 +14,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
@@ -112,19 +110,27 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                 // Fjern hvis det er en redigering
                 messagesProperty.removeIf(m -> m.messageId == message.getMessageId());
 
-                List<ViewReaction> messageReactions = new ArrayList<>();
+                Map<String, ViewReaction> messageReactions = new HashMap<>();
 
+                // Udregn reactions
                 for (Reaction reaction : message.getReactions()) {
                     Profile reactedBy = model.getProfileManager().getProfile(reaction.getReactedBy());
-                    messageReactions.add(new ViewReaction(
-                            reaction.getReaction(),
-                            new ViewUser() {{
-                                username = reactedBy.getUsername();
-                                userId = reaction.getReactedBy();
-                            }},
-                            reaction.getReactedBy() == model.getProfileManager().getCurrentUserUUID()
-                    ));
-
+                    if (messageReactions.containsKey(reaction.getReaction())) {
+                        messageReactions.get(reaction.getReaction()).reactedByUsers.add(new ViewUser() {{
+                            username = reactedBy.getUsername();
+                            userId = reaction.getReactedBy();
+                        }});
+                        if (reaction.getReactedBy() == model.getProfileManager().getCurrentUserUUID()) messageReactions.get(reaction.getReaction()).isMyReaction = true;
+                    } else {
+                        messageReactions.put(reaction.getReaction(), new ViewReaction(
+                                reaction.getReaction(),
+                                new ViewUser() {{
+                                    username = reactedBy.getUsername();
+                                    userId = reaction.getReactedBy();
+                                }},
+                                reaction.getReactedBy() == model.getProfileManager().getCurrentUserUUID()
+                        ));
+                    }
                 }
 
                 // Tilføj besked
@@ -134,8 +140,9 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                     dateTime = LocalDateTime.ofEpochSecond(message.getDateTime() / 1000, (int) (message.getDateTime() % 1000 * 1000), ZoneOffset.UTC);
                     messageId = message.getMessageId();
                     isSystemMessage = message.getSentBy() == 0;
+                    isMyMessage = message.getSentBy() == model.getProfileManager().getCurrentUserUUID();
                     attachments = files;
-                    reactions = messageReactions;
+                    reactions = messageReactions.values().stream().toList();
                 }});
 
                 messagesProperty.sort(Comparator.comparing(o -> o.dateTime));

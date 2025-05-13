@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -16,6 +17,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import util.Attachment;
 import viewModel.ViewMessage;
@@ -85,28 +87,41 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
 
             // Opret elementer
             change.getList().forEach(m -> {
-                HBox messageContainer = new HBox();
+                HBox messageAlignmentContainer = new HBox();
+                messageAlignmentContainer.getStyleClass().add("message-alignment-container");
+                messageAlignmentContainer.setAlignment(m.isMyMessage ? Pos.TOP_RIGHT : Pos.TOP_LEFT);
+
+                VBox messageContainer = new VBox();
                 messageContainer.getStyleClass().add("message-container");
+                messageAlignmentContainer.getChildren().add(messageContainer);
 
                 if (!m.isSystemMessage) {
-                    Label messageTime = new Label();
-                    messageTime.getStyleClass().add("message-time");
-                    messageTime.setText("%02d:%02d".formatted(m.dateTime.getHour(), m.dateTime.getMinute()));
-                    messageContainer.getChildren().add(messageTime);
+                    HBox messageHeader = new HBox();
+                    messageHeader.getStyleClass().add("message-header");
+                    messageContainer.getChildren().add(messageHeader);
 
-                    Label messageSender = new Label();
+                    Text messageTime = new Text();
+                    messageTime.getStyleClass().add("message-time");
+                    messageTime.setText("%02d:%02d ".formatted(m.dateTime.getHour(), m.dateTime.getMinute()));
+                    messageHeader.getChildren().add(messageTime);
+
+                    Text messageSender = new Text();
                     messageSender.getStyleClass().add("message-sender");
-                    messageSender.setText(m.sender);
-                    messageContainer.getChildren().add(messageSender);
+                    messageSender.setText(m.sender + " ");
+                    messageHeader.getChildren().add(messageSender);
+                } else {
+                    messageContainer.getStyleClass().add("system-message");
                 }
 
                 VBox body = new VBox();
                 body.getStyleClass().add("message-body");
                 messageContainer.getChildren().add(body);
 
-                Label messageBody = new Label();
+                TextFlow messageBody = new TextFlow();
+                Text rawBody = new Text(m.body);
+                messageBody.maxWidthProperty().bind(messages.widthProperty().subtract(100));
                 messageBody.getStyleClass().add("message-body-text");
-                messageBody.setText(m.body);
+                messageBody.getChildren().add(rawBody);
                 body.getChildren().add(messageBody);
 
                 for (File attachment : m.attachments) {
@@ -124,7 +139,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
 
                             attachmentBox.getChildren().add(imageView);
                         } else {
-                            Label attachmentFile = new Label();
+                            Text attachmentFile = new Text();
                             attachmentFile.getStyleClass().add("message-attachment-file");
                             attachmentFile.setText(attachment.getName());
                             attachmentBox.getChildren().add(attachmentFile);
@@ -135,7 +150,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
                         button.addEventHandler(ActionEvent.ACTION, evt -> Desktop.getDesktop().browseFileDirectory(attachment));
                         attachmentBox.getChildren().add(button);
                     } catch (FileNotFoundException e) {
-                        Label errorLabel = new Label();
+                        Text errorLabel = new Text();
                         errorLabel.getStyleClass().add("message-error");
                         errorLabel.setText("Komme ikke hente bilag: " + attachment.getName());
                         messageContainer.getChildren().add(errorLabel);
@@ -143,14 +158,32 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
                 }
 
                 HBox reactionsBox = new HBox();
-                reactionsBox.getStyleClass().add("message-reactionsBox");
+                reactionsBox.getStyleClass().add("message-reactions");
                 body.getChildren().add(reactionsBox);
 
                 for (ViewReaction reaction : m.reactions) {
-                    Label reactionLabel = new Label();
+                    HBox reactionBox = new HBox();
+                    reactionBox.getStyleClass().add("message-reaction-box");
+                    Text reactionLabel = new Text();
                     reactionLabel.getStyleClass().add("message-reaction");
                     reactionLabel.setText(reaction.reaction);
-                    reactionsBox.getChildren().add(reactionLabel);
+                    reactionBox.getChildren().add(reactionLabel);
+                    if (reaction.reactedByUsers.size() > 1) {
+                        Text reactionCountLabel = new Text();
+                        reactionCountLabel.getStyleClass().add("message-reaction-count");
+                        reactionCountLabel.setText(" %d".formatted(reaction.reactedByUsers.size()));
+                        reactionBox.getChildren().add(reactionCountLabel);
+                    }
+                    reactionsBox.getChildren().add(reactionBox);
+
+                    reactionBox.setOnMouseClicked((event) -> {
+                        if (reaction.isMyReaction) {
+                            getViewModel().removeReaction(m.messageId, reaction.reaction);
+                        }
+                        else {
+                            getViewModel().addReaction(m.messageId, reaction.reaction);
+                        }
+                    });
                 }
 
                 messageContainer.setOnContextMenuRequested(e -> {
@@ -197,7 +230,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
                     contextMenu.show(messageContainer, e.getScreenX(), e.getScreenY());
                 });
 
-                messages.getChildren().add(messageContainer);
+                messages.getChildren().add(messageAlignmentContainer);
             });
             // Lad viewet opdater, før den scroller ned.
             Platform.runLater(() -> {
