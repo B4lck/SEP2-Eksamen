@@ -76,7 +76,7 @@ public class MessagesDBManager implements Messages {
             // TODO: Lav en .hasAccessTo(chatroom, userId)
             model.getRooms().getRoom(chatroom, userId);
 
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM message WHERE room_id = ? LIMIT ?");
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM message WHERE room_id = ? ORDER BY time DESC LIMIT ?;");
             statement.setLong(1, chatroom);
             statement.setInt(2, amount);
             ResultSet res = statement.executeQuery();

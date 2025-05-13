@@ -75,13 +75,13 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
 
             messages.getChildren().clear();
 
-//            Button loadMoreButton = new Button();
-//
-//            loadMoreButton.setText("Indlæs mere du");
-//
-//            loadMoreButton.addEventHandler(ActionEvent.ACTION, evt -> getViewModel().loadOlderMessages());
-//
-//            messages.getChildren().add(loadMoreButton);
+            Button loadMoreButton = new Button();
+
+            loadMoreButton.setText("Indlæs mere du");
+
+            loadMoreButton.addEventHandler(ActionEvent.ACTION, evt -> getViewModel().loadOlderMessages());
+
+            messages.getChildren().add(loadMoreButton);
 
             // Opret elementer
             change.getList().forEach(m -> {
