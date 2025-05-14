@@ -260,7 +260,6 @@ public class MessagesDBManager implements Messages {
                     // Hent attachments
                     while (!request.getAttachments().isEmpty()) {
                         var name = request.downloadNextAttachment();
-                        System.out.println("tilføjer bilag...");
                         attachments.add(name);
                     }
 

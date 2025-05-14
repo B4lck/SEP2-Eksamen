@@ -3,7 +3,6 @@ package model;
 import utils.DataMap;
 
 public class RoomUser {
-
     private long userId;
     private String state;
     private long latestReadMessage;
@@ -30,4 +29,7 @@ public class RoomUser {
         return new RoomUser(data.getLong("id"), data.getString("state"), data.getLong("latestReadMessage"));
     }
 
+    public void setRead(long messageId) {
+        latestReadMessage = messageId;
+    }
 }

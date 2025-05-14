@@ -4,12 +4,25 @@ import mediator.ChatClient;
 import mediator.ClientMessage;
 import util.ServerError;
 import utils.DataMap;
+import utils.PropertyChangeSubject;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-public class RoomManager {
+public class RoomManager implements PropertyChangeSubject, PropertyChangeListener {
+    private PropertyChangeSupport property = new PropertyChangeSupport(this);
+
+    private List<Room> rooms = new ArrayList<>();
+
     private ChatClient client = ChatClient.getInstance();
+
+    public RoomManager() {
+        client.addListener(this);
+    }
 
     public List<Room> getChatRooms() throws ServerError {
         client.sendMessage(new ClientMessage("GET_MY_ROOMS", new DataMap()));
@@ -17,7 +30,7 @@ public class RoomManager {
 
         ArrayList<Room> chatRooms = new ArrayList<>();
         for (var room : reply.getData().getMapArray("rooms")) {
-            chatRooms.add(Room.fromData(room));
+            chatRooms.add(addOrSetRoom(Room.fromData(room)));
         }
 
         return chatRooms;
@@ -29,7 +42,18 @@ public class RoomManager {
 
         var reply = client.waitingForReply("RoomManager getChatRoom");
 
-        return Room.fromData(reply.getData().getMap("room"));
+        return addOrSetRoom(Room.fromData(reply.getData().getMap("room")));
+    }
+
+    private Room addOrSetRoom(Room room) {
+        Optional<Room> existingRoom = rooms.stream().filter(r2 -> r2.getRoomId() == room.getRoomId()).findAny();
+        if (existingRoom.isPresent()) {
+            existingRoom.get().update(room);
+            return existingRoom.get();
+        } else {
+            rooms.add(room);
+            return room;
+        }
     }
 
     public void addUser(long chatroom, long userId) throws ServerError {
@@ -92,5 +116,39 @@ public class RoomManager {
                 .with("user", userId)));
 
         client.waitingForReply("SUCCESS");
+    }
+
+    private Optional<Room> _getRoom(long roomId) {
+        return rooms.stream().filter(room -> room.getRoomId() == roomId).findAny();
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        var message = (ClientMessage) evt.getNewValue();
+        var request = message.getData();
+
+        switch (message.getType().toUpperCase()) {
+            case "READ_MESSAGE":
+                try {
+                    Room room = _getRoom(request.getLong("roomId")).orElseThrow();
+                    RoomUser user = room.getUser(request.getLong("userId")).orElseThrow();
+                    user.setRead(request.getLong("messageId"));
+                    property.firePropertyChange("READ_UPDATE", room.getRoomId(), user);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    // Gør intet
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void addListener(PropertyChangeListener listener) {
+        property.addPropertyChangeListener(listener);
+    }
+
+    @Override
+    public void removeListener(PropertyChangeListener listener) {
+        property.removePropertyChangeListener(listener);
     }
 }

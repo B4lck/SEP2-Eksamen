@@ -1,6 +1,8 @@
 package viewModel;
 
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -8,6 +10,7 @@ import javafx.collections.ObservableList;
 import model.*;
 import util.Attachment;
 import util.ServerError;
+import view.ViewHandler;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -23,6 +26,8 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     private ObservableList<ViewRoom> roomsProperty;
     private StringProperty roomNameProperty;
     private StringProperty greetingTextProperty;
+    private ObservableList<ViewRoomUser> roomUsersProperty;
+    private ObjectProperty<ViewRoomUser> currentRoomUserProperty;
 
     private Model model;
     private ViewState viewState;
@@ -35,6 +40,8 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         this.composeMessageProperty = new SimpleStringProperty();
         this.messagesProperty = FXCollections.observableArrayList();
         this.greetingTextProperty = new SimpleStringProperty();
+        this.roomUsersProperty = FXCollections.observableArrayList();
+        this.currentRoomUserProperty = new SimpleObjectProperty<>();
 
         this.roomNameProperty = new SimpleStringProperty();
 
@@ -43,8 +50,19 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         this.viewState = viewState;
 
         model.getMessagesManager().addListener(this);
+        model.getRoomManager().addListener(this);
 
-        viewState.getCurrentChatRoomProperty().addListener((change) -> resetMessages());
+        viewState.getCurrentChatRoomProperty().addListener((change) -> resetRoom());
+
+        ViewHandler.focusedProperty.addListener((_, _, newValue) -> {
+            if (newValue) {
+                try {
+                    model.getMessagesManager().readMessage(messagesProperty.getLast().messageId);
+                } catch (ServerError e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
     }
 
     public ObservableList<ViewRoom> getChatRoomsProperty() {
@@ -67,6 +85,14 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         return roomNameProperty;
     }
 
+    public ObservableList<ViewRoomUser> getRoomUsersProperty() {
+        return roomUsersProperty;
+    }
+
+    public ObjectProperty<ViewRoomUser> getCurrentRoomUserProperty() {
+        return currentRoomUserProperty;
+    }
+
     public ObservableList<Attachment> getAttachmentsProperty() {
         return attachments;
     }
@@ -75,22 +101,48 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         viewState.setCurrentChatRoom(chatRoom);
     }
 
-    public void resetMessages() {
+    public void resetRoom() {
+        System.out.println("====");
+        roomUsersProperty.clear();
         messagesProperty.clear();
 
-        long chatroom = viewState.getCurrentChatRoom();
-        if (chatroom == -1) {
-            roomNameProperty.set("Vælg et rum!");
-            return;
-        }
+        if (viewState.getCurrentChatRoom() == -1) return;
 
         try {
+            // Medlemmer
+            long myId = model.getProfileManager().getCurrentUserUUID();
+            // Tilføj brugere
+            for (RoomUser user : model.getRoomManager().getChatRoom(viewState.getCurrentChatRoom()).getUsers()) {
+                var vru = new ViewRoomUser(
+                        user.getUserId(),
+                        model.getProfileManager().getProfile(user.getUserId()).getUsername(),
+                        "", // TODO: Nickname
+                        user.getState(),
+                        user.getLatestReadMessage()
+                );
+
+                if (vru.getUserId() == myId) {
+                    currentRoomUserProperty.set(vru);
+                }
+
+                roomUsersProperty.add(vru);
+            }
+
+            // Beskeder
+            long chatroom = viewState.getCurrentChatRoom();
+            if (chatroom == -1) {
+                roomNameProperty.set("Vælg et rum!");
+                return;
+            }
+
             roomNameProperty.set(model.getRoomManager().getChatRoom(viewState.getCurrentChatRoom()).getName());
             var initialMessages = model.getMessagesManager().getMessages(chatroom, 10);
 
             for (Message message : initialMessages) {
                 addMessage(message);
             }
+
+            model.getMessagesManager().readMessage(initialMessages.getLast().getMessageId());
         } catch (ServerError e) {
             e.printStackTrace();
             e.showAlert();
@@ -120,7 +172,8 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                             username = reactedBy.getUsername();
                             userId = reaction.getReactedBy();
                         }});
-                        if (reaction.getReactedBy() == model.getProfileManager().getCurrentUserUUID()) messageReactions.get(reaction.getReaction()).isMyReaction = true;
+                        if (reaction.getReactedBy() == model.getProfileManager().getCurrentUserUUID())
+                            messageReactions.get(reaction.getReaction()).isMyReaction = true;
                     } else {
                         messageReactions.put(reaction.getReaction(), new ViewReaction(
                                 reaction.getReaction(),
@@ -155,11 +208,32 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         Platform.runLater(() -> {
-            switch (evt.getPropertyName()) {
-                case "NEW_MESSAGE":
-                case "UPDATE_MESSAGE":
-                    addMessage((Message) evt.getNewValue());
-                    break;
+            try {
+                switch (evt.getPropertyName()) {
+                    case "NEW_MESSAGE":
+                    case "UPDATE_MESSAGE":
+                        Message message = (Message) evt.getNewValue();
+                        addMessage(message);
+                        if (ViewHandler.focusedProperty.get())
+                            model.getMessagesManager().readMessage(message.getMessageId());
+                        break;
+                    case "READ_UPDATE":
+                        if ((long) evt.getOldValue() != viewState.getCurrentChatRoom()) return;
+
+                        RoomUser roomUser = (RoomUser) evt.getNewValue();
+                        roomUsersProperty.removeIf(viewUser -> viewUser.getUserId() == roomUser.getUserId());
+                        roomUsersProperty.add(new ViewRoomUser(
+                                roomUser.getUserId(),
+                                model.getProfileManager().getProfile(roomUser.getUserId()).getUsername(),
+                                "", // TODO: Nickname
+                                roomUser.getState(),
+                                roomUser.getLatestReadMessage()
+                        ));
+                        break;
+                }
+            } catch (ServerError e) {
+                e.printStackTrace();
+                // Ik spam med fejl, da det er broadcast
             }
         });
     }
@@ -169,8 +243,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         try {
             greetingTextProperty.setValue("Hej " + model.getProfileManager().getCurrentUserProfile().getUsername() + "!");
 
-            // Beskeder
-            resetMessages();
+            resetRoom();
 
             // Liste over rum
             this.roomsProperty.clear();

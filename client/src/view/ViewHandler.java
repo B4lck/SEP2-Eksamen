@@ -1,6 +1,7 @@
 package view;
 
 import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.Region;
@@ -21,6 +22,8 @@ public class ViewHandler {
     private Stage primaryStage;
     private Scene currentScene;
     private NotificationManager notificationManager = NotificationManager.getNotificationManager();
+
+    public static ReadOnlyBooleanProperty focusedProperty = null;
 
     private ViewModelFactory viewModelFactory;
 
@@ -55,6 +58,7 @@ public class ViewHandler {
 
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
+        focusedProperty = primaryStage.focusedProperty();
         openView(ViewID.LOGIN);
     }
 

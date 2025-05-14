@@ -7,7 +7,6 @@ public class NotificationManager {
     private static NotificationManager instance = new NotificationManager();
 
     private TrayIcon trayIcon;
-
     private NotificationManager() {
         SystemTray tray = SystemTray.getSystemTray();
         Image image = Toolkit.getDefaultToolkit().createImage(getClass().getResource("logo.png"));

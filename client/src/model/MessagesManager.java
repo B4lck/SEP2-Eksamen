@@ -47,9 +47,9 @@ public class MessagesManager implements PropertyChangeSubject, PropertyChangeLis
 
         return messages.stream()
                 .filter(m -> m.getChatRoom() == chatroom)
-                .sorted(Comparator.comparingLong(Message::getDateTime))
+                .sorted(Comparator.comparingLong(Message::getDateTime).reversed())
                 .limit(amount)
-                .toList();
+                .toList().reversed();
     }
 
     public List<Message> getMessagesBefore(long chatroom, long messageId, int amount) throws ServerError {
@@ -65,9 +65,9 @@ public class MessagesManager implements PropertyChangeSubject, PropertyChangeLis
                 .filter(m -> m.getChatRoom() == chatroom
                         && m.getDateTime() <= reply.getData().getLong("newest_time")
                         && m.getMessageId() != messageId)
-                .sorted(Comparator.comparingLong(Message::getDateTime))
+                .sorted(Comparator.comparingLong(Message::getDateTime).reversed())
                 .limit(amount)
-                .toList();
+                .toList().reversed();
     }
 
     private void addNewMessages(List<DataMap> newMessages) {
@@ -157,5 +157,11 @@ public class MessagesManager implements PropertyChangeSubject, PropertyChangeLis
                 .with("reaction", reaction)));
 
         chatClient.waitingForReply("Remove reaction");
+    }
+
+    public void readMessage(long messageId) throws ServerError {
+        chatClient.sendMessage(new ClientMessage("READ_MESSAGE", new DataMap().with("messageId", messageId)));
+
+        chatClient.waitingForReply("Read message");
     }
 }
