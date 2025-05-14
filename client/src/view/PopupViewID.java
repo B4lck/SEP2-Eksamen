@@ -1,7 +1,8 @@
 package view;
 
 public enum PopupViewID {
-    USER_PICKER("UserPicker.fxml");
+    USER_PICKER("UserPicker.fxml"),
+    TEXT_CONFIRM("TextConfirmView.fxml");
 
     private final String filename;
 

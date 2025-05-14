@@ -91,6 +91,31 @@ public interface Rooms extends ServerRequestHandler {
     void demoteUser(long chatroom, long user, long adminUser);
 
     /**
+     * Sætter et kaldenavn på en bruger i et chatrum
+     *
+     * @param chatroom id'et på chatrummet
+     * @param user id'et på brugeren
+     * @param nickname det nye kaldenavn
+     */
+    void setNicknameOfUser(long chatroom, long user, String nickname);
+
+    /**
+     * Fjerner et kaldenavn på en bruger i et chatrum
+     * @param chatroom id'et på chatrummet
+     * @param user id'et på brugeren
+     */
+    void removeNicknameOfUser(long chatroom, long user);
+
+    /**
+     * Henter kaldenavnet på en bruger i et chatrum
+     *
+     * @param chatroom id'et på chatrummet
+     * @param user id'et på brugeren
+     * @return kaldenavnet
+     */
+    String getNicknameOfUser(long chatroom, long user);
+
+    /**
      * Tjekker om rummet eksistere
      *
      * @param chatroom id'et på chatrummet

@@ -134,6 +134,24 @@ public class RoomsDBManager implements Rooms {
     }
 
     @Override
+    public void setNicknameOfUser(long chatroom, long user, String nickname) {
+        Room room = getRoom(chatroom, user);
+        room.setNicknameOfUser(user, nickname);
+    }
+
+    @Override
+    public void removeNicknameOfUser(long chatroom, long user) {
+        Room room = getRoom(chatroom, user);
+        room.removeNicknameFromUser(user);
+    }
+
+    @Override
+    public String getNicknameOfUser(long chatroom, long user) {
+        Room room = getRoom(chatroom, user);
+        return room.getNickname(user);
+    }
+
+    @Override
     public void handleRequest(ServerRequest request) {
         try {
             switch (request.getType()) {
@@ -179,6 +197,19 @@ public class RoomsDBManager implements Rooms {
                 case "DEMOTE_USER":
                     demoteUser(request.getData().getLong("chatroomId"), request.getData().getLong("user"), request.getUser());
                     request.respond("Bruger er blevet degraderet");
+                    break;
+                case "SET_NICKNAME":
+                    setNicknameOfUser(request.getData().getLong("chatroomId"), request.getData().getLong("userId"), request.getData().getString("nickname"));
+                    request.respond("Brugeren har fået ændret sit kaldenavn");
+                    break;
+                case "REMOVE_NICKNAME":
+                    removeNicknameOfUser(request.getData().getLong("chatroomId"), request.getData().getLong("userId"));
+                    request.respond("Brugeren har fået fjernet sit kaldenavn");
+                    break;
+                case "GET_NICKNAME":
+                    String nickname = getNicknameOfUser(request.getData().getLong("chatroomId"), request.getData().getLong("userId"));
+                    request.respond(new DataMap()
+                            .with("nickname", nickname));
                     break;
             }
         } catch (Exception e) {

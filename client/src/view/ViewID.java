@@ -4,7 +4,8 @@ public enum ViewID {
     CHATROOM("ChatRoomView.fxml"),
     LOGIN("LoginView.fxml"),
     SIGNUP("SignupView.fxml"),
-    CREATE_EDIT_ROOM("CreateEditChatRoom.fxml");
+    CREATE_EDIT_ROOM("CreateEditChatRoom.fxml"),
+    EDIT_NICKNAME("EditNicknameView.fxml");
 
     private final String filename;
 

@@ -106,11 +106,34 @@ public interface Room {
     void demoteUser(long userId, long promotedByUser);
 
     /**
+     * Sætter kaldenavnet på en bruger
+     *
+     * @param userId id'et på brugeren
+     * @param nickname det nye kaldenavn
+     */
+    void setNicknameOfUser(long userId, String nickname);
+
+    /**
+     * Henter kaldenavnet på en bruger i rummet
+     *
+     * @param userId id'et på brugeren
+     * @return kaldenavnet på brugeren
+     */
+    String getNickname(long userId);
+
+    /**
+     * Fjerner et brugernavn fra en bruger
+     * @param user id'et på brugeren
+     */
+    void removeNicknameFromUser(long user);
+
+    /**
      * Tjekker om en bruger er admin
      *
      * @param userId id'et på brugeren der skal tjekkes
      * @return True hvis brugeren er admin
      */
     boolean isAdmin(long userId);
+
 }
 

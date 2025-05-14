@@ -151,4 +151,30 @@ public class RoomManager implements PropertyChangeSubject, PropertyChangeListene
     public void removeListener(PropertyChangeListener listener) {
         property.removePropertyChangeListener(listener);
     }
+
+    public void editNickname(long chatroomId, long userId, String nickname) throws ServerError {
+        client.sendMessage(new ClientMessage("SET_NICKNAME", new DataMap()
+                .with("chatroomId", chatroomId)
+                .with("userId", userId)
+                .with("nickname", nickname)));
+
+        client.waitingForReply("SUCCESS");
+    }
+
+    public void removeNickname(long chatroomId, long userId) throws ServerError {
+        client.sendMessage(new ClientMessage("REMOVE_NICKNAME", new DataMap()
+                .with("chatroomId", chatroomId)
+                .with("userId", userId)));
+
+        client.waitingForReply("SUCCESS");
+    }
+
+    public String getNicknameOf(long chatroomId, long userId) throws ServerError {
+        client.sendMessage(new ClientMessage("GET_NICKNAME", new DataMap()
+                .with("chatroomId", chatroomId)
+                .with("userId", userId)));
+
+        var reply = client.waitingForReply("NICKNAME");
+        return reply.getData().getString("nickname");
+    }
 }

@@ -6,6 +6,7 @@ import utils.DataMap;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -264,6 +265,50 @@ public class DBRoom implements Room {
             } else {
                 throw new IllegalStateException("Brugeren findes ikke i rummet");
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void setNicknameOfUser(long userId, String nickname) {
+        try (var connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET nickname=? WHERE room_id=? AND profile_id=?");
+            statement.setString(1, nickname);
+            statement.setLong(2, roomId);
+            statement.setLong(3, userId);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void removeNicknameFromUser(long user) {
+        try (var connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET nickname=? WHERE profile_id = ? AND room_id = ?");
+            statement.setNull(1, Types.NULL);
+            statement.setLong(2, user);
+            statement.setLong(3, roomId);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public String getNickname(long user) {
+        try (var connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("SELECT nickname FROM room_user WHERE room_id = ? AND profile_id = ?");
+            statement.setLong(1, roomId);
+            statement.setLong(2, user);
+            statement.executeQuery();
+
+            ResultSet result = statement.getResultSet();
+            if (result.next())
+                return result.getString("nickname");
+
+            throw new IllegalStateException("Brugeren findes ikke i rummet");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

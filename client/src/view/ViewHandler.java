@@ -71,6 +71,7 @@ public class ViewHandler {
                 case SIGNUP -> getRoot(view, viewModelFactory.getSignUpViewModel(), this);
                 case CHATROOM -> getRoot(view, viewModelFactory.getChatRoomViewModel(), this);
                 case CREATE_EDIT_ROOM -> getRoot(view, viewModelFactory.getCreateEditChatRoomViewModel(), this);
+                case EDIT_NICKNAME -> getRoot(view, viewModelFactory.getEditNicknameViewModel(), this);
             };
         } catch (IOException e) {
             throw new IllegalStateException("Kunne ikke indlæse siden :(");
@@ -95,6 +96,7 @@ public class ViewHandler {
     public <R> void openPopup(PopupViewID view, Callback<R> callback) {
         ViewModel viewModel = switch (view) {
             case USER_PICKER -> viewModelFactory.newUserPickerViewModel();
+            case TEXT_CONFIRM -> viewModelFactory.newTextConfirmViewModel();
         };
 
         try {

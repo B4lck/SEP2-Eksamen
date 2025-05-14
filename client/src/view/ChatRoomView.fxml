@@ -32,7 +32,8 @@
     <MenuButton mnemonicParsing="false" prefHeight="30.0" text="Menu" AnchorPane.rightAnchor="20.0"
                 AnchorPane.topAnchor="10.0">
         <items>
-            <MenuItem mnemonicParsing="false" onAction="#editRoom" text="Rediger"/>
+            <MenuItem mnemonicParsing="false" onAction="#editRoom" text="Administrer rum"/>
+            <MenuItem mnemonicParsing="false" onAction="#editNicknames" text="Kaldenavne"/>
         </items>
     </MenuButton>
     <VBox prefWidth="450.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="0.0"

@@ -188,7 +188,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
                 // Tilføj besked
                 messagesProperty.add(new ViewMessage() {{
-                    sender = message.getSentBy() == 0 ? "System" : model.getProfileManager().getProfile(message.getSentBy()).getUsername();
+                    sender = message.getSentBy() == 0 ? "System" : (model.getProfileManager().getProfile(message.getSentBy()).getUsername());
                     body = message.getBody();
                     dateTime = LocalDateTime.ofEpochSecond(message.getDateTime() / 1000, (int) (message.getDateTime() % 1000 * 1000), ZoneOffset.UTC);
                     messageId = message.getMessageId();

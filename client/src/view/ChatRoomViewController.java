@@ -335,6 +335,11 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
     }
 
     @FXML
+    public void editNicknames() {
+        getViewHandler().openView(ViewID.EDIT_NICKNAME);
+    }
+
+    @FXML
     public void upload(ActionEvent actionEvent) {
         try {
             FileChooser fileChooser = new FileChooser();
