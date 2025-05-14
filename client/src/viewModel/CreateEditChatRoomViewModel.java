@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.Model;
 import model.Profile;
+import model.RoomUser;
 import util.ServerError;
 
 import java.util.HashSet;
@@ -44,8 +45,8 @@ public class CreateEditChatRoomViewModel implements ViewModel {
             try {
                 var room = model.getRoomManager().getChatRoom(viewState.getCurrentChatRoom());
                 nameProperty.set(room.getName());
-                for (long userId : room.getUsers()) {
-                    addUser(userId);
+                for (RoomUser user : room.getUsers()) {
+                    addUser(user.getUserId());
                 }
             } catch (ServerError e) {
                 e.showAlert();
@@ -137,6 +138,7 @@ public class CreateEditChatRoomViewModel implements ViewModel {
 
                 Set<Long> removedProfiles = new HashSet<>(
                         previousProfiles.stream()
+                                .map(p -> p.getUserId())
                                 .filter(p -> membersProperty.stream().noneMatch(p2 -> p2.userId == p))
                                 .toList());
 

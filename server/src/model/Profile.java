@@ -37,6 +37,8 @@ public interface Profile {
      */
     void setPassword(String password);
 
+    long getLastActive();
+
     /**
      * Laver profilen om til et map, som kan sendes til clienten
      *

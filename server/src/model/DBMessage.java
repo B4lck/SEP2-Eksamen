@@ -99,7 +99,7 @@ public class DBMessage implements Message {
         if (messageBody.isEmpty()) throw new IllegalArgumentException("Beskeden har intet indhold");
         if (byUserId != sentBy)
             throw new IllegalStateException("Du har ikke tilladelse til at redigere den her besked");
-        // TODO: Man kunne godt tilføje noget ligende de her exceptions som triggers på serveren
+        // TODO: Man kunne godt tilføje noget lignende de her exceptions som triggers på serveren
         //       for lidt ekstra flair i rapporten
 
         try (Connection connection = Database.getConnection()) {

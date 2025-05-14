@@ -219,6 +219,27 @@ public class MessagesDBManager implements Messages {
     }
 
     @Override
+    public void setLatestReadMessage(long messageId, long user) {
+        long roomId = getMessage(messageId, user).getChatRoom();
+
+        try (Connection connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET latest_read_message = ? WHERE room_id = ? AND profile_id = ?");
+            statement.setLong(1, messageId);
+            statement.setLong(2, roomId);
+            statement.setLong(3, user);
+            statement.executeUpdate();
+
+            property.firePropertyChange("READ_MESSAGE", null, new DataMap()
+                    .with("messageId", messageId)
+                    .with("roomId", roomId)
+                    .with("userId", user));
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public void handleRequest(ServerRequest request) {
         long chatRoom;
         var data = request.getData();
@@ -294,6 +315,10 @@ public class MessagesDBManager implements Messages {
                 case "REMOVE_REACTION":
                     removeReaction(data.getLong("messageId"), data.getString("reaction"), request.getUser());
                     request.respond("Reaktionen blev fjernet");
+                    break;
+                case "READ_MESSAGE":
+                    setLatestReadMessage(request.getData().getLong("messageId"), request.getUser());
+                    request.respond("Success");
                     break;
             }
         } catch (Exception e) {

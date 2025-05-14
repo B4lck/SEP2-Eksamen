@@ -67,10 +67,23 @@ public class DBProfile implements Profile {
     }
 
     @Override
+    public long getLastActive() {
+        try (Connection connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("SELECT latest_activity_time FROM profile WHERE id = ?");
+            statement.setLong(1, id);
+            ResultSet res = statement.executeQuery();
+            return res.next() ? res.getLong("latest_activity_time") : 0;
+        } catch (SQLException error) {
+            throw new RuntimeException(error);
+        }
+    }
+
+    @Override
     public DataMap getData() {
         return new DataMap()
                 .with("username", username)
-                .with("uuid", id);
+                .with("uuid", id)
+                .with("lastActive", getLastActive());
     }
 
     @Override

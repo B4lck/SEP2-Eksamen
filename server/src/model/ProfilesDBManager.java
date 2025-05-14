@@ -91,11 +91,27 @@ public class ProfilesDBManager implements Profiles {
     }
 
     @Override
+    public void updateUserActivity(long userId) {
+        try (Connection connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("UPDATE profile SET latest_activity_time = ? WHERE id = ?");
+            statement.setLong(1, System.currentTimeMillis());
+            statement.setLong(2, userId);
+            statement.executeUpdate();
+        } catch (SQLException error) {
+            throw new RuntimeException(error);
+        }
+    }
+
+    @Override
     public void handleRequest(ServerRequest request) {
         Profile user;
         ArrayList<DataMap> profiles;
 
         var data = request.getData();
+
+        if (request.getUser() != -1) {
+            updateUserActivity(request.getUser());
+        }
 
         try {
             switch (request.getType()) {

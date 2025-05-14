@@ -204,7 +204,6 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
                         addReactionsMenu.getItems().add(reactionItem);
 
                         reactionItem.setOnAction((_) -> {
-                            System.out.println(reaction);
                             getViewModel().addReaction(m.messageId, reaction);
                         });
                     }

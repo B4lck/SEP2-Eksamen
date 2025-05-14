@@ -41,4 +41,6 @@ public interface Profiles extends ServerRequestHandler {
      * @throws IllegalArgumentException - Hvis query er null
      */
     List<Profile> searchProfiles(String query);
+
+    void updateUserActivity(long userId);
 }

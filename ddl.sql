@@ -5,27 +5,16 @@ CREATE DOMAIN username AS TEXT;
 
 CREATE TABLE profile
 (
-    id       BIGSERIAL PRIMARY KEY,
-    username username,
-    password TEXT
+    id                   BIGSERIAL PRIMARY KEY,
+    username             username,
+    password             TEXT,
+    latest_activity_time BIGINT
 );
 
 CREATE TABLE room
 (
     id   BIGSERIAL PRIMARY KEY,
     name username
-);
-
-CREATE TABLE room_user
-(
-    room_id    BIGINT,
-    profile_id BIGINT,
-    state      VARCHAR(7) CHECK ( state IN ('Muted', 'Admin', 'Regular')),
-    nickname   username,
-
-    PRIMARY KEY (room_id, profile_id),
-    FOREIGN KEY (room_id) REFERENCES room (id),
-    FOREIGN KEY (profile_id) REFERENCES profile (id)
 );
 
 CREATE TABLE message
@@ -38,6 +27,19 @@ CREATE TABLE message
 
     FOREIGN KEY (sent_by_id) REFERENCES profile (id),
     FOREIGN KEY (room_id) REFERENCES room (id)
+);
+
+CREATE TABLE room_user
+(
+    room_id             BIGINT,
+    profile_id          BIGINT,
+    state               VARCHAR(7) CHECK ( state IN ('Muted', 'Admin', 'Regular')),
+    nickname            username,
+    latest_read_message BIGINT REFERENCES message (id),
+
+    PRIMARY KEY (room_id, profile_id),
+    FOREIGN KEY (room_id) REFERENCES room (id),
+    FOREIGN KEY (profile_id) REFERENCES profile (id)
 );
 
 CREATE TABLE attachment

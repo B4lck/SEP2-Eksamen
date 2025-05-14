@@ -71,4 +71,6 @@ public interface Messages extends ServerRequestHandler, PropertyChangeSubject {
     void addReaction(long messageId, String reaction, long userId);
 
     void removeReaction(long messageId, String reaction, long userId);
+
+    void setLatestReadMessage(long messageId, long user);
 }

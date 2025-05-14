@@ -1,8 +1,8 @@
 package model;
 
-import model.statemachine.RegularState;
 import model.statemachine.UserState;
 import model.statemachine.UserStateId;
+import utils.DataMap;
 
 public class RoomUser {
     /**
@@ -13,22 +13,16 @@ public class RoomUser {
      * Staten på objektet
      */
     private UserState state;
-
-    /**
-     * @param id Id'et på profilen som RoomUser skal tilknyttes
-     */
-    public RoomUser(long id) {
-        this.id = id;
-        this.state = new RegularState(this);
-    }
+    private long latestReadMessage;
 
     /**
      * @param id Id'et på profilen som RoomUser skal tilknyttes
      * @param state Staten på profilen
      */
-    public RoomUser(long id, UserStateId state) {
+    public RoomUser(long id, UserStateId state, long latestReadMessage) {
         this.id = id;
         this.state = UserState.stateFromString(state, this);
+        this.latestReadMessage = latestReadMessage;
     }
 
     /**
@@ -56,5 +50,16 @@ public class RoomUser {
      */
     public UserState getState() {
         return state;
+    }
+
+    public long getLatestReadMessage() {
+        return latestReadMessage;
+    }
+
+    public DataMap getData() {
+        return new DataMap()
+                .with("id", id)
+                .with("state", state.getStateAsString())
+                .with("latestReadMessage", latestReadMessage);
     }
 }
