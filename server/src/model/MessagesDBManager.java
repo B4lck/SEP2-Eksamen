@@ -168,7 +168,7 @@ public class MessagesDBManager implements Messages {
         message.editBody(messageBody, byUserId);
 
         // Broadcast til klienter
-        property.firePropertyChange("UPDATE_MESSAGE", null, new DataMap().with("message", message.getData()));
+        property.firePropertyChange("UPDATE_MESSAGE", null, new DataMap().with("message", getMessage(messageId, byUserId).getData()));
 
         // Send system besked
         sendSystemMessage(message.getChatRoom(),
@@ -191,7 +191,7 @@ public class MessagesDBManager implements Messages {
         UserFilesManager.getInstance().removeFiles(attachments);
 
         // Broadcast til klienter
-        property.firePropertyChange("UPDATE_MESSAGE", null, new DataMap().with("message", message.getData()));
+        property.firePropertyChange("UPDATE_MESSAGE", null, new DataMap().with("message", getMessage(messageId, byUserId).getData()));
 
         // Send system besked
         String username = model.getProfiles().getProfile(byUserId).map(Profile::getUsername).orElse("En bruger");

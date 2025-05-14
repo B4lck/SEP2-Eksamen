@@ -21,98 +21,144 @@ import java.util.*;
 
 public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
-    private ObservableList<ViewMessage> messagesProperty;
-    private StringProperty composeMessageProperty;
-    private ObservableList<ViewRoom> roomsProperty;
-    private StringProperty roomNameProperty;
     private StringProperty greetingTextProperty;
-    private ObservableList<ViewRoomUser> roomUsersProperty;
-    private ObjectProperty<ViewRoomUser> currentRoomUserProperty;
+    private StringProperty roomNameProperty;
+
+    private StringProperty composeMessageProperty; // Nuværende indtastede besked i compose
+    private ObservableList<Attachment> attachmentsProperty; // De nuværende valgte attachments i compose
+
+    private ObservableList<ViewRoom> roomsProperty; // Alle brugerens rum
+    private ObservableList<ViewMessage> messagesProperty; // Indlæste beskeder i det nuværende rum
+    private ObservableList<ViewRoomUser> roomUsersProperty; // Brugere i det nuværende rum
+    private ObjectProperty<ViewRoomUser> currentRoomUserProperty; // Den nuværende bruger i det nuværende rum
 
     private Model model;
     private ViewState viewState;
 
-    private ObservableList<Attachment> attachments;
-
     public ChatRoomViewModel(Model model, ViewState viewState) {
         this.model = model;
 
-        this.composeMessageProperty = new SimpleStringProperty();
-        this.messagesProperty = FXCollections.observableArrayList();
         this.greetingTextProperty = new SimpleStringProperty();
+        this.roomNameProperty = new SimpleStringProperty();
+
+        this.composeMessageProperty = new SimpleStringProperty();
+        this.attachmentsProperty = FXCollections.observableArrayList();
+
+        this.roomsProperty = FXCollections.observableArrayList();
+        this.messagesProperty = FXCollections.observableArrayList();
         this.roomUsersProperty = FXCollections.observableArrayList();
         this.currentRoomUserProperty = new SimpleObjectProperty<>();
 
-        this.roomNameProperty = new SimpleStringProperty();
-
-        this.roomsProperty = FXCollections.observableArrayList();
-        this.attachments = FXCollections.observableArrayList();
         this.viewState = viewState;
 
-        model.getMessagesManager().addListener(this);
-        model.getRoomManager().addListener(this);
+        // Tilføj listeners til modellen
+        model.getMessagesManager().addListener(this); // For nye beskeder
+        model.getRoomManager().addListener(this); // For ændringer på rummet og read-receipts
 
-        viewState.getCurrentChatRoomProperty().addListener((change) -> resetRoom());
+        // Reset rummet når et nyt rum vælges
+        viewState.getCurrentChatRoomProperty().addListener((_) -> resetRoom());
 
+        // Marker den nyeste besked som læst, når vinduet bliver fokuseret
         ViewHandler.focusedProperty.addListener((_, _, newValue) -> {
             if (newValue) {
                 try {
                     model.getMessagesManager().readMessage(messagesProperty.getLast().messageId);
                 } catch (ServerError e) {
-                    throw new RuntimeException(e);
+                    // Tom med vanilje
                 }
             }
         });
     }
 
-    public ObservableList<ViewRoom> getChatRoomsProperty() {
-        return roomsProperty;
-    }
-
-    public ObservableList<ViewMessage> getMessagesProperty() {
-        return messagesProperty;
-    }
-
-    public StringProperty getComposeMessageProperty() {
-        return composeMessageProperty;
-    }
-
+    /**
+     * Tekst-stykke der viser hvem der er logget ind
+     */
     public StringProperty getGreetingTextProperty() {
         return greetingTextProperty;
     }
 
+    /**
+     * Indeholder navnet på det nuværende valgte rum
+     */
     public StringProperty getRoomNameProperty() {
         return roomNameProperty;
     }
 
+    /**
+     * Indholdet bliver sendt når sendMessage eller editMessage kaldes.
+     */
+    public StringProperty getComposeMessageProperty() {
+        return composeMessageProperty;
+    }
+
+    /**
+     * Indeholder de nuværende valgte attachments, som bliver sendt når sendMessage kaldes.
+     */
+    public ObservableList<Attachment> getAttachmentsProperty() {
+        return attachmentsProperty;
+    }
+
+    /**
+     * Liste over alle de rum brugeren er medlem af
+     */
+    public ObservableList<ViewRoom> getRoomsProperty() {
+        return roomsProperty;
+    }
+
+    /**
+     * Liste over alle beskeder i det nuværende rum
+     */
+    public ObservableList<ViewMessage> getMessagesProperty() {
+        return messagesProperty;
+    }
+
+    /**
+     * Liste over alle medlemmer af det nuværende rum
+     */
     public ObservableList<ViewRoomUser> getRoomUsersProperty() {
         return roomUsersProperty;
     }
 
+    /**
+     * Medlemmet som er logget ind
+     */
     public ObjectProperty<ViewRoomUser> getCurrentRoomUserProperty() {
         return currentRoomUserProperty;
     }
 
-    public ObservableList<Attachment> getAttachmentsProperty() {
-        return attachments;
-    }
-
+    /**
+     * Skift det nuværende chatrum i view staten
+     */
     public void setChatRoom(long chatRoom) {
         viewState.setCurrentChatRoom(chatRoom);
+        // Der er en listener på currentChatRoom, som resetter rummet :)
     }
 
+    /**
+     * Nulstiller det nuværende rum, bruges kun efter rum-skifte
+     */
     public void resetRoom() {
-        System.out.println("====");
+        // Clear
         roomUsersProperty.clear();
         messagesProperty.clear();
 
-        if (viewState.getCurrentChatRoom() == -1) return;
+        long roomId = viewState.getCurrentChatRoom();
+
+        // Stop tidligt hvis brugeren ikke er i et rum
+        if (roomId == -1) {
+            roomNameProperty.set("Vælg et rum!");
+            return;
+        }
 
         try {
-            // Medlemmer
+            Room room = model.getRoomManager().getChatRoom(roomId);
+
+            // # Hent medlemmer
+            // ID'et på den nuværende bruger
             long myId = model.getProfileManager().getCurrentUserUUID();
             // Tilføj brugere
-            for (RoomUser user : model.getRoomManager().getChatRoom(viewState.getCurrentChatRoom()).getUsers()) {
+            for (RoomUser user : room.getUsers()) {
+                // Opret ViewRoomUser, som view'et kan bruge til display
                 var vru = new ViewRoomUser(
                         user.getUserId(),
                         model.getProfileManager().getProfile(user.getUserId()).getUsername(),
@@ -121,27 +167,26 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                         user.getLatestReadMessage()
                 );
 
+                // Dette er RoomUser objektet til den nuværende bruger
                 if (vru.getUserId() == myId) {
                     currentRoomUserProperty.set(vru);
                 }
 
+                // Tilføj ViewRoomUser til property
                 roomUsersProperty.add(vru);
             }
 
-            // Beskeder
-            long chatroom = viewState.getCurrentChatRoom();
-            if (chatroom == -1) {
-                roomNameProperty.set("Vælg et rum!");
-                return;
-            }
+            // # Opdater chatrummets oplysninger
+            roomNameProperty.set(room.getName());
 
-            roomNameProperty.set(model.getRoomManager().getChatRoom(viewState.getCurrentChatRoom()).getName());
-            var initialMessages = model.getMessagesManager().getMessages(chatroom, 10);
+            // # Hent beskeder
+            List<Message> initialMessages = model.getMessagesManager().getMessages(roomId, 10);
 
             for (Message message : initialMessages) {
                 addMessage(message);
             }
 
+            // Marker den nyeste besked i rummet som læst
             model.getMessagesManager().readMessage(initialMessages.getLast().getMessageId());
         } catch (ServerError e) {
             e.printStackTrace();
@@ -149,6 +194,11 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         }
     }
 
+    /**
+     * Tilføj en ny besked, eller opdater beskeden hvis den allerede findes
+     *
+     * @param message - Tilføj en besked
+     */
     private void addMessage(Message message) {
         try {
             if (message.getChatRoom() == viewState.getCurrentChatRoom()) {
@@ -162,38 +212,35 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                 // Fjern hvis det er en redigering
                 messagesProperty.removeIf(m -> m.messageId == message.getMessageId());
 
-                Map<String, ViewReaction> messageReactions = new HashMap<>();
+                long myId = model.getProfileManager().getCurrentUserUUID();
 
-                // Udregn reactions
+                // "Stak" reactions
+                Map<String, ViewReaction> messageReactions = new HashMap<>();
                 for (Reaction reaction : message.getReactions()) {
-                    Profile reactedBy = model.getProfileManager().getProfile(reaction.getReactedBy());
                     if (messageReactions.containsKey(reaction.getReaction())) {
-                        messageReactions.get(reaction.getReaction()).reactedByUsers.add(new ViewUser() {{
-                            username = reactedBy.getUsername();
-                            userId = reaction.getReactedBy();
-                        }});
-                        if (reaction.getReactedBy() == model.getProfileManager().getCurrentUserUUID())
-                            messageReactions.get(reaction.getReaction()).isMyReaction = true;
+                        messageReactions.get(reaction.getReaction()).addReactedBy(
+                                reaction.getReactedBy(),
+                                reaction.getReactedBy() == myId
+                        );
                     } else {
                         messageReactions.put(reaction.getReaction(), new ViewReaction(
                                 reaction.getReaction(),
-                                new ViewUser() {{
-                                    username = reactedBy.getUsername();
-                                    userId = reaction.getReactedBy();
-                                }},
-                                reaction.getReactedBy() == model.getProfileManager().getCurrentUserUUID()
+                                reaction.getReactedBy(),
+                                reaction.getReactedBy() == myId
                         ));
                     }
                 }
 
                 // Tilføj besked
                 messagesProperty.add(new ViewMessage() {{
-                    sender = message.getSentBy() == 0 ? "System" : (model.getProfileManager().getProfile(message.getSentBy()).getUsername());
+                    sender = roomUsersProperty.stream()
+                            .filter(u -> u.getUserId() == message.getSentBy()).findAny()
+                            .map(ViewRoomUser::getDisplayName).orElse("System");
                     body = message.getBody();
                     dateTime = LocalDateTime.ofEpochSecond(message.getDateTime() / 1000, (int) (message.getDateTime() % 1000 * 1000), ZoneOffset.UTC);
                     messageId = message.getMessageId();
                     isSystemMessage = message.getSentBy() == 0;
-                    isMyMessage = message.getSentBy() == model.getProfileManager().getCurrentUserUUID();
+                    isMyMessage = message.getSentBy() == myId;
                     attachments = files;
                     reactions = messageReactions.values().stream().toList();
                 }});
@@ -205,11 +252,15 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         }
     }
 
+    /**
+     * Lyt efter opdateringer i modellen
+     */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         Platform.runLater(() -> {
             try {
                 switch (evt.getPropertyName()) {
+                    // NEW_MESSAGE og UPDATE_MESSAGE events, gør begge det samme, da addMessage selv opdager hvis beskeden allerede findes
                     case "NEW_MESSAGE":
                     case "UPDATE_MESSAGE":
                         Message message = (Message) evt.getNewValue();
@@ -217,9 +268,9 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                         if (ViewHandler.focusedProperty.get())
                             model.getMessagesManager().readMessage(message.getMessageId());
                         break;
+                    // Opdater read receipts
                     case "READ_UPDATE":
                         if ((long) evt.getOldValue() != viewState.getCurrentChatRoom()) return;
-
                         RoomUser roomUser = (RoomUser) evt.getNewValue();
                         roomUsersProperty.removeIf(viewUser -> viewUser.getUserId() == roomUser.getUserId());
                         roomUsersProperty.add(new ViewRoomUser(
@@ -243,22 +294,22 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         try {
             greetingTextProperty.setValue("Hej " + model.getProfileManager().getCurrentUserProfile().getUsername() + "!");
 
-            resetRoom();
-
             // Liste over rum
             this.roomsProperty.clear();
-            for (Room chatRoom : model.getRoomManager().getChatRooms()) {
-                roomsProperty.add(new ViewRoom() {{
-                    name = chatRoom.getName();
-                    roomId = chatRoom.getRoomId();
-                }});
+            for (Room room : model.getRoomManager().getChatRooms()) {
+                roomsProperty.add(new ViewRoom(room.getName(), room.getRoomId()));
             }
+
+            // Opdater selve rummet, beskeder osv.
+            resetRoom();
         } catch (ServerError e) {
-            e.printStackTrace();
             e.showAlert();
         }
     }
 
+    /**
+     * Hent ældre beskeder i det nuværende rum
+     */
     public void loadOlderMessages() {
         try {
             var messages = model.getMessagesManager().getMessagesBefore(viewState.getCurrentChatRoom(), messagesProperty.getFirst().messageId, 10);
@@ -272,15 +323,22 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         }
     }
 
+    /**
+     * Sender en besked med teksten i composeMessageProperty, og de attachments der er i attachmentsProperty
+     */
     public void sendMessage() {
         try {
-            model.getMessagesManager().sendMessage(viewState.getCurrentChatRoom(), composeMessageProperty.getValue(), attachments);
-            attachments.clear();
+            model.getMessagesManager().sendMessage(viewState.getCurrentChatRoom(), composeMessageProperty.getValue(), attachmentsProperty);
+            attachmentsProperty.clear();
         } catch (ServerError e) {
             e.showAlert();
         }
     }
 
+    /**
+     * Redigere en besked med den tekst som er i composeMessageProperty
+     * @param messageId - ID'et på den besked som skal redigeres
+     */
     public void editMessage(long messageId) {
         try {
             model.getMessagesManager().editMessage(messageId, composeMessageProperty.getValue());
@@ -289,6 +347,10 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         }
     }
 
+    /**
+     * Sletter en besked
+     * @param messageId - ID'et på den besked som skal slettes
+     */
     public void deleteMessage(long messageId) {
         try {
             model.getMessagesManager().deleteMessage(messageId);
@@ -297,6 +359,11 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         }
     }
 
+    /**
+     * Tilføjer en reaktion på en besked
+     * @param messageId - ID'et på den besked som reageres på
+     * @param reaction - Streng med den emoji der reageres med
+     */
     public void addReaction(long messageId, String reaction) {
         try {
             model.getMessagesManager().addReaction(messageId, reaction);
@@ -305,6 +372,11 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         }
     }
 
+    /**
+     * Sletter en reaktion på en besked
+     * @param messageId - ID'et på den besked som ikke længere skal reageres på
+     * @param reaction - Streng med den emoji der ikke længere skal reageres med
+     */
     public void removeReaction(long messageId, String reaction) {
         try {
             model.getMessagesManager().removeReaction(messageId, reaction);

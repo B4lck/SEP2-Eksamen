@@ -29,7 +29,7 @@ public class ViewRoomUser {
     }
 
     public String getDisplayName() {
-        return getNickname().isBlank() ? getName() : getNickname();
+        return getNickname() == null || getNickname().isBlank() ? getName() : getNickname();
     }
 
     public String getState() {

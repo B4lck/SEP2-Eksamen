@@ -103,6 +103,7 @@ public class DBMessage implements Message {
         //       for lidt ekstra flair i rapporten
 
         try (Connection connection = Database.getConnection()) {
+            System.out.println("Redigerer beskeden med id " + id + " med ny besked: " + messageBody + " (redigeret af " + byUserId + "");
             PreparedStatement statement = connection.prepareStatement("UPDATE message SET body = ? WHERE id = ?");
             statement.setString(1, messageBody + " (redigeret)");
             statement.setLong(2, id);
