@@ -135,5 +135,10 @@ public interface Room {
      */
     boolean isAdmin(long userId);
 
+    /**
+     * Henter en bruger i rummet (RoomUser)
+     * @param userId
+     */
+    RoomUser getUser(long userId);
 }
 

@@ -14,28 +14,43 @@ import javafx.scene.text.TextFlow;
 import viewModel.ChatRoomViewModel;
 import viewModel.ViewMessage;
 import viewModel.ViewReaction;
+import viewModel.ViewRoomUser;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.List;
 
 public class MessageBox extends HBox {
 
     private ViewMessage viewMessage;
+    private ChatRoomViewController controller;
+    private ChatRoomViewModel viewModel;
 
     public MessageBox(ViewMessage viewMessage, ChatRoomViewController controller, ChatRoomViewModel viewModel) {
         super();
 
         this.viewMessage = viewMessage;
+        this.controller = controller;
+        this.viewModel = viewModel;
+
+        this.update();
+    }
+
+    public void update() {
+        this.getChildren().clear();
+
+        VBox messageOuterContainer = new VBox();
+        this.getChildren().add(messageOuterContainer);
 
         this.getStyleClass().add("message-alignment-container");
         this.setAlignment(viewMessage.isMyMessage ? Pos.TOP_RIGHT : Pos.TOP_LEFT);
 
         VBox messageContainer = new VBox();
         messageContainer.getStyleClass().add("message-container");
-        this.getChildren().add(messageContainer);
+        messageOuterContainer.getChildren().add(messageContainer);
 
         if (!viewMessage.isSystemMessage) {
             HBox messageHeader = new HBox();
@@ -168,6 +183,21 @@ public class MessageBox extends HBox {
             contextMenu.getItems().addAll(addReactionsMenu, editMessageItem, deleteMessageItem, idItem);
             contextMenu.show(messageContainer, e.getScreenX(), e.getScreenY());
         });
+
+        List<ViewRoomUser> readByUsers = viewModel.getRoomUsersProperty().stream()
+                .filter(u -> u.getLatestReadMessage() == viewMessage.messageId).toList();
+
+        for (ViewRoomUser user : readByUsers) {
+            HBox alignmentContainer = new HBox();
+            alignmentContainer.getStyleClass().add("message-alignment-container");
+            alignmentContainer.setAlignment(viewMessage.isMyMessage ? Pos.TOP_RIGHT : Pos.TOP_LEFT);
+
+            Text readByLabel = new Text("Læst af " + user.getDisplayName());
+            readByLabel.getStyleClass().add("message-read-by");
+            alignmentContainer.getChildren().add(readByLabel);
+
+            messageOuterContainer.getChildren().add(alignmentContainer);
+        }
     }
 
     public ViewMessage getViewMessage() {

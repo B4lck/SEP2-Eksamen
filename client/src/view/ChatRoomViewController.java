@@ -1,5 +1,6 @@
 package view;
 
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -49,7 +50,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
     @FXML
     private Text greetingText;
 
-    private Map<Long, Node> messageNodes = new HashMap<>();
+    private Map<Long, MessageBox> messageNodes = new HashMap<>();
 
     public ObjectProperty<ViewMessage> editingMessageProperty = new SimpleObjectProperty<>();
 
@@ -103,7 +104,24 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
                 addMessageNode(m);
             }
         });
-//        getViewModel().getRoomUsersProperty().addListener((ListChangeListener<ViewRoomUser>) _ -> updateMessages());
+
+        getViewModel().getRoomUsersProperty().addListener((ListChangeListener<ViewRoomUser>) change -> {
+            change.next();
+
+            for (ViewRoomUser user : change.getRemoved()) {
+                if (messageNodes.containsKey(user.getLatestReadMessage())) {
+                    messageNodes.get(user.getLatestReadMessage()).update();
+                }
+            }
+
+            for (ViewRoomUser user : change.getAddedSubList()) {
+                if (messageNodes.containsKey(user.getLatestReadMessage())) {
+                    messageNodes.get(user.getLatestReadMessage()).update();
+                }
+            }
+
+            updateScroll();
+        });
 
         // Bilag
         getViewModel().getAttachmentsProperty().addListener((ListChangeListener<Attachment>) change -> {
@@ -145,10 +163,24 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
         });
 
         editingMessageProperty.addListener((_, _, m) -> {
-           composeField.setText(m == null ? "" : m.body);
+            composeField.setText(m == null ? "" : m.body);
         });
 
         scrollPane.setVvalue(1.0);
+
+        messages.getChildren().addListener((ListChangeListener<Node>) _ -> updateScroll());
+    }
+
+    private double previousScrollHeight = 0;
+
+    private void updateScroll() {
+        Platform.runLater(() -> {
+            double newScrollHeight = Math.max(messages.getHeight() - scrollPane.getHeight(), 0);
+
+            scrollPane.setVvalue(scrollPane.getVvalue() + (newScrollHeight - previousScrollHeight) / newScrollHeight);
+
+            previousScrollHeight = newScrollHeight;
+        });
     }
 
     private void addMessageNode(ViewMessage m) {
@@ -164,21 +196,6 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
             }
             return LocalDateTime.MIN;
         }));
-
-//        List<ViewRoomUser> readByUsers = getViewModel().getRoomUsersProperty().stream()
-//                .filter(u -> u.getLatestReadMessage() == m.messageId).toList();
-//
-//        for (ViewRoomUser user : readByUsers) {
-//            HBox alignmentContainer = new HBox();
-//            alignmentContainer.getStyleClass().add("message-alignment-container");
-//            alignmentContainer.setAlignment(m.isMyMessage ? Pos.TOP_RIGHT : Pos.TOP_LEFT);
-//
-//            Text readByLabel = new Text("Læst af " + user.getDisplayName());
-//            readByLabel.getStyleClass().add("message-read-by");
-//            alignmentContainer.getChildren().add(readByLabel);
-//
-//            messages.getChildren().add(alignmentContainer);
-//        }
     }
 
     @Override

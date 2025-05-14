@@ -1,5 +1,6 @@
 package model;
 
+import model.statemachine.AdministratorState;
 import model.statemachine.UserStateId;
 import utils.DataMap;
 
@@ -286,7 +287,7 @@ public class DBRoom implements Room {
     @Override
     public void removeNicknameFromUser(long user) {
         try (var connection = Database.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET nickname=? WHERE profile_id = ? AND room_id = ?");
+            PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET nickname = ? WHERE profile_id = ? AND room_id = ?");
             statement.setNull(1, Types.NULL);
             statement.setLong(2, user);
             statement.setLong(3, roomId);
@@ -316,15 +317,24 @@ public class DBRoom implements Room {
 
     @Override
     public boolean isAdmin(long userId) {
-        try (var connection = Database.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM room_user WHERE profile_id = ? AND room_id = ? AND state = ?");
-            statement.setLong(1, userId);
-            statement.setLong(2, roomId);
-            statement.setString(3, "Admin");
+        return getUser(userId).getState() instanceof AdministratorState;
+    }
 
-            return statement.executeQuery().next();
+    @Override
+    public RoomUser getUser(long userId) {
+        try (var connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM room_user WHERE room_id=? AND profile_id=?");
+            statement.setLong(1, roomId);
+            statement.setLong(2, userId);
+            ResultSet res = statement.executeQuery();
+
+            if (res.next()) {
+                return new RoomUser(userId, UserStateId.fromString(res.getString("state")), res.getLong("latest_read_message"));
+            }
+
+            return null;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage());
         }
     }
 }

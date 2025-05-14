@@ -19,11 +19,14 @@ public class MessagesDBManager implements Messages {
         model.addHandler(this);
     }
 
+    /**
+     * {@inheritDoc}
+     * En broadcast vil blive sendt ud til klienterne, hvis fuldført korrekt.
+     *
+     * @throws RuntimeException Hvis serveren støder på en SQL-fejl.
+     */
     @Override
     public Message sendMessage(long chatroom, String messageBody, List<String> attachments, long senderId) {
-        if (senderId == -1)
-            throw new IllegalStateException("Du skal være logget ind for at sende en besked i et chatroom");
-
         if (!model.getRooms().doesRoomExists(chatroom))
             throw new IllegalStateException("Rummet findes ikke");
 
@@ -33,7 +36,7 @@ public class MessagesDBManager implements Messages {
         if (messageBody == null)
             throw new IllegalArgumentException("Besked må ikke være null");
 
-        if (messageBody.isEmpty() && attachments.isEmpty())
+        if (messageBody.isBlank() && attachments.isEmpty())
             throw new IllegalArgumentException("Besked er tom");
 
         try (Connection connection = Database.getConnection()) {
@@ -65,11 +68,16 @@ public class MessagesDBManager implements Messages {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws RuntimeException Hvis serveren støder på en SQL-fejl.
+     */
     @Override
     public List<Message> getMessages(long chatroom, int amount, long userId) {
         if (amount <= 0) throw new IllegalArgumentException("Ikke nok beskeder");
         if (!model.getRooms().doesRoomExists(chatroom))
-            throw new IllegalArgumentException("Rummet findes ikke brormand");
+            throw new IllegalStateException("Rummet findes ikke brormand");
 
         try (Connection connection = Database.getConnection()) {
             // burde throw hvis brugeren ikke har adgang til rummet
@@ -99,6 +107,11 @@ public class MessagesDBManager implements Messages {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws RuntimeException Hvis serveren støder på en SQL-fejl.
+     */
     @Override
     public List<Message> getMessagesBefore(long messageId, int amount, long userId) {
         if (amount <= 0) throw new IllegalArgumentException("Det er for lidt beskeder brormand");
@@ -130,6 +143,11 @@ public class MessagesDBManager implements Messages {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws RuntimeException Hvis serveren støder på en SQL-fejl.
+     */
     @Override
     public Message getMessage(long messageId, long userId) {
         try (Connection connection = Database.getConnection()) {
@@ -154,11 +172,25 @@ public class MessagesDBManager implements Messages {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * En broadcast vil blive sendt ud til klienterne, hvis fuldført korrekt.
+     *
+     * @throws RuntimeException Hvis serveren støder på en SQL-fejl.
+     * @see #sendMessage(long, String, List, long) Samme fejl kan blive kastet som fra sendMessage, udover dem med brugere.
+     */
     @Override
     public void sendSystemMessage(long chatroom, String message) {
         sendMessage(chatroom, message, new ArrayList<>(), 0);
     }
 
+    /**
+     * {@inheritDoc}
+     * En broadcast vil blive sendt ud til klienterne, hvis fuldført korrekt.
+     * En server-besked vil blive oprettet, som annoncer at en besked er blevet redigeret.
+     *
+     * @throws RuntimeException Hvis serveren støder på en SQL-fejl.
+     */
     @Override
     public void editMessage(long messageId, String messageBody, long byUserId) {
         // Hent beskeden
@@ -176,6 +208,13 @@ public class MessagesDBManager implements Messages {
                         + " har ændret en besked.");
     }
 
+    /**
+     * {@inheritDoc}
+     * En broadcast vil blive sendt ud til klienterne, hvis fuldført korrekt.
+     * En server-besked vil blive oprettet, som annoncer at en besked er blevet slettet.
+     *
+     * @throws RuntimeException Hvis serveren støder på en SQL-fejl.
+     */
     @Override
     public void deleteMessage(long messageId, long byUserId) {
         // Hent beskeden
@@ -198,6 +237,12 @@ public class MessagesDBManager implements Messages {
         sendSystemMessage(message.getChatRoom(), username + " har slettet en besked.");
     }
 
+    /**
+     * {@inheritDoc}
+     * En broadcast vil blive sendt ud til klienterne, hvis fuldført korrekt.
+     *
+     * @throws RuntimeException Hvis serveren støder på en SQL-fejl.
+     */
     @Override
     public void addReaction(long messageId, String reaction, long userId) {
         Message message = getMessage(messageId, userId);
@@ -208,6 +253,12 @@ public class MessagesDBManager implements Messages {
         property.firePropertyChange("UPDATE_MESSAGE", null, new DataMap().with("message", message.getData()));
     }
 
+    /**
+     * {@inheritDoc}
+     * En broadcast vil blive sendt ud til klienterne, hvis fuldført korrekt.
+     *
+     * @throws RuntimeException Hvis serveren støder på en SQL-fejl.
+     */
     @Override
     public void removeReaction(long messageId, String reaction, long userId) {
         Message message = getMessage(messageId, userId);
@@ -218,23 +269,34 @@ public class MessagesDBManager implements Messages {
         property.firePropertyChange("UPDATE_MESSAGE", null, new DataMap().with("message", message.getData()));
     }
 
+    /**
+     * {@inheritDoc}
+     * En broadcast vil blive sendt ud til klienterne, hvis fuldført korrekt.
+     *
+     * @throws RuntimeException Hvis serveren støder på en SQL-fejl.
+     */
     @Override
-    public void setLatestReadMessage(long messageId, long user) {
-        long roomId = getMessage(messageId, user).getChatRoom();
+    public void setLatestReadMessage(long messageId, long userId) {
+        Message message = getMessage(messageId, userId);
+        long roomId = message.getChatRoom();
+        long previousReadMessageId = model.getRooms().getRoom(roomId, userId).getUser(userId).getLatestReadMessage();
+
+        if (previousReadMessageId == messageId) return;
+        if (previousReadMessageId != 0 && message.getDateTime() <= getMessage(previousReadMessageId, userId).getDateTime())
+            return;
 
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET latest_read_message = ? WHERE room_id = ? AND profile_id = ?");
             statement.setLong(1, messageId);
             statement.setLong(2, roomId);
-            statement.setLong(3, user);
+            statement.setLong(3, userId);
             statement.executeUpdate();
 
             property.firePropertyChange("READ_MESSAGE", null, new DataMap()
                     .with("messageId", messageId)
                     .with("roomId", roomId)
-                    .with("userId", user));
-        }
-        catch (SQLException e) {
+                    .with("userId", userId));
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
