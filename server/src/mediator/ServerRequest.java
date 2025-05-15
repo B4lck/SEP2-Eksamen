@@ -88,8 +88,6 @@ public class ServerRequest {
 
         handler.uploadAttachment(attachmentId, attachmentName);
 
-        if (attachments.isEmpty()) respond(new ClientMessage("DONE", new DataMap()));
-
         return attachmentId;
     }
 
@@ -109,8 +107,6 @@ public class ServerRequest {
         hasResponded = true;
         if (handler == null) throw new IllegalStateException("Upsi, denne server-request har ikke en klient forbundet");
 
-        if (!attachments.isEmpty()) respond(new ClientMessage("DONE", new DataMap()));
-
         handler.sendMessage(message);
     }
 
@@ -123,8 +119,6 @@ public class ServerRequest {
         hasResponded = true;
         if (handler == null) throw new IllegalStateException("Upsi, denne server-request har ikke en klient forbundet");
 
-        if (!attachments.isEmpty()) respond(new ClientMessage("DONE", new DataMap()));
-
         handler.sendMessage(new ClientMessage("OK", data));
     }
 
@@ -136,8 +130,6 @@ public class ServerRequest {
     public void respond(String message) {
         hasResponded = true;
         if (handler == null) throw new IllegalStateException("Upsi, denne server-request har ikke en klient forbundet");
-
-        if (!attachments.isEmpty()) respond(new ClientMessage("DONE", new DataMap()));
 
         handler.sendMessage(new ClientMessage("OK", new DataMap().with("message", message)));
     }
@@ -157,8 +149,6 @@ public class ServerRequest {
     public void respondWithError(String error) {
         hasResponded = true;
         if (handler == null) throw new IllegalStateException("Upsi, denne server-request har ikke en klient forbundet");
-
-        if (!attachments.isEmpty()) respond(new ClientMessage("DONE", new DataMap()));
 
         handler.sendMessage(new ClientMessage(error));
     }

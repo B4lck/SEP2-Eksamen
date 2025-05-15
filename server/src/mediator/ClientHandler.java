@@ -108,8 +108,8 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
     }
 
     public void uploadAttachment(String attachmentId, String attachmentName) {
-        out.println(gson.toJson(new ClientMessage("SEND_NEXT", new DataMap()
-                .with("attachmentName", attachmentName))));
+        out.println("UPLOAD");
+        out.println(attachmentName);
 
         try {
             // Opret fil
@@ -121,8 +121,12 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             InputStream inputStream = socket.getInputStream();
 
+            String fileSizeStr = reader.readLine();
+
+            if (fileSizeStr.equals("NO_UP")) throw new RuntimeException("No upload");
+
             // Hent filstørrelsen
-            long fileSize = Long.parseLong(reader.readLine());
+            long fileSize = Long.parseLong(fileSizeStr);
 
             // Hent filen, indtil alt er hentet
             try (FileOutputStream writer = new FileOutputStream(file)) {
@@ -130,7 +134,7 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
                 long totalBytesRead = 0;
                 int bytesRead;
 
-                out.println(gson.toJson(new ClientMessage("READY", new DataMap())));
+                out.println("READY");
 
                 while (totalBytesRead < fileSize &&
                         (bytesRead = inputStream.read(buffer, 0, (int) Math.min(buffer.length, fileSize - totalBytesRead))) != -1) {
@@ -146,7 +150,7 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
 
     public void sendFile(FileInputStream data, String name) {
         try {
-            out.println("FILE");
+            out.println("DOWNLOAD");
             out.println(name);
             out.println(data.getChannel().size());
 

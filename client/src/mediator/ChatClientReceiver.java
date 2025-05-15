@@ -1,9 +1,13 @@
 package mediator;
 
 import model.UserFilesManager;
+import util.Attachment;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class ChatClientReceiver implements Runnable {
 
@@ -11,6 +15,7 @@ public class ChatClientReceiver implements Runnable {
     private BufferedReader in;
     private PrintWriter out;
     private Socket socket;
+    private List<Attachment> attachmentsToUpload = new ArrayList<>();
 
     public ChatClientReceiver(ChatClient client, Socket socket) throws IOException {
         this.client = client;
@@ -19,14 +24,19 @@ public class ChatClientReceiver implements Runnable {
         this.socket = socket;
     }
 
+    public void addAttachmentsToBeUploaded(List<Attachment> attachments) {
+        this.attachmentsToUpload.addAll(attachments);
+    }
+
     @Override
     public void run() {
         while (true) {
             try {
                 String s = in.readLine();
+                System.out.println("FRA SERVER: " + s);
 
                 // Håndter downloads, når serveren vil sende en fil, sender den første FILE
-                if (s.equals("FILE")) {
+                if (s.equals("DOWNLOAD")) {
                     // Efterfulgt af navn og størrelse på filen
                     String fileName = in.readLine();
                     long fileSize = Long.parseLong(in.readLine());
@@ -62,8 +72,43 @@ public class ChatClientReceiver implements Runnable {
                     // Giv filen videre til hvor den venter på den
                     client.receiveFile(file);
                 }
+                else if (s.equals("UPLOAD")) {
+                    String fileName = in.readLine();
+
+                    if (attachmentsToUpload.isEmpty()) {
+                        out.println("NO_UP");
+                        continue;
+                    }
+
+                    Optional<Attachment> attachment = attachmentsToUpload.stream()
+                            .filter(a -> a.getName().equals(fileName))
+                            .findAny();
+
+                    if (attachment.isEmpty()) {
+                        out.println("NO_UP");
+                        continue;
+                    }
+
+                    try {
+                        FileInputStream fileStream = new FileInputStream(attachment.get().getFile());
+
+                        out.println(fileStream.getChannel().size()); // Send fil-størrelse
+
+                        in.readLine(); // Vent på klar signal
+
+                        fileStream.transferTo(socket.getOutputStream()); // Overfør fil
+                        socket.getOutputStream().flush();
+
+                        fileStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        throw new RuntimeException(e);
+                    }
+                    System.out.println("UPLOAD FÆRDIG");
+                }
                 // Beskeden er gson
                 else {
+                    attachmentsToUpload.clear();
                     client.receive(s);
                 }
             } catch (IOException e) {

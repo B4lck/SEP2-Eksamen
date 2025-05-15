@@ -1,8 +1,6 @@
 package model;
 
-import mediator.ClientMessage;
 import mediator.ServerRequest;
-import utils.DataMap;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,9 +35,6 @@ public class UserFilesManager implements ServerRequestHandler {
                 e.printStackTrace();
                 throw new RuntimeException(e);
             }
-
-            message.respond(new ClientMessage("FILE_INFO", new DataMap()
-                    .with("name", fileId)));
 
             message.respond(in, fileId);
         }

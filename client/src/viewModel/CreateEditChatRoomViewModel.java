@@ -10,6 +10,7 @@ import model.RoomUser;
 import util.ServerError;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class CreateEditChatRoomViewModel implements ViewModel {
@@ -126,16 +127,17 @@ public class CreateEditChatRoomViewModel implements ViewModel {
                 var room = model.getRoomManager().getChatRoom(viewState.getCurrentChatRoom());
 
                 // Fjern fjernede brugere og tilføj nye brugere, ved at compare imod de gamle brugere
-                var previousProfiles = room.getUsers();
+                List<Long> previousProfiles = room.getUsers().stream().map(RoomUser::getUserId).toList();
 
                 Set<Long> addedProfiles = new HashSet<>(
                         membersProperty.stream()
                                 .map(ViewUser::getUserId)
-                                .filter(p -> !previousProfiles.contains(p)).toList());
+                                .filter(p -> !previousProfiles.contains(p))
+                                .toList());
 
                 Set<Long> removedProfiles = new HashSet<>(
-                        previousProfiles.stream()
-                                .map(RoomUser::getUserId)
+                        previousProfiles
+                                .stream()
                                 .filter(p -> membersProperty.stream().noneMatch(p2 -> p2.getUserId() == p))
                                 .toList());
 

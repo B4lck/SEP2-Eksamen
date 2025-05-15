@@ -52,7 +52,6 @@ public class ChatClient implements PropertyChangeSubject {
     }
 
     public synchronized void receive(String s) {
-        System.out.println("fra server: " + s);
         ClientMessage message = gson.fromJson(s, ClientMessage.class);
         if (message.isBroadcast()) {
             property.firePropertyChange("broadcast", null, message);
@@ -107,45 +106,10 @@ public class ChatClient implements PropertyChangeSubject {
             message.addAttachment(attachment.getName());
         }
 
+        receiver.addAttachmentsToBeUploaded(attachments);
+
         // Send besked
         sendMessage(message);
-
-        // Lyt efter de forskellige kommandoer, som serveren kan anmode om, i forbindelse med at uploade filer
-        listen:
-        while (true) {
-            ClientMessage command = waitingForReply("ChatClient attachment sender");
-
-            System.out.println(command.getType());
-
-            switch (command.getType()) {
-                case "SEND_NEXT":
-                    var attachmentIndex = command.getData().getString("attachmentName");
-                    var attachment = attachments.stream()
-                            .filter(a -> a.getName().equals(attachmentIndex))
-                            .findAny()
-                            .orElseThrow();
-
-                    try {
-                        FileInputStream fileStream = new FileInputStream(attachment.getFile());
-
-                        out.println(fileStream.getChannel().size());
-                        waitingForReply("ChatClient attachment sender venter på ready signal");
-                        fileStream.transferTo(socket.getOutputStream());
-                        socket.getOutputStream().flush();
-
-                        fileStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        throw new RuntimeException(e);
-                    }
-
-                    break;
-                case "DONE":
-                    break listen;
-                default:
-                    throw new RuntimeException("Serveren har sendt en ugyldig kommando.. Jeg kan ikke recover, rip.");
-            }
-        }
     }
 
     public synchronized void receiveFile(File file) {
@@ -162,8 +126,6 @@ public class ChatClient implements PropertyChangeSubject {
         try {
             sendMessage(new ClientMessage("DOWNLOAD_FILE", new DataMap()
                     .with("fileId", fileId)));
-
-            ClientMessage fileInfo = waitingForReply("Downloader");
 
             // Vent på fil
             while (receivedFile == null) {
