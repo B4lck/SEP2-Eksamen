@@ -332,7 +332,7 @@ public class DBRoom implements Room {
                 return new RoomUser(userId, UserStateId.fromString(res.getString("state")), res.getLong("latest_read_message"));
             }
 
-            return null;
+            throw new IllegalStateException("Brugeren findes ikke i rummet");
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage());
         }

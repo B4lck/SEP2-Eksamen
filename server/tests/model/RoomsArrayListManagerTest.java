@@ -1,5 +1,7 @@
 package model;
 
+import model.statemachine.AdministratorState;
+import model.statemachine.RegularState;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -460,7 +462,6 @@ class RoomsArrayListManagerTest {
     void muteAdmin() {
         model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
         assertThrows(IllegalStateException.class, () -> room.muteUser(user1.getUUID(), user2.getUUID()));
-        assertFalse(false);
     }
 
     /**
@@ -470,7 +471,6 @@ class RoomsArrayListManagerTest {
     void unmuteAdmin() {
         model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
         assertThrows(IllegalStateException.class, () -> room.unmuteUser(user1.getUUID(), user2.getUUID()));
-        assertFalse(false);
     }
 
     /**
@@ -479,7 +479,6 @@ class RoomsArrayListManagerTest {
     @Test
     void muteNotMemberUser() {
         assertThrows(IllegalStateException.class, () -> room.muteUser(user2.getUUID(), user1.getUUID()));
-        assertFalse(false);
     }
 
     /**
@@ -488,7 +487,6 @@ class RoomsArrayListManagerTest {
     @Test
     void unmuteNotMemberUser() {
         assertThrows(IllegalStateException.class, () -> room.unmuteUser(user2.getUUID(), user1.getUUID()));
-        assertFalse(false);
     }
 
     /**
@@ -498,7 +496,6 @@ class RoomsArrayListManagerTest {
     void muteMemberWithoutBeingExisting() {
         model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
         assertThrows(IllegalStateException.class, () -> room.muteUser(user2.getUUID(), 1234));
-        assertFalse(false);
     }
 
     /**
@@ -508,7 +505,6 @@ class RoomsArrayListManagerTest {
     void unmuteMemberWithoutBeingExisting() {
         model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
         assertThrows(IllegalStateException.class, () -> room.unmuteUser(user2.getUUID(), 1234));
-        assertFalse(false);
     }
 
     /**
@@ -517,7 +513,6 @@ class RoomsArrayListManagerTest {
     @Test
     void muteNotExistingUser() {
         assertThrows(IllegalStateException.class, () -> room.muteUser(1234, user1.getUUID()));
-        assertFalse(false);
     }
 
     /**
@@ -526,6 +521,138 @@ class RoomsArrayListManagerTest {
     @Test
     void unmuteNotExistingUser() {
         assertThrows(IllegalStateException.class, () -> room.unmuteUser(1234, user1.getUUID()));
-        assertFalse(false);
     }
+
+    /**
+     * Forfremmer en bruger der ikke findes
+     */
+    @Test
+    void promoteNotExistingUser() {
+        assertThrows(IllegalStateException.class, ()-> room.promoteUser(1234,user1.getUUID()));
+    }
+
+    /**
+     * Degradere en bruger der ikke findes
+     */
+    @Test
+    void demoteNotExistingUser() {
+        assertThrows(IllegalStateException.class, ()-> room.demoteUser(1234, user1.getUUID()));
+    }
+
+    /**
+     * Forfrommer en bruger, som en bruger der ikke findes.
+     */
+    @Test
+    void promoteByNotExistingUser() {
+        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
+        assertThrows(IllegalStateException.class, ()-> room.promoteUser(user2.getUUID(), 1234));
+        assertEquals(RegularState.class ,room.getUser(user2.getUUID()).getState().getClass());
+    }
+
+    /**
+     * Degradere en bruger, som en bruger der ikke findes.
+     */
+    @Test
+    void demoteByNotExistingUser() {
+        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
+        assertThrows(IllegalStateException.class, ()-> room.demoteUser(user2.getUUID(), 1234));
+        assertEquals(RegularState.class ,room.getUser(user2.getUUID()).getState().getClass());
+    }
+
+    /**
+     * Froremmer en bruger der ikke findes i rum
+     */
+    @Test
+    void promoteNotExistingMember() {
+        assertThrows(IllegalStateException.class, ()-> room.promoteUser(user3.getUUID(), user1.getUUID()));
+    }
+
+    /**
+     * Degradere en bruger der ikke findes i rum
+     */
+    @Test
+    void demoteNotExistingMember() {
+        assertThrows(IllegalStateException.class, ()-> room.demoteUser(user3.getUUID(), user1.getUUID()));
+    }
+
+    /**
+     * Forfremmer en bruger i rummet
+     */
+    @Test
+    void promoteUser(){
+        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
+        room.promoteUser(user2.getUUID(), user1.getUUID());
+        assertEquals(AdministratorState.class ,room.getUser(user2.getUUID()).getState().getClass());
+    }
+
+    /**
+     * Degradere en bruger i rummet
+     */
+     @Test
+    void demoteUser(){
+        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
+        room.promoteUser(user2.getUUID(), user1.getUUID());
+        room.demoteUser(user2.getUUID(), user1.getUUID());
+        assertEquals(RegularState.class ,room.getUser(user2.getUUID()).getState().getClass());
+    }
+
+    /**
+     * Forfremmer en admin
+     */
+    @Test
+    void promoteAdmin(){
+        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
+        room.promoteUser(user2.getUUID(), user1.getUUID());
+        assertThrows(IllegalStateException.class, ()-> room.promoteUser(user1.getUUID(), user2.getUUID()));
+    }
+
+    /**
+     * Degradere en admin
+     */
+    @Test
+    void demoteAdmin(){
+        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
+        room.promoteUser(user2.getUUID(), user1.getUUID());
+        room.demoteUser(user1.getUUID(), user2.getUUID());
+        assertEquals(RegularState.class ,room.getUser(user1.getUUID()).getState().getClass());
+    }
+
+    /**
+     * Forfremmer en bruger i rummet, som ikke-deltager af rummet
+     */
+    @Test
+    void promoteUserWithoutBeingMember(){
+        assertThrows(IllegalStateException.class, ()-> room.promoteUser(user1.getUUID(), user3.getUUID()));
+        assertEquals(AdministratorState.class ,room.getUser(user1.getUUID()).getState().getClass());
+    }
+
+    /**
+     * Degradere en bruger i rummet, som ikke-deltager af rummet
+     */
+    @Test
+    void demoteUserWithoutBeingMember(){
+        assertThrows(IllegalStateException.class, ()-> room.demoteUser(user1.getUUID(), user3.getUUID()));
+        assertEquals(AdministratorState.class ,room.getUser(user1.getUUID()).getState().getClass());
+    }
+
+    /**
+     * Forfremmer en bruger i rummet, som ikke-admin af rummet
+     */
+    @Test
+    void promoteUserWithoutBeingAdmin(){
+        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
+        assertThrows(IllegalStateException.class, ()-> room.promoteUser(user1.getUUID(), user2.getUUID()));
+        assertEquals(AdministratorState.class ,room.getUser(user1.getUUID()).getState().getClass());
+    }
+
+    /**
+     * Degradere en bruger i rummet, som ikke-admin af rummet
+     */
+    @Test
+    void demoteUserWithoutBeingAdmin(){
+        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
+        assertThrows(IllegalStateException.class, ()-> room.demoteUser(user1.getUUID(), user2.getUUID()));
+        assertEquals(AdministratorState.class ,room.getUser(user1.getUUID()).getState().getClass());
+    }
+
 }
