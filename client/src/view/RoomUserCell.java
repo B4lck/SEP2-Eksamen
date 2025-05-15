@@ -37,7 +37,8 @@ public class RoomUserCell extends ListCell<ViewRoomUser> {
             setText(null);
             setContentDisplay(ContentDisplay.TEXT_ONLY);
         } else {
-            name.setText(item.getName() + " <" + item.getNickname() + ">");
+            String prefix = item.getState().equals("Admin") ? "\uD83D\uDC51 " : (item.getState().equals("Muted") ? "❌ " : " ");
+            name.setText(prefix + item.getName() + " <" + item.getNickname() + ">");
 
             if (item.getLastActive() + 120 * 1000 < System.currentTimeMillis()) {
                 Duration duration = Duration.ofMillis(System.currentTimeMillis() - item.getLastActive());
