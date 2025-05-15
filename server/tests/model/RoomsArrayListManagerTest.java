@@ -528,4 +528,53 @@ class RoomsArrayListManagerTest {
         assertThrows(IllegalStateException.class, () -> room.unmuteUser(1234, user1.getUUID()));
         assertFalse(false);
     }
+
+    @Test
+    void changeNicknameOnUser() {
+        String testNickname = "test";
+
+        room.setNicknameOfUser(user1.getUUID(), testNickname);
+        assertEquals(testNickname, room.getNickname(user1.getUUID()));
+    }
+
+    @Test
+    void changeNicknameOnNonExistingUser() {
+        assertThrows(IllegalStateException.class, () -> room.setNicknameOfUser(12345, "test"));
+    }
+
+    @Test
+    void changeNicknameOnUserNotInRoom() {
+        assertThrows(IllegalStateException.class, () -> room.setNicknameOfUser(user3.getUUID(), "test"));
+    }
+
+    @Test
+    void setNicknameToNull() {
+        assertThrows(IllegalArgumentException.class, () -> room.setNicknameOfUser(user1.getUUID(), null));
+    }
+
+    @Test
+    void setNicknameToEmptyString() {
+        assertThrows(IllegalArgumentException.class, () -> room.setNicknameOfUser(user1.getUUID(), ""));
+    }
+
+    @Test
+    void deleteNicknameFromUser() {
+        String testNickname = "test";
+
+        room.setNicknameOfUser(user1.getUUID(), testNickname);
+        assertEquals(testNickname, room.getNickname(user1.getUUID()));
+
+        room.removeNicknameFromUser(user1.getUUID());
+        assertNull(room.getNickname(user1.getUUID()));
+    }
+
+    @Test
+    void deleteNicknameFromNonExistingUser() {
+        assertThrows(IllegalStateException.class, () -> room.removeNicknameFromUser(12345));
+    }
+
+    @Test
+    void deleteNicknameFromUserNotInRoom() {
+        assertThrows(IllegalStateException.class, () -> room.removeNicknameFromUser(user2.getUUID()));
+    }
 }

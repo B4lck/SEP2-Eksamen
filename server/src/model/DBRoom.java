@@ -238,12 +238,13 @@ public class DBRoom implements Room {
 
     @Override
     public void setNicknameOfUser(long userId, String nickname) {
+        if (nickname == null || nickname.isEmpty()) throw new IllegalArgumentException("Ulovligt kaldenavn");
         try (var connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET nickname=? WHERE room_id=? AND profile_id=?");
             statement.setString(1, nickname);
             statement.setLong(2, roomId);
             statement.setLong(3, userId);
-            statement.executeUpdate();
+            if (statement.executeUpdate() == 0) throw new IllegalStateException("Brugeren enten findes ikke, eller er ikke i rummet");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -256,7 +257,7 @@ public class DBRoom implements Room {
             statement.setNull(1, Types.NULL);
             statement.setLong(2, user);
             statement.setLong(3, roomId);
-            statement.executeUpdate();
+            if (statement.executeUpdate() == 0) throw new IllegalStateException("Brugeren enten findes ikke, eller er ikke i rummet");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
