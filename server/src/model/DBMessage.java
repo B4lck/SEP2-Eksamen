@@ -158,7 +158,7 @@ public class DBMessage implements Message {
 
     @Override
     public void addReaction(String reaction, long userId) {
-        if (reaction == null) throw new IllegalArgumentException("Reaction må ikke være null");
+        if (reaction == null || reaction.isBlank()) throw new IllegalArgumentException("Reaction må ikke være null");
 
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("INSERT INTO reaction (message_id, reacted_by, reaction) VALUES (?,?,?)");
@@ -173,7 +173,7 @@ public class DBMessage implements Message {
 
     @Override
     public void removeReaction(String reaction, long userId) {
-        if (reaction == null) throw new IllegalArgumentException("Reaction må ikke være null");
+        if (reaction == null || reaction.isBlank()) throw new IllegalArgumentException("Reaction må ikke være null");
 
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("DELETE FROM reaction WHERE message_id = ? AND reacted_by = ? AND reaction = ?");
