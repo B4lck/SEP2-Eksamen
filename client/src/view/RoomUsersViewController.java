@@ -3,16 +3,16 @@ package view;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.text.Text;
-import viewModel.EditNicknameViewModel;
-import viewModel.ViewUser;
+import viewModel.RoomUsersViewModel;
+import viewModel.ViewRoomUser;
 
-public class EditNicknameViewController extends ViewController<EditNicknameViewModel>{
+public class RoomUsersViewController extends ViewController<RoomUsersViewModel> {
     @FXML
     private Label errorLabel;
     @FXML
     private Text title;
     @FXML
-    private ListView<ViewUser> users;
+    private ListView<ViewRoomUser> users;
 
     @Override
     protected void init() {
@@ -20,24 +20,13 @@ public class EditNicknameViewController extends ViewController<EditNicknameViewM
         title.textProperty().bind(getViewModel().getTitleText());
         users.setItems(getViewModel().getUsersProperty());
 
-        users.setCellFactory(cell -> new ListCell<>() {
-            @Override
-            protected void updateItem(ViewUser item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    String nickname = item.nickname;
-                    setText(item.username + ": <" + (nickname == null? "intet kaldenavn" : nickname) + ">");
-                }
-            }
-        });
+        users.setCellFactory(cell -> new RoomUserCell());
     }
 
     @FXML
     public void editName() {
         getViewHandler().openPopup(PopupViewID.TEXT_CONFIRM, (String text) -> {
-            getViewModel().editNickname(users.getSelectionModel().getSelectedItems().getFirst().userId, text);
+            getViewModel().editNickname(users.getSelectionModel().getSelectedItems().getFirst().getUserId(), text);
             getViewModel().reset();
         });
     }
@@ -50,7 +39,7 @@ public class EditNicknameViewController extends ViewController<EditNicknameViewM
         confirmAlert.setContentText("Er du sikker på at du vil fjerne kaldenavnet?");
 
         if (confirmAlert.showAndWait().orElseThrow() == ButtonType.OK) {
-            getViewModel().removeNickname(users.getSelectionModel().getSelectedItems().getFirst().userId);
+            getViewModel().removeNickname(users.getSelectionModel().getSelectedItems().getFirst().getUserId());
             getViewModel().reset();
         }
     }

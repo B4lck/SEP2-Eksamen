@@ -85,35 +85,37 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
 
         // Beskeder
         getViewModel().getMessagesProperty().addListener((ListChangeListener<ViewMessage>) change -> {
+            // Kaldes for at hente getRemoved og getAddedSubList
             change.next();
 
-            System.out.println("fjernet beskeder: " + change.getRemovedSize());
-            System.out.println("nye beskeder: " + change.getAddedSize());
-
+            // Fjern beskeder som er fjernet
             for (ViewMessage m : change.getRemoved()) {
                 Node messageNode = messageNodes.get(m.messageId);
-                System.out.println("fjernet besked: " + m.messageId);
-                System.out.println(messageNode);
                 if (messageNode != null) {
                     messages.getChildren().remove(messageNode);
                     messageNodes.remove(m.messageId);
                 }
             }
 
+            // Tilføj nye beskeder
             for (ViewMessage m : change.getAddedSubList()) {
                 addMessageNode(m);
             }
+
+            // Hvis listen er helt tom, er der højst sandsynligt blevet åbnet en anden chat, så nulstil scroll til bunden.
+            if (change.getList().isEmpty()) {
+                Platform.runLater(() -> {
+                    previousScrollHeight = 0;
+                    scrollPane.setVvalue(1.0);
+                });
+            }
         });
 
+        // Lyt efter ændringer i brugerne rummet
         getViewModel().getRoomUsersProperty().addListener((ListChangeListener<ViewRoomUser>) change -> {
             change.next();
 
-            for (ViewRoomUser user : change.getRemoved()) {
-                if (messageNodes.containsKey(user.getLatestReadMessage())) {
-                    messageNodes.get(user.getLatestReadMessage()).update();
-                }
-            }
-
+            // Brugere som er blevet tilføjet (eller ændret, da de bliver udskiftet med en ny ViewRoomUser
             for (ViewRoomUser user : change.getAddedSubList()) {
                 if (messageNodes.containsKey(user.getLatestReadMessage())) {
                     messageNodes.get(user.getLatestReadMessage()).update();
@@ -234,7 +236,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
 
     @FXML
     public void editNicknames() {
-        getViewHandler().openView(ViewID.EDIT_NICKNAME);
+        getViewHandler().openView(ViewID.ROOM_USERS);
     }
 
     @FXML

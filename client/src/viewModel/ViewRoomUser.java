@@ -7,13 +7,15 @@ public class ViewRoomUser {
     private String nickname;
     private String state;
     private long latestReadMessage;
+    private long lastActive;
 
-    public ViewRoomUser(long userId, String name, String nickname, String state, long latestReadMessage) {
+    public ViewRoomUser(long userId, String name, String nickname, String state, long latestReadMessage, long lastActive) {
         this.userId = userId;
         this.name = name;
         this.nickname = nickname;
         this.state = state;
         this.latestReadMessage = latestReadMessage;
+        this.lastActive = lastActive;
     }
 
     public long getUserId() {
@@ -38,5 +40,9 @@ public class ViewRoomUser {
 
     public long getLatestReadMessage() {
         return latestReadMessage;
+    }
+
+    public long getLastActive() {
+        return lastActive;
     }
 }

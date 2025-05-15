@@ -14,15 +14,17 @@ public class RoomUser {
      */
     private UserState state;
     private long latestReadMessage;
+    private String nickname;
 
     /**
      * @param id Id'et på profilen som RoomUser skal tilknyttes
      * @param state Staten på profilen
      */
-    public RoomUser(long id, UserStateId state, long latestReadMessage) {
+    public RoomUser(long id, UserStateId state, long latestReadMessage, String nickname) {
         this.id = id;
         this.state = UserState.stateFromString(state, this);
         this.latestReadMessage = latestReadMessage;
+        this.nickname = nickname;
     }
 
     /**
@@ -60,6 +62,7 @@ public class RoomUser {
         return new DataMap()
                 .with("id", id)
                 .with("state", state.getStateAsString())
-                .with("latestReadMessage", latestReadMessage);
+                .with("latestReadMessage", latestReadMessage)
+                .with("nickname", nickname);
     }
 }

@@ -159,12 +159,14 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
             // Tilføj brugere
             for (RoomUser user : room.getUsers()) {
                 // Opret ViewRoomUser, som view'et kan bruge til display
+                Profile userProfile = model.getProfileManager().getProfile(user.getUserId());
                 var vru = new ViewRoomUser(
                         user.getUserId(),
-                        model.getProfileManager().getProfile(user.getUserId()).getUsername(),
-                        "", // TODO: Nickname
+                        userProfile.getUsername(),
+                        user.getNickname(),
                         user.getState(),
-                        user.getLatestReadMessage()
+                        user.getLatestReadMessage(),
+                        userProfile.getLastActive()
                 );
 
                 // Dette er RoomUser objektet til den nuværende bruger
@@ -273,12 +275,14 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                         if ((long) evt.getOldValue() != viewState.getCurrentChatRoom()) return;
                         RoomUser roomUser = (RoomUser) evt.getNewValue();
                         roomUsersProperty.removeIf(viewUser -> viewUser.getUserId() == roomUser.getUserId());
+                        Profile userProfile = model.getProfileManager().getProfile(roomUser.getUserId());
                         roomUsersProperty.add(new ViewRoomUser(
                                 roomUser.getUserId(),
-                                model.getProfileManager().getProfile(roomUser.getUserId()).getUsername(),
-                                "", // TODO: Nickname
+                                userProfile.getUsername(),
+                                roomUser.getNickname(),
                                 roomUser.getState(),
-                                roomUser.getLatestReadMessage()
+                                roomUser.getLatestReadMessage(),
+                                userProfile.getLastActive()
                         ));
                         break;
                 }
