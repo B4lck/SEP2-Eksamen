@@ -31,7 +31,7 @@ public class UserPickerController extends PopupViewController<List<Long>, UserPi
                 if (empty || item == null) {
                     setText(null);
                 } else {
-                    setText(item.username);
+                    setText(item.getUsername());
                 }
             }
         });
@@ -52,6 +52,6 @@ public class UserPickerController extends PopupViewController<List<Long>, UserPi
     @FXML
     public void submit(ActionEvent actionEvent) {
         getStage().close();
-        callback(list.getSelectionModel().getSelectedItems().stream().map(viewUser -> viewUser.userId).toList());
+        callback(list.getSelectionModel().getSelectedItems().stream().map(ViewUser::getUserId).toList());
     }
 }

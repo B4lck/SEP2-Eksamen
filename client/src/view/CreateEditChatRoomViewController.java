@@ -42,7 +42,7 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
                 if (empty || item == null) {
                     setText(null);
                 } else {
-                    setText(item.username);
+                    setText(item.getUsername());
                 }
             }
         });
@@ -82,26 +82,26 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
 
     @FXML
     public void removeUser(ActionEvent actionEvent) {
-        getViewModel().removeUser(users.getSelectionModel().getSelectedItems().getFirst().userId);
+        getViewModel().removeUser(users.getSelectionModel().getSelectedItems().getFirst().getUserId());
     }
 
     @FXML
     public void mute(ActionEvent actionEvent) {
-        getViewModel().muteUser(users.getSelectionModel().getSelectedItems().getFirst().userId);
+        getViewModel().muteUser(users.getSelectionModel().getSelectedItems().getFirst().getUserId());
     }
 
     @FXML
     public void unmute(ActionEvent actionEvent) {
-        getViewModel().unmuteUser(users.getSelectionModel().getSelectedItems().getFirst().userId);
+        getViewModel().unmuteUser(users.getSelectionModel().getSelectedItems().getFirst().getUserId());
     }
 
     @FXML
     public void promote(ActionEvent actionEvent) {
-        getViewModel().promoteUser(users.getSelectionModel().getSelectedItems().getFirst().userId);
+        getViewModel().promoteUser(users.getSelectionModel().getSelectedItems().getFirst().getUserId());
     }
 
     @FXML
     public void demote(ActionEvent actionEvent) {
-        getViewModel().demoteUser(users.getSelectionModel().getSelectedItems().getFirst().userId);
+        getViewModel().demoteUser(users.getSelectionModel().getSelectedItems().getFirst().getUserId());
     }
 }

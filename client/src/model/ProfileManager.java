@@ -43,15 +43,9 @@ public class ProfileManager {
         return res.getData().getLong("uuid");
     }
 
-    public Profile getProfile(long id) throws ServerError {
-        // Hent fra cache
-        if (profiles.containsKey(id)) {
-            return profiles.get(id);
-        }
-
-        // Anmod server om profilen
+    public Profile fetchProfile(long userId) throws ServerError {
         client.sendMessage(new ClientMessage("GET_PROFILE", new DataMap()
-                .with("uuid", Long.toString(id))));
+                .with("uuid", Long.toString(userId))));
 
         ClientMessage res = client.waitingForReply("ProfileManager getProfile");
 
@@ -60,6 +54,16 @@ public class ProfileManager {
         profiles.put(profile.getUUID(), profile);
 
         return profiles.get(profile.getUUID());
+    }
+
+    public Profile getProfile(long userId) throws ServerError {
+        // Hent fra cache
+        if (profiles.containsKey(userId)) {
+            return profiles.get(userId);
+        }
+
+        // Anmod server om profilen
+        return fetchProfile(userId);
     }
 
     public Profile getCurrentUserProfile() throws ServerError {

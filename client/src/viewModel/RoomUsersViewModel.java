@@ -9,15 +9,15 @@ import model.Profile;
 import model.RoomUser;
 import util.ServerError;
 
-public class EditNicknameViewModel implements ViewModel{
+public class RoomUsersViewModel implements ViewModel {
     private final Model model;
     private final ViewState viewState;
 
     private final StringProperty errorText;
     private final StringProperty titleText;
-    private ObservableList<ViewUser> usersProperty;
+    private ObservableList<ViewRoomUser> usersProperty;
 
-    public EditNicknameViewModel(Model model, ViewState viewState) {
+    public RoomUsersViewModel(Model model, ViewState viewState) {
         this.model = model;
         this.viewState = viewState;
 
@@ -34,7 +34,7 @@ public class EditNicknameViewModel implements ViewModel{
             titleText.setValue(viewState.getCurrentChatRoomProperty().getName());
             var room = model.getRoomManager().getChatRoom(viewState.getCurrentChatRoom());
             for (RoomUser user : room.getUsers()) {
-                addUser(user.getUserId());
+                addUser(user);
             }
         } catch (ServerError e) {
             e.showAlert();
@@ -49,7 +49,7 @@ public class EditNicknameViewModel implements ViewModel{
         return titleText;
     }
 
-    public ObservableList<ViewUser> getUsersProperty() {
+    public ObservableList<ViewRoomUser> getUsersProperty() {
         return usersProperty;
     }
 
@@ -70,15 +70,18 @@ public class EditNicknameViewModel implements ViewModel{
         }
     }
 
-    public void addUser(long _userId) {
+    private void addUser(RoomUser user) {
         try {
-            Profile profile = model.getProfileManager().getProfile(_userId);
-            ViewUser viewUser = new ViewUser() {{
-                userId = _userId;
-                username = profile.getUsername();
-                nickname = model.getRoomManager().getNicknameOf(viewState.getCurrentChatRoom(), _userId);
-            }};
-            usersProperty.add(viewUser);
+            Profile userProfile = model.getProfileManager().fetchProfile(user.getUserId());
+            ViewRoomUser viewRoomUser = new ViewRoomUser(
+                    user.getUserId(),
+                    userProfile.getUsername(),
+                    user.getNickname(),
+                    user.getState(),
+                    user.getLatestReadMessage(),
+                    userProfile.getLastActive()
+            );
+            usersProperty.add(viewRoomUser);
         } catch (ServerError e) {
             e.showAlert();
         }

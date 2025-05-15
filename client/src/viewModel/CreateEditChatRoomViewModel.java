@@ -73,10 +73,7 @@ public class CreateEditChatRoomViewModel implements ViewModel {
     public void addUser(long _userId) {
         try {
             Profile profile = model.getProfileManager().getProfile(_userId);
-            ViewUser viewUser = new ViewUser() {{
-                userId = _userId;
-                username = profile.getUsername();
-            }};
+            ViewUser viewUser = new ViewUser(_userId, profile.getUsername());
             membersProperty.add(viewUser);
         } catch (ServerError e) {
             e.showAlert();
@@ -84,7 +81,7 @@ public class CreateEditChatRoomViewModel implements ViewModel {
     }
 
     public void removeUser(long userId) {
-        membersProperty.removeIf(p -> p.userId == userId);
+        membersProperty.removeIf(p -> p.getUserId() == userId);
     }
 
     public void muteUser(long userId) {
@@ -133,13 +130,13 @@ public class CreateEditChatRoomViewModel implements ViewModel {
 
                 Set<Long> addedProfiles = new HashSet<>(
                         membersProperty.stream()
-                                .map(p -> p.userId)
+                                .map(ViewUser::getUserId)
                                 .filter(p -> !previousProfiles.contains(p)).toList());
 
                 Set<Long> removedProfiles = new HashSet<>(
                         previousProfiles.stream()
-                                .map(p -> p.getUserId())
-                                .filter(p -> membersProperty.stream().noneMatch(p2 -> p2.userId == p))
+                                .map(RoomUser::getUserId)
+                                .filter(p -> membersProperty.stream().noneMatch(p2 -> p2.getUserId() == p))
                                 .toList());
 
                 for (Long profile : addedProfiles) {
@@ -157,7 +154,7 @@ public class CreateEditChatRoomViewModel implements ViewModel {
                 // Opret et nyt chat rum
                 long room = model.getRoomManager().createRoom(nameProperty.getValue());
                 for (ViewUser profile : membersProperty) {
-                    model.getRoomManager().addUser(room, profile.userId);
+                    model.getRoomManager().addUser(room, profile.getUserId());
                 }
             }
         } catch (ServerError e) {
