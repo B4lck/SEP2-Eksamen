@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -217,7 +218,7 @@ class MessagesArrayListManagerTest {
 
     @Test
     void getMessagesFromNonExistingRoom() {
-        assertThrows(IllegalArgumentException.class, () -> model.getMessages().getMessages(7238947, 1, user1.getUUID()));
+        assertThrows(IllegalStateException.class, () -> model.getMessages().getMessages(7238947, 1, user1.getUUID()));
     }
 
     @Test
@@ -320,6 +321,148 @@ class MessagesArrayListManagerTest {
     @Test
     void sendEmptySystemMessage() {
         assertThrows(IllegalArgumentException.class, () -> model.getMessages().sendSystemMessage(room.getRoomId(), ""));
+    }
+
+    @Test
+    void addReaction_Regular() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "Test", List.of(), user1.getUUID());
+
+        model.getMessages().addReaction(message.getMessageId(), "👌", user1.getUUID());
+
+        assertEquals(1, model.getMessages().getMessage(message.getMessageId(), user1.getUUID()).getReactions().size());
+    }
+
+    @Test
+    void addReaction_Null() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "Test", List.of(), user1.getUUID());
+
+        assertThrows(IllegalArgumentException.class, () -> model.getMessages().addReaction(message.getMessageId(), null, user1.getUUID()));
+
+        assertTrue(model.getMessages().getMessage(message.getMessageId(), user1.getUUID()).getReactions().isEmpty());
+    }
+
+    @Test
+    void addReaction_Blank() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "Test", List.of(), user1.getUUID());
+
+        assertThrows(IllegalArgumentException.class, () -> model.getMessages().addReaction(message.getMessageId(), " ", user1.getUUID()));
+
+        assertTrue(model.getMessages().getMessage(message.getMessageId(), user1.getUUID()).getReactions().isEmpty());
+    }
+
+    @Test
+    void addReaction_NoUser() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "Test", List.of(), user1.getUUID());
+
+        assertThrows(IllegalStateException.class, () -> model.getMessages().addReaction(message.getMessageId(), "👌", -1));
+
+        assertTrue(model.getMessages().getMessage(message.getMessageId(), user1.getUUID()).getReactions().isEmpty());
+    }
+
+    @Test
+    void addReaction_NoMessage() {
+        assertThrows(IllegalStateException.class, () -> model.getMessages().addReaction(-1, "👌", user1.getUUID()));
+    }
+
+    @Test
+    void addReaction_NoAccess() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "Test", List.of(), user1.getUUID());
+
+        assertThrows(IllegalStateException.class, () -> model.getMessages().addReaction(message.getMessageId(), "👌", user2.getUUID()));
+
+        assertTrue(model.getMessages().getMessage(message.getMessageId(), user1.getUUID()).getReactions().isEmpty());
+    }
+
+    @Test
+    void removeReaction_Regular() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "Test", List.of(), user1.getUUID());
+
+        model.getMessages().addReaction(message.getMessageId(), "😒", user1.getUUID());
+        model.getMessages().addReaction(message.getMessageId(), "👌", user1.getUUID());
+        model.getMessages().removeReaction(message.getMessageId(), "👌", user1.getUUID());
+
+        assertEquals(1, model.getMessages().getMessage(message.getMessageId(), user1.getUUID()).getReactions().size());
+    }
+
+    @Test
+    void removeReaction_Null() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "Test", List.of(), user1.getUUID());
+
+        model.getMessages().addReaction(message.getMessageId(), "😒", user1.getUUID());
+        model.getMessages().addReaction(message.getMessageId(), "👌", user1.getUUID());
+
+        assertThrows(IllegalArgumentException.class, () -> model.getMessages().removeReaction(message.getMessageId(), null, user1.getUUID()));
+
+        assertEquals(2, model.getMessages().getMessage(message.getMessageId(), user1.getUUID()).getReactions().size());
+    }
+
+    @Test
+    void removeReaction_Blank() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "Test", List.of(), user1.getUUID());
+
+        model.getMessages().addReaction(message.getMessageId(), "😒", user1.getUUID());
+        model.getMessages().addReaction(message.getMessageId(), "👌", user1.getUUID());
+
+        assertThrows(IllegalArgumentException.class, () -> model.getMessages().removeReaction(message.getMessageId(), " ", user1.getUUID()));
+
+        assertEquals(2, model.getMessages().getMessage(message.getMessageId(), user1.getUUID()).getReactions().size());
+    }
+
+    @Test
+    void removeReaction_NoUser() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "Test", List.of(), user1.getUUID());
+
+        model.getMessages().addReaction(message.getMessageId(), "😒", user1.getUUID());
+        model.getMessages().addReaction(message.getMessageId(), "👌", user1.getUUID());
+
+        assertThrows(IllegalStateException.class, () -> model.getMessages().removeReaction(message.getMessageId(), "👌", -1));
+
+        assertEquals(2, model.getMessages().getMessage(message.getMessageId(), user1.getUUID()).getReactions().size());
+    }
+
+    @Test
+    void removeReaction_NoMessage() {
+        assertThrows(IllegalStateException.class, () -> model.getMessages().removeReaction(-1, "👌", user1.getUUID()));
+    }
+
+    @Test
+    void removeReaction_NoAccess() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "Test", List.of(), user1.getUUID());
+
+        model.getMessages().addReaction(message.getMessageId(), "😒", user1.getUUID());
+        model.getMessages().addReaction(message.getMessageId(), "👌", user1.getUUID());
+
+        assertThrows(IllegalStateException.class, () -> model.getMessages().removeReaction(message.getMessageId(), "👌", user2.getUUID()));
+
+        assertEquals(2, model.getMessages().getMessage(message.getMessageId(), user1.getUUID()).getReactions().size());
+    }
+
+    @Test
+    void setLatestReadMessage_Regular() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "Test", List.of(), user1.getUUID());
+
+        model.getMessages().setLatestReadMessage(message.getMessageId(), user1.getUUID());
+
+        assertEquals(message.getMessageId(), room.getUser(user1.getUUID()).getLatestReadMessage());
+    }
+
+    @Test
+    void setLatestReadMessage_NoUser() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "Test", List.of(), user1.getUUID());
+
+        assertThrows(IllegalStateException.class, () -> model.getMessages().setLatestReadMessage(message.getMessageId(), -1));
+    }
+
+    @Test
+    void setLatestReadMessage_NoMessage() {
+        assertThrows(IllegalStateException.class, () -> model.getMessages().setLatestReadMessage(-1, user1.getUUID()));
+    }
+
+    @Test
+    void setLatestReadMessage_NoAccess() {
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "Test", List.of(), user1.getUUID());
+
+        assertThrows(IllegalStateException.class, () -> model.getMessages().setLatestReadMessage(message.getMessageId(), user2.getUUID()));
     }
 
 }
