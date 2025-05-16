@@ -35,18 +35,21 @@ public class ChatClient implements PropertyChangeSubject {
         this.property = new PropertyChangeSupport(this);
     }
 
+    public static ChatClient createInstance(String host, int port) {
+        if (instance != null) {
+            throw new IllegalStateException("Client er allerede oprettet");
+        }
+            try {
+                // Hent data fra MyApplication på en eller anden måde
+                return instance = new ChatClient(host, port);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+    }
+
     public static ChatClient getInstance() {
         if (instance == null) {
-            synchronized (lock) {
-                if (instance == null) {
-                    try {
-                        // Hent data fra MyApplication på en eller anden måde
-                        instance = new ChatClient("localhost", 42069);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
+            throw new IllegalStateException("Client er ikke oprettet");
         }
         return instance;
     }

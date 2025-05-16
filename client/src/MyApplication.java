@@ -7,15 +7,15 @@ import view.ViewHandler;
 import viewModel.ViewModelFactory;
 
 public class MyApplication extends Application {
-    public final static int PORT = 42069;
-    public final static String HOST = "localhost";
+    public final static int PORT = 30000;
+    public final static String HOST = "10.154.216.82";
 
     private ChatClient client;
     private Model model;
 
     @Override
     public void start(Stage primaryStage) {
-        this.client = ChatClient.getInstance();
+        this.client = ChatClient.createInstance(HOST, PORT);
         this.model = new ModelManager();
 
 

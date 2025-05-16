@@ -7,7 +7,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class ServerMain {
-    public static final int PORT = 42069;
+    public static final int PORT = 30000;
 
     public static void main(String[] args) {
         Model model = new ChatModel();
