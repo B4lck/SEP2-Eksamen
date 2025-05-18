@@ -187,12 +187,22 @@ public class MessageBox extends HBox {
         List<ViewRoomUser> readByUsers = viewModel.getRoomUsersProperty().stream()
                 .filter(u -> u.getLatestReadMessage() == viewMessage.messageId).toList();
 
-        for (ViewRoomUser user : readByUsers) {
+        if (!readByUsers.isEmpty()) {
             HBox alignmentContainer = new HBox();
             alignmentContainer.getStyleClass().add("message-alignment-container");
             alignmentContainer.setAlignment(viewMessage.isMyMessage ? Pos.TOP_RIGHT : Pos.TOP_LEFT);
 
-            Text readByLabel = new Text("Læst af " + user.getDisplayName());
+            Text readByLabel = new Text();
+            if (readByUsers.size() == 1) {
+                readByLabel.setText("Læst af " + readByUsers.getFirst().getDisplayName());
+            } else {
+                readByLabel.setText(
+                        "Læst af "
+                                + String.join(", ", readByUsers.stream().map(ViewRoomUser::getDisplayName).limit(readByUsers.size() - 1).toList())
+                                + " og "
+                                + readByUsers.getLast().getDisplayName()
+                );
+            }
             readByLabel.getStyleClass().add("message-read-by");
             alignmentContainer.getChildren().add(readByLabel);
 

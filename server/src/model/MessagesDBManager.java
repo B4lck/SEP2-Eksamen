@@ -1,5 +1,6 @@
 package model;
 
+import mediator.Broadcast;
 import mediator.ServerRequest;
 import utils.DataMap;
 
@@ -57,7 +58,9 @@ public class MessagesDBManager implements Messages {
                     message.addAttachment(attachment);
                 }
 
-                property.firePropertyChange("RECEIVE_MESSAGE", null, new DataMap().with("message", message.getData()));
+                // Broadcast til klienter
+                Room room = model.getRooms().getRoom(message.getChatRoom());
+                property.firePropertyChange("RECEIVE_MESSAGE", null, new Broadcast(new DataMap().with("message", message.getData()), room.getUsers()));
 
                 return message;
             } else {
@@ -200,7 +203,8 @@ public class MessagesDBManager implements Messages {
         message.editBody(messageBody, byUserId);
 
         // Broadcast til klienter
-        property.firePropertyChange("UPDATE_MESSAGE", null, new DataMap().with("message", getMessage(messageId, byUserId).getData()));
+        Room chatroom = model.getRooms().getRoom(message.getChatRoom());
+        property.firePropertyChange("UPDATE_MESSAGE", null, new Broadcast(new DataMap().with("message", message.getData()), chatroom.getUsers()));
 
         // Send system besked
         sendSystemMessage(message.getChatRoom(),
@@ -230,7 +234,8 @@ public class MessagesDBManager implements Messages {
         UserFilesManager.getInstance().removeFiles(attachments);
 
         // Broadcast til klienter
-        property.firePropertyChange("UPDATE_MESSAGE", null, new DataMap().with("message", getMessage(messageId, byUserId).getData()));
+        Room chatroom = model.getRooms().getRoom(message.getChatRoom());
+        property.firePropertyChange("UPDATE_MESSAGE", null, new Broadcast(new DataMap().with("message", message.getData()), chatroom.getUsers()));
 
         // Send system besked
         String username = model.getProfiles().getProfile(byUserId).map(Profile::getUsername).orElse("En bruger");
@@ -250,7 +255,11 @@ public class MessagesDBManager implements Messages {
         message.addReaction(reaction, userId);
 
         // Broadcast til klienter
-        property.firePropertyChange("UPDATE_MESSAGE", null, new DataMap().with("message", message.getData()));
+        Room chatroom = model.getRooms().getRoom(message.getChatRoom());
+        property.firePropertyChange("UPDATE_MESSAGE", null, new Broadcast(new DataMap().with("message", message.getData()), chatroom.getUsers()));
+
+        // Send notifikation til senderen af beskeden
+        property.firePropertyChange("NEW_REACTION", null, new Broadcast(new DataMap().with("message", message.getData()).with("reactedBy", userId).with("reaction", reaction), message.getSentBy()));
     }
 
     /**
@@ -266,7 +275,8 @@ public class MessagesDBManager implements Messages {
         message.removeReaction(reaction, userId);
 
         // Broadcast til klienter
-        property.firePropertyChange("UPDATE_MESSAGE", null, new DataMap().with("message", message.getData()));
+        Room chatroom = model.getRooms().getRoom(message.getChatRoom());
+        property.firePropertyChange("UPDATE_MESSAGE", null, new Broadcast(new DataMap().with("message", message.getData()), chatroom.getUsers()));
     }
 
     /**
@@ -279,7 +289,8 @@ public class MessagesDBManager implements Messages {
     public void setLatestReadMessage(long messageId, long userId) {
         Message message = getMessage(messageId, userId);
         long roomId = message.getChatRoom();
-        long previousReadMessageId = model.getRooms().getRoom(roomId, userId).getUser(userId).getLatestReadMessage();
+        Room room = model.getRooms().getRoom(roomId, userId);
+        long previousReadMessageId = room.getUser(userId).getLatestReadMessage();
 
         if (previousReadMessageId == messageId) return;
         if (previousReadMessageId != 0 && message.getDateTime() <= getMessage(previousReadMessageId, userId).getDateTime())
@@ -292,10 +303,13 @@ public class MessagesDBManager implements Messages {
             statement.setLong(3, userId);
             statement.executeUpdate();
 
-            property.firePropertyChange("READ_MESSAGE", null, new DataMap()
-                    .with("messageId", messageId)
-                    .with("roomId", roomId)
-                    .with("userId", userId));
+            property.firePropertyChange("READ_MESSAGE", null, new Broadcast(
+                    new DataMap()
+                            .with("messageId", messageId)
+                            .with("roomId", roomId)
+                            .with("userId", userId),
+                    room.getUsers()
+            ));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

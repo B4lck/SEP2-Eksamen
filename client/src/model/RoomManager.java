@@ -118,7 +118,7 @@ public class RoomManager implements PropertyChangeSubject, PropertyChangeListene
         client.waitingForReply("SUCCESS");
     }
 
-    private Optional<Room> _getRoom(long roomId) {
+    public Optional<Room> getRoom(long roomId) {
         return rooms.stream().filter(room -> room.getRoomId() == roomId).findAny();
     }
 
@@ -130,7 +130,7 @@ public class RoomManager implements PropertyChangeSubject, PropertyChangeListene
         switch (message.getType().toUpperCase()) {
             case "READ_MESSAGE":
                 try {
-                    Room room = _getRoom(request.getLong("roomId")).orElseThrow();
+                    Room room = getRoom(request.getLong("roomId")).orElseThrow();
                     RoomUser user = room.getUser(request.getLong("userId")).orElseThrow();
                     user.setRead(request.getLong("messageId"));
                     property.firePropertyChange("READ_UPDATE", room.getRoomId(), user);

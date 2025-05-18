@@ -21,6 +21,8 @@ public interface Rooms extends ServerRequestHandler {
      */
     Room getRoom(long room, long user);
 
+    Room getRoom(long roomId);
+
     /**
      * Henter alle rum som en bruger deltager i
      *

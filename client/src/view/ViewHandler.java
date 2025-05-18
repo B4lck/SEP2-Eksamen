@@ -9,6 +9,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.Message;
 import model.Model;
+import model.Reaction;
 import util.Callback;
 import util.ServerError;
 import viewModel.ViewModel;
@@ -47,6 +48,17 @@ public class ViewHandler {
                 Platform.runLater(() -> {
                     try {
                         notificationManager.showNotification(model.getProfileManager().getProfile(message.getSentBy()).getUsername() + " har sendt dig en besked", message.getBody());
+                    } catch (ServerError e) {
+                        e.printStackTrace();
+                        e.showAlert();
+                    }
+                });
+            } else if (evt.getPropertyName().equals("NEW_REACTION")) {
+                Reaction reaction = (Reaction) evt.getNewValue();
+                // Send notifikation
+                Platform.runLater(() -> {
+                    try {
+                        notificationManager.showNotification(model.getProfileManager().getProfile(reaction.getReactedBy()).getUsername() + " reageret med " + reaction.getReaction() + " på din besked!", "");
                     } catch (ServerError e) {
                         e.printStackTrace();
                         e.showAlert();

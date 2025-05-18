@@ -135,6 +135,9 @@ public class MessagesManager implements PropertyChangeSubject, PropertyChangeLis
                 addMessage(updatedMessage);
                 property.firePropertyChange("UPDATE_MESSAGE", null, updatedMessage);
                 break;
+            case "NEW_REACTION":
+                property.firePropertyChange("NEW_REACTION", null, new Reaction(request.getLong("reactedBy"), request.getString("reaction")));
+                break;
         }
     }
 

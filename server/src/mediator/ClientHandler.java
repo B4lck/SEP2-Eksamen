@@ -3,7 +3,6 @@ package mediator;
 import com.google.gson.Gson;
 import model.Model;
 import model.UserFilesManager;
-import utils.DataMap;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -101,8 +100,13 @@ public class ClientHandler implements Runnable, PropertyChangeListener {
      */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        // Broadcast
-        ClientMessage message = new ClientMessage(evt.getPropertyName(), (DataMap) evt.getNewValue());
+        Broadcast broadcast = (Broadcast) evt.getNewValue();
+
+        // Hvis brugeren ikke skal have broadcasten
+        if (!broadcast.getReceivers().contains(currentUser)) return;
+
+        // Broadcast beskeden
+        ClientMessage message = new ClientMessage(evt.getPropertyName(), broadcast.getData());
         message.broadcast = true;
         out.println(gson.toJson(message));
     }

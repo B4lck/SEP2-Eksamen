@@ -116,6 +116,13 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
             change.next();
 
             // Brugere som er blevet tilføjet (eller ændret, da de bliver udskiftet med en ny ViewRoomUser
+            for (ViewRoomUser user : change.getRemoved()) {
+                if (messageNodes.containsKey(user.getLatestReadMessage())) {
+                    messageNodes.get(user.getLatestReadMessage()).update();
+                }
+            }
+
+            // Brugere som er blevet tilføjet (eller ændret, da de bliver udskiftet med en ny ViewRoomUser
             for (ViewRoomUser user : change.getAddedSubList()) {
                 if (messageNodes.containsKey(user.getLatestReadMessage())) {
                     messageNodes.get(user.getLatestReadMessage()).update();

@@ -59,6 +59,12 @@ public class RoomsDBManager implements Rooms {
     }
 
     @Override
+    public Room getRoom(long roomId) {
+        Room room = new DBRoom(roomId);
+        return room;
+    }
+
+    @Override
     public List<Room> getParticipatingRooms(long user) {
         List<Room> rooms = new ArrayList<>();
         try (var connection = Database.getConnection()) {
