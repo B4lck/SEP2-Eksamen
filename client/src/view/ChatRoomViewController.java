@@ -19,6 +19,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import util.Attachment;
+import viewModel.SortingMethod;
 import viewModel.ViewMessage;
 import viewModel.ViewRoom;
 import viewModel.ViewRoomUser;
@@ -27,9 +28,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ChatRoomViewController extends ViewController<viewModel.ChatRoomViewModel> {
     // References til ChatRoomView.fxml
@@ -49,6 +48,11 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
     private ScrollPane scrollPane;
     @FXML
     private Text greetingText;
+    @FXML
+    private TextField searchRoomField;
+
+    // "activity" eller "alphabetically"
+    private String roomSortingMethod = "activity";
 
     private Map<Long, MessageBox> messageNodes = new HashMap<>();
 
@@ -59,6 +63,8 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
         // Bindings
         composeField.textProperty().bindBidirectional(getViewModel().getComposeMessageProperty());
         greetingText.textProperty().bind(getViewModel().getGreetingTextProperty());
+        searchRoomField.textProperty().bindBidirectional(getViewModel().getSearchFieldProperty());
+        searchRoomField.textProperty().addListener(_ -> getViewModel().resetRooms());
 
         roomName.textProperty().bind(getViewModel().getRoomNameProperty());
 
@@ -75,6 +81,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
         // Rum
         getViewModel().getRoomsProperty().addListener((ListChangeListener<ViewRoom>) change -> {
             rooms.getChildren().clear();
+
             change.getList().forEach(r -> {
                 Button roomButton = new Button(r.getName());
                 roomButton.setPrefWidth(150);
@@ -207,12 +214,6 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
         }));
     }
 
-    @Override
-    public void reset() {
-        super.reset();
-        getViewModel().reset();
-    }
-
     @FXML
     public void logud(ActionEvent actionEvent) {
         getViewHandler().openView(ViewID.LOGIN);
@@ -256,5 +257,17 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    public void sortActivity() {
+        getViewModel().setSortingMethod(SortingMethod.ACTIVITY);
+        reset();
+    }
+
+    @FXML
+    public void sortAlphabetically() {
+        getViewModel().setSortingMethod(SortingMethod.ALPHABETICALLY);
+        reset();
     }
 }

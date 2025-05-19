@@ -18,11 +18,15 @@ import java.io.File;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.stream.Stream;
 
 public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
     private StringProperty greetingTextProperty;
     private StringProperty roomNameProperty;
+    private StringProperty searchFieldProperty;
+
+    private SortingMethod sortingMethod = SortingMethod.ACTIVITY;
 
     private StringProperty composeMessageProperty; // Nuværende indtastede besked i compose
     private ObservableList<Attachment> attachmentsProperty; // De nuværende valgte attachments i compose
@@ -40,6 +44,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
         this.greetingTextProperty = new SimpleStringProperty();
         this.roomNameProperty = new SimpleStringProperty();
+        this.searchFieldProperty = new SimpleStringProperty();
 
         this.composeMessageProperty = new SimpleStringProperty();
         this.attachmentsProperty = FXCollections.observableArrayList();
@@ -82,6 +87,13 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
      */
     public StringProperty getRoomNameProperty() {
         return roomNameProperty;
+    }
+
+    /**
+     * Indeholder teksten på søgefeltet i chatrum
+     */
+    public StringProperty getSearchFieldProperty() {
+        return searchFieldProperty;
     }
 
     /**
@@ -250,6 +262,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                 }});
 
                 messagesProperty.sort(Comparator.comparing(o -> o.dateTime));
+                resetRooms();
             }
         } catch (ServerError e) {
             e.showAlert();
@@ -300,14 +313,9 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         try {
             greetingTextProperty.setValue("Hej " + model.getProfileManager().getCurrentUserProfile().getUsername() + "!");
 
-            // Liste over rum
-            this.roomsProperty.clear();
-            for (Room room : model.getRoomManager().getChatRooms()) {
-                roomsProperty.add(new ViewRoom(room.getName(), room.getRoomId()));
-            }
-
             // Opdater selve rummet, beskeder osv.
             resetRoom();
+            resetRooms();
         } catch (ServerError e) {
             e.showAlert();
         }
@@ -389,5 +397,36 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         } catch (ServerError e) {
             e.showAlert();
         }
+    }
+
+    public void resetRooms() {
+        try {
+            this.roomsProperty.clear();
+            String query = searchFieldProperty.get() == null ? "" : searchFieldProperty.get();
+
+            Stream<ViewRoom> tempRooms = model.getRoomManager().getChatRooms().stream().filter(r -> r.getName().contains(query)).map(r -> {
+                try {
+                    List<Message> message = model.getMessagesManager().getMessages(r.getRoomId(), 1);
+                    return new ViewRoom(r.getName(), r.getRoomId(), message.isEmpty() ? 0 : message.getFirst().getDateTime());
+                } catch (ServerError e) {
+                    e.showAlert();
+                    throw new RuntimeException(e);
+                }
+            });
+
+            tempRooms = switch (sortingMethod) {
+                case ALPHABETICALLY -> tempRooms.sorted((r1, r2) -> r1.getName().compareToIgnoreCase(r2.getName()));
+                case ACTIVITY -> tempRooms.sorted(Comparator.comparingLong(ViewRoom::getLatestActivity).reversed());
+            };
+
+            roomsProperty.addAll(tempRooms.toList());
+        } catch (ServerError e) {
+            e.showAlert();
+        }
+    }
+
+    public void setSortingMethod(SortingMethod sortingMethod) {
+        this.sortingMethod = sortingMethod;
+        resetRooms();
     }
 }
