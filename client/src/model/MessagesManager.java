@@ -37,6 +37,13 @@ public class MessagesManager implements PropertyChangeSubject, PropertyChangeLis
     }
 
     public List<Message> getMessages(long chatroom, int amount) throws ServerError {
+        var cached = messages.stream()
+                .filter(m -> m.getChatRoom() == chatroom)
+                .sorted(Comparator.comparingLong(Message::getDateTime).reversed())
+                .limit(amount)
+                .toList().reversed();
+        if (cached.size() == amount) return cached;
+
         chatClient.sendMessage(new ClientMessage("RECEIVE_MESSAGES", new DataMap()
                 .with("chatroom", chatroom)
                 .with("amount", amount)));
