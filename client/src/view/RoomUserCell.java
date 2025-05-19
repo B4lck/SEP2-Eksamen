@@ -40,7 +40,10 @@ public class RoomUserCell extends ListCell<ViewRoomUser> {
             String prefix = item.getState().equals("Admin") ? "\uD83D\uDC51 " : (item.getState().equals("Muted") ? "❌ " : " ");
             name.setText(prefix + item.getName() + " <" + item.getNickname() + ">");
 
-            if (item.getLastActive() + 120 * 1000 < System.currentTimeMillis()) {
+            if (item.isBlocked()) {
+                lastOnline.setText("Du har blokeret denne bruger.");
+            }
+            else if (item.getLastActive() + 120 * 1000 < System.currentTimeMillis()) {
                 Duration duration = Duration.ofMillis(System.currentTimeMillis() - item.getLastActive());
                 if (duration.toHours() > 24) {
                     lastOnline.setText("Sidst aktiv for " + duration.toDays() + " dage siden");

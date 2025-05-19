@@ -43,4 +43,10 @@ public interface Profiles extends ServerRequestHandler {
     List<Profile> searchProfiles(String query);
 
     void updateUserActivity(long userId);
+
+    void blockUser(long blockUserId, long blockedByUserId);
+
+    void unblockUser(long blockUserId, long blockedByUserId);
+
+    List<Long> getBlockedUsers(long userId);
 }

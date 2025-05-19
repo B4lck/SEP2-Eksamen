@@ -44,6 +44,7 @@ public class ViewHandler {
                 // Send ikke system beskeder, eller egne beskeder som notifikationer
                 if (message.getSentBy() == 0) return;
                 if (message.getSentBy() == model.getProfileManager().getCurrentUserUUID()) return;
+                if (model.getProfileManager().isBlocked(message.getSentBy())) return;
                 // Send notifikation
                 Platform.runLater(() -> {
                     try {
@@ -55,6 +56,7 @@ public class ViewHandler {
                 });
             } else if (evt.getPropertyName().equals("NEW_REACTION")) {
                 Reaction reaction = (Reaction) evt.getNewValue();
+                if (model.getProfileManager().isBlocked(reaction.getReactedBy())) return;
                 // Send notifikation
                 Platform.runLater(() -> {
                     try {

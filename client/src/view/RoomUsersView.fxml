@@ -24,6 +24,7 @@
             <VBox alignment="CENTER" prefHeight="204.0" prefWidth="171.0" spacing="10.0">
                 <Button mnemonicParsing="false" onAction="#editName" prefWidth="150.0" text="Rediger kælenavn" />
                 <Button mnemonicParsing="false" onAction="#removeName" prefWidth="150.0" text="Fjern kælenavn" />
+                <Button fx:id="blockButton" mnemonicParsing="false" onAction="#blockUser" prefWidth="150.0" text="Bloker" />
             </VBox>
         </HBox>
         <ButtonBar prefHeight="40.0" prefWidth="200.0">

@@ -10,6 +10,7 @@ import java.util.*;
 public class ProfileManager {
     // Lokal cache af profiler
     private Map<Long, Profile> profiles = new HashMap<>();
+    private ArrayList<Long> blockedProfiles = new ArrayList<>();
 
     private long currentUserId = -1;
     private ChatClient client = ChatClient.getInstance();
@@ -22,6 +23,12 @@ public class ProfileManager {
         ClientMessage res = client.waitingForReply("ProfileManager signUp");
 
         currentUserId = res.getData().getLong("uuid");
+
+        client.sendMessage(new ClientMessage("GET_BLOCKED_USERS", new DataMap()));
+
+        ClientMessage blockedRes = client.waitingForReply("ProfileManager blocked users");
+
+        blockedProfiles = new ArrayList<>(blockedRes.getData().getLongsArray("blockedUsers"));
 
         return res.getData().getLong("uuid");
     }
@@ -39,6 +46,12 @@ public class ProfileManager {
         ClientMessage res = client.waitingForReply("ProfileManager login");
 
         currentUserId = res.getData().getLong("uuid");
+
+        client.sendMessage(new ClientMessage("GET_BLOCKED_USERS", new DataMap()));
+
+        ClientMessage blockedRes = client.waitingForReply("ProfileManager blocked users");
+
+        blockedProfiles = new ArrayList<>(blockedRes.getData().getLongsArray("blockedUsers"));
 
         return res.getData().getLong("uuid");
     }
@@ -103,6 +116,24 @@ public class ProfileManager {
         }
 
         return receivedProfiles;
+    }
+
+    public boolean isBlocked(long userId) {
+        return this.blockedProfiles.contains(userId);
+    }
+
+    public void blockUser(long userId) throws ServerError {
+        client.sendMessage(new ClientMessage("BLOCK", new DataMap()
+                .with("userId", userId)));
+        client.waitingForReply("ProfileManager blockUser");
+        this.blockedProfiles.add(userId);
+    }
+
+    public void unblockUser(long userId) throws ServerError {
+        client.sendMessage(new ClientMessage("UNBLOCK", new DataMap()
+                .with("userId", userId)));
+        client.waitingForReply("ProfileManager unblockUser");
+        this.blockedProfiles.remove(userId);
     }
 
     public long getCurrentUserUUID() {

@@ -103,6 +103,49 @@ public class ProfilesDBManager implements Profiles {
     }
 
     @Override
+    public void blockUser(long blockUserId, long blockedByUserId) {
+        try (Connection connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO blocklist (blocked_by, blocked) VALUES (?, ?) ON CONFLICT DO NOTHING");
+            statement.setLong(1, blockedByUserId);
+            statement.setLong(2, blockUserId);
+            statement.executeUpdate();
+        } catch (SQLException error) {
+            throw new RuntimeException(error);
+        }
+    }
+
+    @Override
+    public void unblockUser(long blockUserId, long blockedByUserId) {
+        try (Connection connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("DELETE FROM blocklist WHERE blocked_by = ? AND blocked = ?;");
+            statement.setLong(1, blockedByUserId);
+            statement.setLong(2, blockUserId);
+            statement.executeUpdate();
+        } catch (SQLException error) {
+            throw new RuntimeException(error);
+        }
+    }
+
+    @Override
+    public List<Long> getBlockedUsers(long userId) {
+        try (Connection connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM blocklist WHERE blocked_by = ?");
+            statement.setLong(1, userId);
+            ResultSet results = statement.executeQuery();
+
+            ArrayList<Long> blockedUsers = new ArrayList<>();
+
+            while (results.next()) {
+                blockedUsers.add(results.getLong("blocked"));
+            }
+
+            return blockedUsers;
+        } catch (SQLException error) {
+            throw new RuntimeException(error);
+        }
+    }
+
+    @Override
     public void handleRequest(ServerRequest request) {
         Profile user;
         ArrayList<DataMap> profiles;
@@ -164,6 +207,17 @@ public class ProfilesDBManager implements Profiles {
                         profiles.add(profile.getData());
                     }
                     request.respond(new DataMap().with("profiles", profiles));
+                    break;
+                case "BLOCK":
+                    blockUser(data.getLong("userId"), request.getUser());
+                    request.respond("En bruger blev blokeret");
+                    break;
+                case "UNBLOCK":
+                    unblockUser(data.getLong("userId"), request.getUser());
+                    request.respond("En blokering blev fjernet");
+                    break;
+                case "GET_BLOCKED_USERS":
+                    request.respond(new DataMap().with("blockedUsers", getBlockedUsers(request.getUser())));
                     break;
             }
         } catch (Exception e) {

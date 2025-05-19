@@ -60,6 +60,12 @@ CREATE TABLE reaction
     PRIMARY KEY (reacted_by, message_id, reaction)
 );
 
+CREATE TABLE blocklist
+(
+    blocked_by BIGINT REFERENCES profile (id),
+    blocked BIGINT REFERENCES profile (id)
+);
+
 -- PRIVILEGES
 
 GRANT ALL PRIVILEGES ON DATABASE sep2_chat TO sep2_chat;

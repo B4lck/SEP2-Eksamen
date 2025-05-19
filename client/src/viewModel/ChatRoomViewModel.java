@@ -233,18 +233,20 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                     }
                 }
 
+                boolean isBlocked = model.getProfileManager().isBlocked(message.getSentBy());
+
                 // Tilføj besked
                 messagesProperty.add(new ViewMessage() {{
-                    sender = roomUsersProperty.stream()
+                    sender = isBlocked ? "<<blokeret bruger>>" : roomUsersProperty.stream()
                             .filter(u -> u.getUserId() == message.getSentBy()).findAny()
                             .map(ViewRoomUser::getDisplayName).orElse("System");
-                    body = message.getBody();
+                    body = isBlocked ? "<<besked fra en blokeret bruger>>" : message.getBody();
                     dateTime = LocalDateTime.ofEpochSecond(message.getDateTime() / 1000, (int) (message.getDateTime() % 1000 * 1000), ZoneOffset.UTC);
                     messageId = message.getMessageId();
                     isSystemMessage = message.getSentBy() == 0;
                     isMyMessage = message.getSentBy() == myId;
-                    attachments = files;
-                    reactions = messageReactions.values().stream().toList();
+                    attachments = isBlocked ? List.of() : files;
+                    reactions = isBlocked ? List.of() : messageReactions.values().stream().toList();
                 }});
 
                 messagesProperty.sort(Comparator.comparing(o -> o.dateTime));

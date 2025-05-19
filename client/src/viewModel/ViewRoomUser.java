@@ -8,6 +8,7 @@ public class ViewRoomUser {
     private String state;
     private long latestReadMessage;
     private long lastActive;
+    private boolean isBlocked;
 
     public ViewRoomUser(long userId, String name, String nickname, String state, long latestReadMessage, long lastActive) {
         this.userId = userId;
@@ -16,6 +17,17 @@ public class ViewRoomUser {
         this.state = state;
         this.latestReadMessage = latestReadMessage;
         this.lastActive = lastActive;
+        this.isBlocked = false;
+    }
+
+    public ViewRoomUser(long userId, String name, String nickname, String state, long latestReadMessage, long lastActive, boolean isBlocked) {
+        this.userId = userId;
+        this.name = name;
+        this.nickname = nickname;
+        this.state = state;
+        this.latestReadMessage = latestReadMessage;
+        this.lastActive = lastActive;
+        this.isBlocked = isBlocked;
     }
 
     public long getUserId() {
@@ -44,5 +56,9 @@ public class ViewRoomUser {
 
     public long getLastActive() {
         return lastActive;
+    }
+
+    public boolean isBlocked() {
+        return isBlocked;
     }
 }

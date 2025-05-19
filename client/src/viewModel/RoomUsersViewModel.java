@@ -79,9 +79,30 @@ public class RoomUsersViewModel implements ViewModel {
                     user.getNickname(),
                     user.getState(),
                     user.getLatestReadMessage(),
-                    userProfile.getLastActive()
+                    userProfile.getLastActive(),
+                    model.getProfileManager().isBlocked(user.getUserId())
             );
             usersProperty.add(viewRoomUser);
+        } catch (ServerError e) {
+            e.showAlert();
+        }
+    }
+
+    public boolean isBlocked(long userId) {
+        return model.getProfileManager().isBlocked(userId);
+    }
+
+    public void block(long userId) {
+        try {
+            model.getProfileManager().blockUser(userId);
+        } catch (ServerError e) {
+            e.showAlert();
+        }
+    }
+
+    public void unblock(long userId) {
+        try {
+            model.getProfileManager().unblockUser(userId);
         } catch (ServerError e) {
             e.showAlert();
         }
