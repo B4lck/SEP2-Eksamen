@@ -140,5 +140,14 @@ public interface Room {
      * @param userId
      */
     RoomUser getUser(long userId);
+
+    /**
+     *
+     * @param color farve
+     */
+    void editColor (String color);
+
+
+
 }
 

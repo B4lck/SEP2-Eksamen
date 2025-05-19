@@ -14,7 +14,8 @@ CREATE TABLE profile
 CREATE TABLE room
 (
     id   BIGSERIAL PRIMARY KEY,
-    name username
+    name username,
+    color TEXT
 );
 
 CREATE TABLE message

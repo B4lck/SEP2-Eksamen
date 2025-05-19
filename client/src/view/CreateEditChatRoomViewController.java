@@ -13,6 +13,8 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
     @FXML
     public Text title;
     @FXML
+    public ColorPicker colorButton;
+    @FXML
     private Button muteButton;
     @FXML
     private Button unmuteButton;
@@ -103,5 +105,15 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
     @FXML
     public void demote(ActionEvent actionEvent) {
         getViewModel().demoteUser(users.getSelectionModel().getSelectedItems().getFirst().getUserId());
+    }
+
+    @FXML
+    public void editColor(ActionEvent actionEvent) {
+        getViewModel().editColor(String.format(
+                "#%02x%02x%02x",
+                (int) (255 * colorButton.getValue().getRed()),
+                (int) (255 * colorButton.getValue().getGreen()),
+                (int) (255 * colorButton.getValue().getBlue())
+        ));
     }
 }

@@ -177,4 +177,11 @@ public class RoomManager implements PropertyChangeSubject, PropertyChangeListene
         var reply = client.waitingForReply("NICKNAME");
         return reply.getData().getString("nickname");
     }
+
+    public void editColor(long chatroomId, String color) throws ServerError {
+        client.sendMessage(new ClientMessage("EDIT_COLOR", new DataMap()
+                .with("chatroomId", chatroomId)
+                .with("color", color)));
+        client.waitingForReply("SUCCESS");
+    }
 }

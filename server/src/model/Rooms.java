@@ -124,4 +124,13 @@ public interface Rooms extends ServerRequestHandler {
      * @return true hvis rummet findes
      */
     boolean doesRoomExists(long chatroom);
+
+    /**
+     *
+     * @param chatroom id'et på chatrummet
+     * @param user id'et på udførende
+     * @param color farve
+     * @return true hvis den findes
+     */
+    void editColor (long chatroom, long user, String color);
 }

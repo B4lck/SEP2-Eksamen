@@ -122,6 +122,12 @@ public class RoomsDBManager implements Rooms {
     }
 
     @Override
+    public void editColor(long chatroom, long user, String color) {
+        Room room = getRoom(chatroom, user);
+        room.editColor(color);
+    }
+
+    @Override
     public void unmuteUser(long chatroom, long user, long adminUser) {
         Room room = getRoom(chatroom, adminUser);
         room.unmuteUser(user, adminUser);
@@ -216,6 +222,10 @@ public class RoomsDBManager implements Rooms {
                     String nickname = getNicknameOfUser(request.getData().getLong("chatroomId"), request.getData().getLong("userId"));
                     request.respond(new DataMap()
                             .with("nickname", nickname));
+                    break;
+                case "EDIT_COLOR":
+                    editColor(request.getData().getLong("chatroomId"), request.getUser(), request.getData().getString("color"));
+                    request.respond("Farven er blevet ændret");
                     break;
             }
         } catch (Exception e) {

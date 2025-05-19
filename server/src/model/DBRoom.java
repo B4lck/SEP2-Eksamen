@@ -244,7 +244,8 @@ public class DBRoom implements Room {
             statement.setString(1, nickname);
             statement.setLong(2, roomId);
             statement.setLong(3, userId);
-            if (statement.executeUpdate() == 0) throw new IllegalStateException("Brugeren enten findes ikke, eller er ikke i rummet");
+            if (statement.executeUpdate() == 0)
+                throw new IllegalStateException("Brugeren enten findes ikke, eller er ikke i rummet");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -257,7 +258,8 @@ public class DBRoom implements Room {
             statement.setNull(1, Types.NULL);
             statement.setLong(2, user);
             statement.setLong(3, roomId);
-            if (statement.executeUpdate() == 0) throw new IllegalStateException("Brugeren enten findes ikke, eller er ikke i rummet");
+            if (statement.executeUpdate() == 0)
+                throw new IllegalStateException("Brugeren enten findes ikke, eller er ikke i rummet");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -304,6 +306,19 @@ public class DBRoom implements Room {
             }
 
             throw new IllegalStateException("Brugeren findes ikke i rummet");
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void editColor(String color) {
+        try (var connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("UPDATE room SET color=? WHERE id=?");
+            statement.setString(1, color);
+            statement.setLong(2, roomId);
+            statement.executeUpdate();
+
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage());
         }
