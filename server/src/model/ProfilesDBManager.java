@@ -7,11 +7,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class ProfilesDBManager implements Profiles {
+
+    private final Map<Long, Profile> profiles = new HashMap<>();
 
     public ProfilesDBManager(Model model) {
         model.addHandler(this);
@@ -19,12 +19,17 @@ public class ProfilesDBManager implements Profiles {
 
     @Override
     public Optional<Profile> getProfile(long uuid) {
+        // Tjek om brugeren findes i cache
+        if (profiles.containsKey(uuid)) return Optional.of(profiles.get(uuid));
+
+        // Forsøg at hente brugeren fra databasen
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM profile WHERE id = ?");
             statement.setLong(1, uuid);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                return Optional.of(new DBProfile(resultSet.getLong("id"), resultSet.getString("username")));
+                profiles.put(uuid, new DBProfile(uuid, resultSet.getString("username"), resultSet.getLong("latest_activity_time")));
+                return Optional.of(profiles.get(uuid));
             } else {
                 return Optional.empty();
             }
@@ -36,12 +41,18 @@ public class ProfilesDBManager implements Profiles {
     @Override
     public Optional<Profile> getProfileByUsername(String username) {
         if (username == null) throw new IllegalArgumentException("Username må ikke være null");
+
+        // Forsøg at hente brugeren fra cache
+        Optional<Profile> fromCache = profiles.values().stream().filter(profile -> username.equals(profile.getUsername())).findAny();
+        if (fromCache.isPresent()) return fromCache;
+
+        // Forsøg at finde brugeren i databasen
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM profile WHERE username = ?");
             statement.setString(1, username);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                return Optional.of(new DBProfile(resultSet.getLong("id"), resultSet.getString("username")));
+                return Optional.of(new DBProfile(resultSet.getLong("id"), resultSet.getString("username"), resultSet.getLong("latest_activity_time")));
             } else {
                 return Optional.empty();
             }
@@ -62,7 +73,9 @@ public class ProfilesDBManager implements Profiles {
             statement.executeUpdate();
             ResultSet resultSet = statement.getGeneratedKeys();
             if (resultSet.next()) {
-                return new DBProfile(resultSet.getLong("id"), username);
+                long id = resultSet.getLong("id");
+                profiles.put(id, new DBProfile(id, username, System.currentTimeMillis()));
+                return profiles.get(id);
             } else {
                 throw new RuntimeException("Profilen kunne ikke oprettes");
             }
@@ -78,13 +91,21 @@ public class ProfilesDBManager implements Profiles {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM profile WHERE username ILIKE ?");
             statement.setString(1, "%" + query + "%");
             ResultSet resultSet = statement.executeQuery();
-            ArrayList<Profile> profiles = new ArrayList<>();
+            ArrayList<Profile> filtered = new ArrayList<>();
 
             while (resultSet.next()) {
-                profiles.add(new DBProfile(resultSet.getLong("id"), resultSet.getString("username")));
+
+                long id = resultSet.getLong("id");
+
+                if (!profiles.containsKey(id)) {
+                    profiles.put(id, new DBProfile(id, resultSet.getString("username"), resultSet.getLong("latest_activity_time")));
+                }
+
+                filtered.add(profiles.get(id));
+
             }
 
-            return profiles;
+            return filtered;
         } catch (SQLException error) {
             throw new RuntimeException(error);
         }
@@ -92,6 +113,7 @@ public class ProfilesDBManager implements Profiles {
 
     @Override
     public void updateUserActivity(long userId) {
+        if (profiles.containsKey(userId)) profiles.get(userId).setLastActive(userId);
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("UPDATE profile SET latest_activity_time = ? WHERE id = ?");
             statement.setLong(1, System.currentTimeMillis());

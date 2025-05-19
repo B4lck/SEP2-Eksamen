@@ -8,12 +8,38 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+class Reaction {
+    private long reactedBy;
+    private String reaction;
+
+    public Reaction(long reactedBy, String reaction) {
+        this.reactedBy = reactedBy;
+        this.reaction = reaction;
+    }
+
+    public long getReactedBy() {
+        return reactedBy;
+    }
+
+    public String getReaction() {
+        return reaction;
+    }
+
+    public DataMap getData() {
+        return new DataMap()
+                .with("reactedBy", getReactedBy())
+                .with("reaction", getReaction());
+    }
+}
+
 public class DBMessage implements Message {
     private long id;
     private long sentBy;
     private String body;
     private long dateTime;
     private long chatRoom;
+    private List<String> attachments;
+    private List<Reaction> reactions;
 
     public DBMessage(long id, long sentBy, String body, long dateTime, long chatRoom) {
         this.id = id;
@@ -52,7 +78,7 @@ public class DBMessage implements Message {
                 .with("id", getMessageId())
                 .with("chatRoom", getChatRoom())
                 .with("attachments", getAttachments())
-                .with("reactions", getReactions());
+                .with("reactions", getReactions().stream().map(Reaction::getData).toList());
     }
 
     @Override
@@ -62,11 +88,14 @@ public class DBMessage implements Message {
 
     @Override
     public List<String> getAttachments() {
+        if (attachments != null) return attachments;
+
+        // Hent fra databasen
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM attachment WHERE message_id = ?");
             statement.setLong(1, id);
             ResultSet res = statement.executeQuery();
-            List<String> attachments = new ArrayList<>();
+            attachments = new ArrayList<>();
             while (res.next()) {
                 attachments.add(res.getString("file_name"));
             }
@@ -77,16 +106,16 @@ public class DBMessage implements Message {
     }
 
     @Override
-    public List<DataMap> getReactions() {
+    public List<Reaction> getReactions() {
+        if (reactions != null) return reactions;
+
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM reaction WHERE message_id = ?");
             statement.setLong(1, id);
             ResultSet res = statement.executeQuery();
-            List<DataMap> reactions = new ArrayList<>();
+            reactions = new ArrayList<>();
             while (res.next()) {
-                reactions.add(new DataMap()
-                        .with("reaction", res.getString("reaction"))
-                        .with("reactedBy", res.getLong("reacted_by")));
+                reactions.add(new Reaction(res.getLong("reacted_by"), res.getString("reaction")));
             }
             return reactions;
         } catch (Exception e) {
@@ -103,9 +132,10 @@ public class DBMessage implements Message {
         //       for lidt ekstra flair i rapporten
 
         try (Connection connection = Database.getConnection()) {
-            System.out.println("Redigerer beskeden med id " + id + " med ny besked: " + messageBody + " (redigeret af " + byUserId + "");
+            body = messageBody + " (redigeret)";
+
             PreparedStatement statement = connection.prepareStatement("UPDATE message SET body = ? WHERE id = ?");
-            statement.setString(1, messageBody + " (redigeret)");
+            statement.setString(1, body);
             statement.setLong(2, id);
             statement.execute();
         } catch (Exception e) {
@@ -116,9 +146,11 @@ public class DBMessage implements Message {
     @Override
     public void deleteContent(long byUserId) {
         try (Connection connection = Database.getConnection()) {
+            body = "[BESKEDEN ER BLEVET SLETTET]";
+            attachments = new ArrayList<>();
             // Slet indholdet af beskeden
             PreparedStatement statement = connection.prepareStatement("UPDATE message SET body = ? WHERE id = ?");
-            statement.setString(1, "[BESKEDEN ER BLEVET SLETTET]");
+            statement.setString(1, body);
             statement.setLong(2, id);
             statement.execute();
             // Slet beskedens bilag
@@ -133,7 +165,8 @@ public class DBMessage implements Message {
     @Override
     public void addAttachment(String fileName) {
         try (Connection connection = Database.getConnection()) {
-            // Tilføj bilag til beskeden
+            getAttachments().add(fileName);
+
             PreparedStatement statement = connection.prepareStatement("INSERT INTO attachment (message_id, file_name) VALUES (?, ?)");
             statement.setLong(1, id);
             statement.setString(2, fileName);
@@ -146,7 +179,8 @@ public class DBMessage implements Message {
     @Override
     public void removeAttachment(String fileName) {
         try (Connection connection = Database.getConnection()) {
-            // Tilføj bilag til beskeden
+            getAttachments().remove(fileName);
+
             PreparedStatement statement = connection.prepareStatement("DELETE FROM attachment WHERE message_id = ? AND file_name = ?");
             statement.setLong(1, id);
             statement.setString(2, fileName);
@@ -161,6 +195,8 @@ public class DBMessage implements Message {
         if (reaction == null || reaction.isBlank()) throw new IllegalArgumentException("Reaction må ikke være null");
 
         try (Connection connection = Database.getConnection()) {
+            reactions.add(new Reaction(userId, reaction));
+
             PreparedStatement statement = connection.prepareStatement("INSERT INTO reaction (message_id, reacted_by, reaction) VALUES (?,?,?)");
             statement.setLong(1, id);
             statement.setLong(2, userId);
@@ -176,6 +212,8 @@ public class DBMessage implements Message {
         if (reaction == null || reaction.isBlank()) throw new IllegalArgumentException("Reaction må ikke være null");
 
         try (Connection connection = Database.getConnection()) {
+            reactions.removeIf(r -> r.getReactedBy() == userId && r.getReaction().equals(reaction));
+
             PreparedStatement statement = connection.prepareStatement("DELETE FROM reaction WHERE message_id = ? AND reacted_by = ? AND reaction = ?");
             statement.setLong(1, id);
             statement.setLong(2, userId);

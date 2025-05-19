@@ -7,13 +7,14 @@ import utils.DataMap;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class MessagesDBManager implements Messages {
 
-    private Model model;
-    private PropertyChangeSupport property = new PropertyChangeSupport(this);
+    private final Model model;
+    private final PropertyChangeSupport property = new PropertyChangeSupport(this);
+
+    private final Map<Long, Message> messages = new HashMap<>();
 
     public MessagesDBManager(Model model) {
         this.model = model;
@@ -52,7 +53,11 @@ public class MessagesDBManager implements Messages {
             ResultSet res = statement.getGeneratedKeys();
 
             if (res.next()) {
-                var message = new DBMessage(res.getLong(1), senderId, messageBody, currentTime, chatroom);
+                long id = res.getLong(1);
+
+                Message message = new DBMessage(id, senderId, messageBody, currentTime, chatroom);
+
+                messages.put(id, message);
 
                 for (String attachment : attachments) {
                     message.addAttachment(attachment);
@@ -92,19 +97,25 @@ public class MessagesDBManager implements Messages {
             statement.setInt(2, amount);
             ResultSet res = statement.executeQuery();
 
-            List<Message> messages = new ArrayList<>();
+            List<Message> msgs = new ArrayList<>();
 
             while (res.next()) {
-                messages.add(new DBMessage(
-                        res.getLong("id"),
-                        res.getLong("sent_by_id"),
-                        res.getString("body"),
-                        res.getLong("time"),
-                        res.getLong("room_id")
-                ));
+                long id = res.getLong("id");
+
+                if (!messages.containsKey(id)) {
+                    messages.put(id, new DBMessage(
+                            res.getLong("id"),
+                            res.getLong("sent_by_id"),
+                            res.getString("body"),
+                            res.getLong("time"),
+                            res.getLong("room_id")
+                    ));
+                }
+
+                msgs.add(messages.get(id));
             }
 
-            return messages;
+            return msgs;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -118,29 +129,55 @@ public class MessagesDBManager implements Messages {
     @Override
     public List<Message> getMessagesBefore(long messageId, int amount, long userId) {
         if (amount <= 0) throw new IllegalArgumentException("Det er for lidt beskeder brormand");
-        if (getMessage(messageId, userId) == null)
+
+        Message beforeThis = getMessage(messageId, userId);
+
+        if (beforeThis == null)
             throw new IllegalStateException("Beskeden findes ikke, eller du har ikke adgang til rummet.");
 
+        // Hent beskeder i cache
+        ArrayList<Message> msgs = new ArrayList<>(messages.values().stream()
+                .filter(msg -> msg.getChatRoom() == beforeThis.getChatRoom()
+                        && msg.getDateTime() <= beforeThis.getDateTime()
+                        && msg != beforeThis)
+                .sorted(Comparator.comparingLong(Message::getDateTime).reversed())
+                .limit(10)
+                .toList());
+
+        // Blev nok beskeder hentet?
+        if (msgs.size() == amount) return msgs;
+
+        // Databasen skal kun hente fra før ældste besked fundet
+        Message beforeThisOrOlder = beforeThis;
+        if (!msgs.isEmpty()) beforeThisOrOlder = msgs.getLast();
+
+        // Forsøg at hente fra databasen
         try (Connection connection = Database.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("WITH beforeThis (time, room_id) AS (SELECT time, room_id FROM message WHERE id = ?)\n" +
-                    "SELECT * FROM message, beforeThis WHERE message.time < beforeThis.time AND message.room_id = beforeThis.room_id ORDER BY message.time DESC LIMIT ?;");
-            statement.setLong(1, messageId);
-            statement.setInt(2, amount);
+            PreparedStatement statement = connection.prepareStatement(
+                    "SELECT * FROM message WHERE message.time < ? AND message.room_id = ? ORDER BY message.time DESC LIMIT ?;"
+            );
+            statement.setLong(1, beforeThisOrOlder.getDateTime());
+            statement.setLong(2, beforeThisOrOlder.getChatRoom());
+            statement.setInt(3, amount - msgs.size());
             ResultSet res = statement.executeQuery();
 
-            List<Message> messages = new ArrayList<>();
-
             while (res.next()) {
-                messages.add(new DBMessage(
-                        res.getLong("id"),
-                        res.getLong("sent_by_id"),
-                        res.getString("body"),
-                        res.getLong("time"),
-                        res.getLong("room_id")
-                ));
+                long id = res.getLong("id");
+
+                if (!messages.containsKey(id)) {
+                    messages.put(id, new DBMessage(
+                            res.getLong("id"),
+                            res.getLong("sent_by_id"),
+                            res.getString("body"),
+                            res.getLong("time"),
+                            res.getLong("room_id")
+                    ));
+                }
+
+                msgs.add(messages.get(id));
             }
 
-            return messages;
+            return msgs;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -158,15 +195,19 @@ public class MessagesDBManager implements Messages {
             statement.setLong(1, messageId);
             ResultSet res = statement.executeQuery();
             if (res.next()) {
+                if (!messages.containsKey(messageId)) {
+                    messages.put(messageId, new DBMessage(
+                            res.getLong("id"),
+                            res.getLong("sent_by_id"),
+                            res.getString("body"),
+                            res.getLong("time"),
+                            res.getLong("room_id")
+                    ));
+                }
+
                 model.getRooms().getRoom(res.getLong("room_id"), userId);
 
-                return new DBMessage(
-                        res.getLong("id"),
-                        res.getLong("sent_by_id"),
-                        res.getString("body"),
-                        res.getLong("time"),
-                        res.getLong("room_id")
-                );
+                return messages.get(messageId);
             } else {
                 throw new IllegalStateException("Kunne ikke finde besked med id " + messageId);
             }

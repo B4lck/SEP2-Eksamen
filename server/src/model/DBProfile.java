@@ -10,10 +10,12 @@ import java.sql.SQLException;
 public class DBProfile implements Profile {
     private long id;
     private String username;
+    private long lastActive;
 
-    public DBProfile(long id, String username) {
+    public DBProfile(long id, String username, long lastActive) {
         this.id = id;
         this.username = username;
+        this.lastActive = lastActive;
     }
 
     @Override
@@ -33,6 +35,7 @@ public class DBProfile implements Profile {
             statement.setString(1, username);
             statement.setLong(2, id);
             statement.executeUpdate();
+            this.username = username;
         } catch (SQLException error) {
             throw new RuntimeException(error);
         }
@@ -68,11 +71,18 @@ public class DBProfile implements Profile {
 
     @Override
     public long getLastActive() {
+        return lastActive;
+    }
+
+    @Override
+    public void setLastActive(long userId) {
+        lastActive = System.currentTimeMillis();
+
         try (Connection connection = Database.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("SELECT latest_activity_time FROM profile WHERE id = ?");
-            statement.setLong(1, id);
-            ResultSet res = statement.executeQuery();
-            return res.next() ? res.getLong("latest_activity_time") : 0;
+            PreparedStatement statement = connection.prepareStatement("UPDATE profile SET latest_activity_time = ? WHERE id = ?");
+            statement.setLong(1, lastActive);
+            statement.setLong(2, id);
+            statement.executeUpdate();
         } catch (SQLException error) {
             throw new RuntimeException(error);
         }

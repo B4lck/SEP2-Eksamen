@@ -39,6 +39,8 @@ public interface Profile {
 
     long getLastActive();
 
+    void setLastActive(long userId);
+
     /**
      * Laver profilen om til et map, som kan sendes til clienten
      *

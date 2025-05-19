@@ -55,7 +55,7 @@ public interface Message {
     /**
      * Henter alle reaktioner
      */
-    List<DataMap> getReactions();
+    List<Reaction> getReactions();
 
     /**
      * Redigere beskedens body, og giver den et mærkat som redigeret
