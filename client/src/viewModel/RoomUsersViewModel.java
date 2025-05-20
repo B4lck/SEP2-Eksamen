@@ -6,7 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.Model;
 import model.Profile;
-import model.RoomUser;
+import model.RoomMember;
 import util.ServerError;
 
 public class RoomUsersViewModel implements ViewModel {
@@ -33,7 +33,7 @@ public class RoomUsersViewModel implements ViewModel {
             errorText.setValue("");
             titleText.setValue(viewState.getCurrentChatRoomProperty().getName());
             var room = model.getRoomManager().getRoom(viewState.getCurrentChatRoom());
-            for (RoomUser user : room.getUsers()) {
+            for (RoomMember user : room.getMembers()) {
                 addUser(user);
             }
         } catch (ServerError e) {
@@ -56,7 +56,7 @@ public class RoomUsersViewModel implements ViewModel {
     public void editNickname(long userId, String nickname) {
         if (nickname == null || nickname.isEmpty()) return;
         try {
-            model.getRoomManager().editNickname(viewState.getCurrentChatRoom(), userId, nickname);
+            model.getRoomManager().setNickname(viewState.getCurrentChatRoom(), userId, nickname);
         } catch (ServerError e) {
             e.showAlert();
         }
@@ -70,7 +70,7 @@ public class RoomUsersViewModel implements ViewModel {
         }
     }
 
-    private void addUser(RoomUser user) {
+    private void addUser(RoomMember user) {
         try {
             Profile userProfile = model.getProfileManager().fetchProfile(user.getUserId());
             ViewRoomUser viewRoomUser = new ViewRoomUser(
@@ -94,7 +94,7 @@ public class RoomUsersViewModel implements ViewModel {
 
     public void block(long userId) {
         try {
-            model.getProfileManager().blockUser(userId);
+            model.getProfileManager().blockProfile(userId);
         } catch (ServerError e) {
             e.showAlert();
         }
@@ -102,7 +102,7 @@ public class RoomUsersViewModel implements ViewModel {
 
     public void unblock(long userId) {
         try {
-            model.getProfileManager().unblockUser(userId);
+            model.getProfileManager().unblockProfile(userId);
         } catch (ServerError e) {
             e.showAlert();
         }

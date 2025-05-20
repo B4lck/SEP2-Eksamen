@@ -18,18 +18,18 @@ public class ProfilesDBManager implements Profiles {
     }
 
     @Override
-    public Optional<Profile> getProfile(long uuid) {
+    public Optional<Profile> getProfile(long userId) {
         // Tjek om brugeren findes i cache
-        if (profiles.containsKey(uuid)) return Optional.of(profiles.get(uuid));
+        if (profiles.containsKey(userId)) return Optional.of(profiles.get(userId));
 
         // Forsøg at hente brugeren fra databasen
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM profile WHERE id = ?");
-            statement.setLong(1, uuid);
+            statement.setLong(1, userId);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                profiles.put(uuid, new DBProfile(uuid, resultSet.getString("username"), resultSet.getLong("latest_activity_time")));
-                return Optional.of(profiles.get(uuid));
+                profiles.put(userId, new DBProfile(userId, resultSet.getString("username"), resultSet.getLong("latest_activity_time")));
+                return Optional.of(profiles.get(userId));
             } else {
                 return Optional.empty();
             }
@@ -112,7 +112,7 @@ public class ProfilesDBManager implements Profiles {
     }
 
     @Override
-    public void updateUserActivity(long userId) {
+    public void updateProfileActivity(long userId) {
         if (profiles.containsKey(userId)) profiles.get(userId).setLastActive(userId);
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("UPDATE profile SET latest_activity_time = ? WHERE id = ?");
@@ -125,7 +125,7 @@ public class ProfilesDBManager implements Profiles {
     }
 
     @Override
-    public void blockUser(long blockUserId, long blockedByUserId) {
+    public void blockProfile(long blockUserId, long blockedByUserId) {
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("INSERT INTO blocklist (blocked_by, blocked) VALUES (?, ?) ON CONFLICT DO NOTHING");
             statement.setLong(1, blockedByUserId);
@@ -137,7 +137,7 @@ public class ProfilesDBManager implements Profiles {
     }
 
     @Override
-    public void unblockUser(long blockUserId, long blockedByUserId) {
+    public void unblockProfile(long blockUserId, long blockedByUserId) {
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("DELETE FROM blocklist WHERE blocked_by = ? AND blocked = ?;");
             statement.setLong(1, blockedByUserId);
@@ -149,19 +149,19 @@ public class ProfilesDBManager implements Profiles {
     }
 
     @Override
-    public List<Long> getBlockedUsers(long userId) {
+    public List<Long> getBlockedProfiles(long userId) {
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM blocklist WHERE blocked_by = ?");
             statement.setLong(1, userId);
             ResultSet results = statement.executeQuery();
 
-            ArrayList<Long> blockedUsers = new ArrayList<>();
+            ArrayList<Long> blockedProfiles = new ArrayList<>();
 
             while (results.next()) {
-                blockedUsers.add(results.getLong("blocked"));
+                blockedProfiles.add(results.getLong("blocked"));
             }
 
-            return blockedUsers;
+            return blockedProfiles;
         } catch (SQLException error) {
             throw new RuntimeException(error);
         }
@@ -175,7 +175,7 @@ public class ProfilesDBManager implements Profiles {
         var data = request.getData();
 
         if (request.getUser() != -1) {
-            updateUserActivity(request.getUser());
+            updateProfileActivity(request.getUser());
         }
 
         try {
@@ -185,9 +185,9 @@ public class ProfilesDBManager implements Profiles {
                     // Create user
                     user = createProfile(data.getString("username"), data.getString("password"));
                     // Log user in
-                    request.setUser(user.getUUID());
-                    // Respond with uuid
-                    request.respond(new DataMap().with("uuid", user.getUUID()));
+                    request.setUser(user.getUserId());
+                    // Respond with id
+                    request.respond(new DataMap().with("userId", user.getUserId()));
                     break;
                 // Log in
                 case "LOG_IN":
@@ -196,8 +196,8 @@ public class ProfilesDBManager implements Profiles {
                             .orElseThrow(() -> new IllegalStateException("Forkert brugernavn eller adgangskode"));
                     // Check password
                     if (user.checkPassword(data.getString("password"))) {
-                        request.setUser(user.getUUID());
-                        request.respond(new DataMap().with("uuid", user.getUUID()));
+                        request.setUser(user.getUserId());
+                        request.respond(new DataMap().with("userId", user.getUserId()));
                     } else {
                         throw new IllegalStateException("Forkert brugernavn eller adgangskode");
                     }
@@ -206,7 +206,6 @@ public class ProfilesDBManager implements Profiles {
                 case "LOG_OUT":
                     // Log out
                     request.setUser(-1);
-                    // Respond with uuid
                     request.respond("Du er blevet logget ud.");
                     break;
                 // Get profile
@@ -218,7 +217,7 @@ public class ProfilesDBManager implements Profiles {
                     break;
                 // Get profile
                 case "GET_PROFILE":
-                    user = getProfile(data.getLong("uuid"))
+                    user = getProfile(data.getLong("userId"))
                             .orElseThrow(() -> new IllegalStateException("Brugeren findes ikke"));
 
                     request.respond(new DataMap().with("profile", user.getData()));
@@ -238,15 +237,15 @@ public class ProfilesDBManager implements Profiles {
                     request.respond(new DataMap().with("profiles", profiles));
                     break;
                 case "BLOCK":
-                    blockUser(data.getLong("userId"), request.getUser());
+                    blockProfile(data.getLong("userId"), request.getUser());
                     request.respond("En bruger blev blokeret");
                     break;
                 case "UNBLOCK":
-                    unblockUser(data.getLong("userId"), request.getUser());
+                    unblockProfile(data.getLong("userId"), request.getUser());
                     request.respond("En blokering blev fjernet");
                     break;
-                case "GET_BLOCKED_USERS":
-                    request.respond(new DataMap().with("blockedUsers", getBlockedUsers(request.getUser())));
+                case "GET_BLOCKED_PROFILES":
+                    request.respond(new DataMap().with("blockedProfiles", getBlockedProfiles(request.getUser())));
                     break;
             }
         } catch (Exception e) {

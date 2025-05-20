@@ -45,7 +45,7 @@ public interface Message {
      *
      * @return Id'et på chatrummet
      */
-    long getChatRoom();
+    long getRoomId();
 
     /**
      * Henter alle bilag
@@ -61,22 +61,22 @@ public interface Message {
      * Redigere beskedens body, og giver den et mærkat som redigeret
      *
      * @param messageBody Den nye body
-     * @param byUserId    Id'et på brugeren som forsøger at ændre beskedens body
+     * @param userId   Id'et på brugeren som forsøger at ændre beskedens body
      */
-    void editBody(String messageBody, long byUserId);
+    void editBody(String messageBody, long userId);
 
     /**
      * Ændre beskedens body til "[BESKEDEN ER SLETTET]"
      * Fjerner også beskedens bilag, men sletter dog ikke selve filerne, det skal selv gøres efter
      *
-     * @param byUserId - Id'et på brugeren som forsøger at slette beskeden
+     * @param userId Id'et på brugeren som forsøger at slette beskeden
      */
-    void deleteContent(long byUserId);
+    void deleteContent(long userId);
 
     /**
      * Tilføjer et bilag til beskeden
      *
-     * @param fileName - Navnet på bilaget, bilaget skal være uploadet for at kunne hentes!
+     * @param fileName Navnet på bilaget, bilaget skal være uploadet for at kunne hentes!
      */
     void addAttachment(String fileName);
 
@@ -84,17 +84,23 @@ public interface Message {
      * Fjerner et bilag fra beskeden
      * Fjerner dog ikke selve filen, dette skal selv gøres efter
      *
-     * @param fileName - Navnet på bilaget
+     * @param fileName Navnet på bilaget
      */
     void removeAttachment(String fileName);
 
     /**
      * Tilføj en reaktion til beskeden
      *
-     * @param reaction - Reaktionen der skal tilføjes
-     * @param userId   - Personen der reagere
+     * @param reaction  Reaktionen der skal tilføjes
+     * @param userId Personen der reagere
      */
     void addReaction(String reaction, long userId);
 
+    /**
+     * Fjern en reaktion fra beskeden
+     *
+     * @param reaction  Reaktionen der skal fjernes
+     * @param userId Personen der reagere
+     */
     void removeReaction(String reaction, long userId);
 }

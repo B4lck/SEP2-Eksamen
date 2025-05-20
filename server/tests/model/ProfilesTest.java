@@ -30,7 +30,7 @@ class ProfilesTest {
     void getProfile_Regular() {
         var profile = profiles.createProfile("test", "1234");
 
-        assertEquals(profile, profiles.getProfile(profile.getUUID()).orElseThrow());
+        assertEquals(profile, profiles.getProfile(profile.getUserId()).orElseThrow());
     }
 
     @Test

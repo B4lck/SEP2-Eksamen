@@ -124,6 +124,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
                 Button roomButton = new Button(r.getName());
                 roomButton.setPrefWidth(200);
                 roomButton.getStyleClass().add("room-button");
+                if (r.hasNewActivity()) roomButton.getStyleClass().add("new-activity");
                 if (currentRoom != null && currentRoom.getRoomId() == r.getRoomId())
                     roomButton.getStyleClass().add("active");
                 roomButton.addEventHandler(ActionEvent.ACTION, evt -> getViewModel().setChatRoom(r.getRoomId()));
@@ -294,7 +295,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
 
     @FXML
     public void editNicknames() {
-        getViewHandler().openView(ViewID.ROOM_USERS);
+        getViewHandler().openView(ViewID.ROOM_MEMBERS);
     }
 
     @FXML

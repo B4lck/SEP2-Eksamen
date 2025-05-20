@@ -6,7 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.Model;
 import model.Profile;
-import model.RoomUser;
+import model.RoomMember;
 import util.ServerError;
 
 import java.util.HashSet;
@@ -46,7 +46,7 @@ public class CreateEditChatRoomViewModel implements ViewModel {
             try {
                 var room = model.getRoomManager().getRoom(viewState.getCurrentChatRoom());
                 nameProperty.set(room.getName());
-                for (RoomUser user : room.getUsers()) {
+                for (RoomMember user : room.getMembers()) {
                     addUser(user.getUserId());
                 }
             } catch (ServerError e) {
@@ -87,7 +87,7 @@ public class CreateEditChatRoomViewModel implements ViewModel {
 
     public void muteUser(long userId) {
         try {
-            model.getRoomManager().muteUser(viewState.getCurrentChatRoom(), userId);
+            model.getRoomManager().muteMember(viewState.getCurrentChatRoom(), userId);
         } catch (ServerError e) {
             e.showAlert();
         }
@@ -95,7 +95,7 @@ public class CreateEditChatRoomViewModel implements ViewModel {
 
     public void unmuteUser(long userId) {
         try {
-            model.getRoomManager().unmuteUser(viewState.getCurrentChatRoom(), userId);
+            model.getRoomManager().unmuteMember(viewState.getCurrentChatRoom(), userId);
         } catch (ServerError e) {
             e.showAlert();
         }
@@ -103,7 +103,7 @@ public class CreateEditChatRoomViewModel implements ViewModel {
 
     public void promoteUser(long userId) {
         try {
-            model.getRoomManager().promoteUser(viewState.getCurrentChatRoom(), userId);
+            model.getRoomManager().promoteMember(viewState.getCurrentChatRoom(), userId);
         } catch (ServerError e) {
             e.showAlert();
         }
@@ -111,7 +111,7 @@ public class CreateEditChatRoomViewModel implements ViewModel {
 
     public void demoteUser(long userId) {
         try {
-            model.getRoomManager().demoteUser(viewState.getCurrentChatRoom(), userId);
+            model.getRoomManager().demoteMember(viewState.getCurrentChatRoom(), userId);
         } catch (ServerError e) {
             e.showAlert();
         }
@@ -127,7 +127,7 @@ public class CreateEditChatRoomViewModel implements ViewModel {
                 var room = model.getRoomManager().getRoom(viewState.getCurrentChatRoom());
 
                 // Fjern fjernede brugere og tilføj nye brugere, ved at compare imod de gamle brugere
-                List<Long> previousProfiles = room.getUsers().stream().map(RoomUser::getUserId).toList();
+                List<Long> previousProfiles = room.getMembers().stream().map(RoomMember::getUserId).toList();
 
                 Set<Long> addedProfiles = new HashSet<>(
                         membersProperty.stream()
@@ -142,11 +142,11 @@ public class CreateEditChatRoomViewModel implements ViewModel {
                                 .toList());
 
                 for (Long profile : addedProfiles) {
-                    if (profile != null) model.getRoomManager().addUser(room.getRoomId(), profile);
+                    if (profile != null) model.getRoomManager().addMember(room.getRoomId(), profile);
                 }
 
                 for (Long profile : removedProfiles) {
-                    if (profile != null) model.getRoomManager().removeUser(room.getRoomId(), profile);
+                    if (profile != null) model.getRoomManager().removeMember(room.getRoomId(), profile);
                 }
 
                 // Opdater gruppenavn
@@ -156,7 +156,7 @@ public class CreateEditChatRoomViewModel implements ViewModel {
                 // Opret et nyt chat rum
                 long room = model.getRoomManager().createRoom(nameProperty.getValue());
                 for (ViewUser profile : membersProperty) {
-                    model.getRoomManager().addUser(room, profile.getUserId());
+                    model.getRoomManager().addMember(room, profile.getUserId());
                 }
             }
         } catch (ServerError e) {

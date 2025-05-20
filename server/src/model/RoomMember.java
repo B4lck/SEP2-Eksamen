@@ -4,11 +4,11 @@ import model.statemachine.UserState;
 import model.statemachine.UserStateId;
 import utils.DataMap;
 
-public class RoomUser {
+public class RoomMember {
     /**
      * Id'et på profilen som RoomUser skal tilknyttes
      */
-    private long id;
+    private long userId;
     /**
      * Staten på objektet
      */
@@ -17,11 +17,11 @@ public class RoomUser {
     private String nickname;
 
     /**
-     * @param id Id'et på profilen som RoomUser skal tilknyttes
+     * @param userId Id'et på profilen som RoomUser skal tilknyttes
      * @param state Staten på profilen
      */
-    public RoomUser(long id, UserStateId state, long latestReadMessage, String nickname) {
-        this.id = id;
+    public RoomMember(long userId, UserStateId state, long latestReadMessage, String nickname) {
+        this.userId = userId;
         this.state = UserState.stateFromString(state, this);
         this.latestReadMessage = latestReadMessage;
         this.nickname = nickname;
@@ -32,8 +32,8 @@ public class RoomUser {
      *
      * @return id'et på brugeren
      */
-    public long getId() {
-        return id;
+    public long getUserId() {
+        return userId;
     }
 
     /**
@@ -60,7 +60,7 @@ public class RoomUser {
 
     public DataMap getData() {
         return new DataMap()
-                .with("id", id)
+                .with("userId", userId)
                 .with("state", state.getStateAsString())
                 .with("latestReadMessage", latestReadMessage)
                 .with("nickname", nickname);
@@ -68,5 +68,9 @@ public class RoomUser {
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    public void setLatestReadMessage(long messageId) {
+        this.latestReadMessage = messageId;
     }
 }

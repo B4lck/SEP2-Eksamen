@@ -35,7 +35,7 @@ public class UserPickerViewModel implements ViewModel {
             var profiles = model.getProfileManager().searchProfiles(searchProperty.getValue());
 
             for (Profile profile : profiles) {
-                resultsProperty.add(new ViewUser(profile.getUUID(), profile.getUsername()));
+                resultsProperty.add(new ViewUser(profile.getUserId(), profile.getUsername()));
             }
 
         } catch (ServerError e) {

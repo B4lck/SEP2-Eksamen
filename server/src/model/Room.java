@@ -24,23 +24,23 @@ public interface Room {
      *
      * @return id'et på alle brugere
      */
-    List<Long> getUsers();
+    List<Long> getMembers();
 
     /**
      * Tilføjer ny bruger til chatrummet
      *
-     * @param userToAdd   Id'et på brugeren der skal tilføjes
-     * @param addedByUser Id'et på brugeren der forsøger at tilføje en ny bruger
+     * @param addUserId   Id'et på brugeren der skal tilføjes
+     * @param adminUserId Id'et på brugeren der forsøger at tilføje en ny bruger
      */
-    void addUser(long userToAdd, long addedByUser);
+    void addMember(long addUserId, long adminUserId);
 
     /**
      * Fjerner en bruger fra chatrummet
      *
-     * @param user      id'et på brugeren der skal fjernes
-     * @param removedByUser id'et på brugeren som forsøger at fjerne
+     * @param removeUserId      id'et på brugeren der skal fjernes
+     * @param adminUserId id'et på brugeren som forsøger at fjerne
      */
-    void removeUser(long user, long removedByUser);
+    void removeMember(long removeUserId, long adminUserId);
 
     /**
      * Laver objektet om til et map, så det kan sendes med JSON til clienten uden fejl
@@ -52,34 +52,34 @@ public interface Room {
     /**
      * Tjekker om en bruger er i chatrummet
      *
-     * @param user Id'et på brugeren
+     * @param userId Id'et på brugeren
      * @return true hvis brugeren deltager i chatrummet
      */
-    boolean isInRoom(long user);
+    boolean isMember(long userId);
 
     /**
      * Sætter navnet på chatrummet
      *
      * @param name          Det nye navn
-     * @param changedByUser id'et på brugeren som forsøger at ændre navnet
+     * @param adminUserId id'et på brugeren som forsøger at ændre navnet
      */
-    void setName(String name, long changedByUser);
+    void setName(String name, long adminUserId);
 
     /**
      * Muter en bruger i chatrummet
      *
-     * @param userId Id på valgte bruger
-     * @param byUser Id'et på udførende
+     * @param muteUserId Id på valgte bruger
+     * @param adminUserId Id'et på udførende
      */
-    void muteUser(long userId, long byUser);
+    void muteUser(long muteUserId, long adminUserId);
 
     /**
      * Unmuter bruger i chatrummet
      *
-     * @param userId Id på valgte bruger
-     * @param byUser Id'et på udførende
+     * @param unmuteUserId Id på valgte bruger
+     * @param adminUserId Id'et på udførende
      */
-    void unmuteUser(long userId, long byUser);
+    void unmuteUser(long unmuteUserId, long adminUserId);
 
     /**
      * Tjekker om brugeren er muted
@@ -92,18 +92,18 @@ public interface Room {
     /**
      * Forfremmer en bruger i rummet
      *
-     * @param userId Id på valgte bruger
-     * @param promotedByUser Id på udførende
+     * @param promoteUserId Id på valgte bruger
+     * @param adminUserId Id på udførende
      */
-    void promoteUser(long userId, long promotedByUser);
+    void promoteUser(long promoteUserId, long adminUserId);
 
     /**
      * Degraderer en bruger i rummet
      *
-     * @param userId Id på valgte bruger
-     * @param promotedByUser Id på udførende
+     * @param demoteUserId Id på valgte bruger
+     * @param adminUserId Id på udførende
      */
-    void demoteUser(long userId, long promotedByUser);
+    void demoteUser(long demoteUserId, long adminUserId);
 
     /**
      * Sætter kaldenavnet på en bruger
@@ -115,9 +115,9 @@ public interface Room {
 
     /**
      * Fjerner et brugernavn fra en bruger
-     * @param user id'et på brugeren
+     * @param userId id'et på brugeren
      */
-    void removeNicknameFromUser(long user);
+    void removeNicknameFromUser(long userId);
 
     /**
      * Tjekker om en bruger er admin
@@ -131,23 +131,27 @@ public interface Room {
      * Henter en bruger i rummet (RoomUser)
      * @param userId
      */
-    RoomUser getUser(long userId);
+    RoomMember getProfile(long userId);
 
     /**
      *
      * @param color farve
      */
-    void editColor (String color);
+    void setColor(String color);
 
 
     String getColor();
 
     long getLatestActivity();
 
-    void addAdminUser(long user);
+    long getLatestMessage();
 
-    void setFont(String font, long user);
+    void addAdminMember(long userId);
+
+    void setFont(String font);
 
     String getFont();
+
+    void setLatestReadMessage(long messageId, long userId);
 }
 

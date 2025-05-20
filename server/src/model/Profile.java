@@ -6,7 +6,7 @@ public interface Profile {
     /**
      * Henter profilens unikke ID
      */
-    long getUUID();
+    long getUserId();
 
     /**
      * Henter brugernavnet på profilen

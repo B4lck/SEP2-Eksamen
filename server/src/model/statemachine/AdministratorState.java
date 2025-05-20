@@ -1,11 +1,11 @@
 package model.statemachine;
 
-import model.RoomUser;
+import model.RoomMember;
 
 public class AdministratorState extends UserState {
-    private RoomUser user;
+    private RoomMember user;
 
-    public AdministratorState(RoomUser user) {
+    public AdministratorState(RoomMember user) {
         this.user = user;
     }
 

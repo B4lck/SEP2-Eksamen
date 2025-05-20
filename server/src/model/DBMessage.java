@@ -33,25 +33,25 @@ class Reaction {
 }
 
 public class DBMessage implements Message {
-    private long id;
-    private long sentBy;
+    private long messageId;
     private String body;
     private long dateTime;
-    private long chatRoom;
+    private long sentBy;
+    private long roomId;
     private List<String> attachments;
     private List<Reaction> reactions;
 
-    public DBMessage(long id, long sentBy, String body, long dateTime, long chatRoom) {
-        this.id = id;
+    public DBMessage(long messageId, long sentBy, String body, long dateTime, long roomId) {
+        this.messageId = messageId;
         this.sentBy = sentBy;
         this.body = body;
         this.dateTime = dateTime;
-        this.chatRoom = chatRoom;
+        this.roomId = roomId;
     }
 
     @Override
     public long getMessageId() {
-        return this.id;
+        return this.messageId;
     }
 
     @Override
@@ -75,15 +75,15 @@ public class DBMessage implements Message {
                 .with("sentBy", getSentBy())
                 .with("body", getBody())
                 .with("dateTime", getDateTime())
-                .with("id", getMessageId())
-                .with("chatRoom", getChatRoom())
+                .with("messageId", getMessageId())
+                .with("roomId", getRoomId())
                 .with("attachments", getAttachments())
                 .with("reactions", getReactions().stream().map(Reaction::getData).toList());
     }
 
     @Override
-    public long getChatRoom() {
-        return chatRoom;
+    public long getRoomId() {
+        return roomId;
     }
 
     @Override
@@ -93,7 +93,7 @@ public class DBMessage implements Message {
         // Hent fra databasen
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM attachment WHERE message_id = ?");
-            statement.setLong(1, id);
+            statement.setLong(1, messageId);
             ResultSet res = statement.executeQuery();
             attachments = new ArrayList<>();
             while (res.next()) {
@@ -111,7 +111,7 @@ public class DBMessage implements Message {
 
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM reaction WHERE message_id = ?");
-            statement.setLong(1, id);
+            statement.setLong(1, messageId);
             ResultSet res = statement.executeQuery();
             reactions = new ArrayList<>();
             while (res.next()) {
@@ -124,9 +124,9 @@ public class DBMessage implements Message {
     }
 
     @Override
-    public void editBody(String messageBody, long byUserId) {
+    public void editBody(String messageBody, long userId) {
         if (messageBody.isEmpty()) throw new IllegalArgumentException("Beskeden har intet indhold");
-        if (byUserId != sentBy)
+        if (userId != sentBy)
             throw new IllegalStateException("Du har ikke tilladelse til at redigere den her besked");
         // TODO: Man kunne godt tilføje noget lignende de her exceptions som triggers på serveren
         //       for lidt ekstra flair i rapporten
@@ -136,7 +136,7 @@ public class DBMessage implements Message {
 
             PreparedStatement statement = connection.prepareStatement("UPDATE message SET body = ? WHERE id = ?");
             statement.setString(1, body);
-            statement.setLong(2, id);
+            statement.setLong(2, messageId);
             statement.execute();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -144,18 +144,18 @@ public class DBMessage implements Message {
     }
 
     @Override
-    public void deleteContent(long byUserId) {
+    public void deleteContent(long userId) {
         try (Connection connection = Database.getConnection()) {
             body = "[BESKEDEN ER BLEVET SLETTET]";
             attachments = new ArrayList<>();
             // Slet indholdet af beskeden
             PreparedStatement statement = connection.prepareStatement("UPDATE message SET body = ? WHERE id = ?");
             statement.setString(1, body);
-            statement.setLong(2, id);
+            statement.setLong(2, messageId);
             statement.execute();
             // Slet beskedens bilag
             PreparedStatement statement2 = connection.prepareStatement("DELETE FROM attachment WHERE message_id = ?");
-            statement2.setLong(1, id);
+            statement2.setLong(1, messageId);
             statement2.execute();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -168,7 +168,7 @@ public class DBMessage implements Message {
             getAttachments().add(fileName);
 
             PreparedStatement statement = connection.prepareStatement("INSERT INTO attachment (message_id, file_name) VALUES (?, ?)");
-            statement.setLong(1, id);
+            statement.setLong(1, messageId);
             statement.setString(2, fileName);
             statement.execute();
         } catch (Exception e) {
@@ -182,7 +182,7 @@ public class DBMessage implements Message {
             getAttachments().remove(fileName);
 
             PreparedStatement statement = connection.prepareStatement("DELETE FROM attachment WHERE message_id = ? AND file_name = ?");
-            statement.setLong(1, id);
+            statement.setLong(1, messageId);
             statement.setString(2, fileName);
             statement.execute();
         } catch (Exception e) {
@@ -198,7 +198,7 @@ public class DBMessage implements Message {
             reactions.add(new Reaction(userId, reaction));
 
             PreparedStatement statement = connection.prepareStatement("INSERT INTO reaction (message_id, reacted_by, reaction) VALUES (?,?,?)");
-            statement.setLong(1, id);
+            statement.setLong(1, messageId);
             statement.setLong(2, userId);
             statement.setString(3, reaction);
             statement.executeUpdate();
@@ -215,7 +215,7 @@ public class DBMessage implements Message {
             reactions.removeIf(r -> r.getReactedBy() == userId && r.getReaction().equals(reaction));
 
             PreparedStatement statement = connection.prepareStatement("DELETE FROM reaction WHERE message_id = ? AND reacted_by = ? AND reaction = ?");
-            statement.setLong(1, id);
+            statement.setLong(1, messageId);
             statement.setLong(2, userId);
             statement.setString(3, reaction);
             statement.executeUpdate();
@@ -228,6 +228,6 @@ public class DBMessage implements Message {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         DBMessage dbMessage = (DBMessage) o;
-        return id == dbMessage.id;
+        return messageId == dbMessage.messageId;
     }
 }

@@ -6,13 +6,15 @@ public class ViewRoom {
     private long latestActivity;
     private String color;
     private String font;
+    private boolean newActivity = false;
 
-    public ViewRoom(String name, long roomId, long latestActivity, String color, String font) {
+    public ViewRoom(String name, long roomId, long latestActivity, String color, String font, boolean newActivity) {
         this.name = name;
         this.roomId = roomId;
         this.latestActivity = latestActivity;
         this.color = color;
         this.font = font;
+        this.newActivity = newActivity;
     }
 
     public String getName() {
@@ -33,5 +35,9 @@ public class ViewRoom {
 
     public long getLatestActivity() {
         return latestActivity;
+    }
+
+    public boolean hasNewActivity() {
+        return newActivity;
     }
 }

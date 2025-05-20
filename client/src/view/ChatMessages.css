@@ -53,6 +53,10 @@
   -fx-background-color: #08f4;
 }
 
+.room-button.new-activity {
+  -fx-font-weight: bold;
+}
+
 .room-button:focused {
   -fx-background-color: #08f2;
 }

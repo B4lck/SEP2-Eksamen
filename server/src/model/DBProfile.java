@@ -8,19 +8,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class DBProfile implements Profile {
-    private long id;
+    private long userId;
     private String username;
     private long lastActive;
 
-    public DBProfile(long id, String username, long lastActive) {
-        this.id = id;
+    public DBProfile(long userId, String username, long lastActive) {
+        this.userId = userId;
         this.username = username;
         this.lastActive = lastActive;
     }
 
     @Override
-    public long getUUID() {
-        return id;
+    public long getUserId() {
+        return userId;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class DBProfile implements Profile {
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("UPDATE profile SET username = ? WHERE id = ?");
             statement.setString(1, username);
-            statement.setLong(2, id);
+            statement.setLong(2, userId);
             statement.executeUpdate();
             this.username = username;
         } catch (SQLException error) {
@@ -45,7 +45,7 @@ public class DBProfile implements Profile {
     public boolean checkPassword(String password) {
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT password FROM profile WHERE id = ?");
-            statement.setLong(1, id);
+            statement.setLong(1, userId);
             ResultSet res = statement.executeQuery();
             if (res.next()) {
                 return password.equals(res.getString("password"));
@@ -62,7 +62,7 @@ public class DBProfile implements Profile {
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("UPDATE profile SET password = ? WHERE id = ?");
             statement.setString(1, password);
-            statement.setLong(2, id);
+            statement.setLong(2, userId);
             statement.executeUpdate();
         } catch (SQLException error) {
             throw new RuntimeException(error);
@@ -81,7 +81,7 @@ public class DBProfile implements Profile {
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("UPDATE profile SET latest_activity_time = ? WHERE id = ?");
             statement.setLong(1, lastActive);
-            statement.setLong(2, id);
+            statement.setLong(2, this.userId);
             statement.executeUpdate();
         } catch (SQLException error) {
             throw new RuntimeException(error);
@@ -92,7 +92,7 @@ public class DBProfile implements Profile {
     public DataMap getData() {
         return new DataMap()
                 .with("username", username)
-                .with("uuid", id)
+                .with("userId", userId)
                 .with("lastActive", getLastActive());
     }
 
@@ -100,6 +100,6 @@ public class DBProfile implements Profile {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         DBProfile dbProfile = (DBProfile) o;
-        return id == dbProfile.id;
+        return userId == dbProfile.userId;
     }
 }

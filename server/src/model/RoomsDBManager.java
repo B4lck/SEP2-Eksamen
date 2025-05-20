@@ -27,9 +27,9 @@ public class RoomsDBManager implements Rooms {
     }
 
     @Override
-    public Room createRoom(String name, long user) {
+    public Room createRoom(String name, long userId) {
         if (name == null || name.isEmpty()) throw new IllegalArgumentException("Rummet må ikke have et tomt navn");
-        if (model.getProfiles().getProfile(user).isEmpty()) throw new IllegalStateException("Brugeren findes ikke");
+        if (model.getProfiles().getProfile(userId).isEmpty()) throw new IllegalStateException("Brugeren findes ikke");
 
         try (Connection connection = Database.getConnection()) {
             // Opret rummet
@@ -44,7 +44,7 @@ public class RoomsDBManager implements Rooms {
 
             Room room = new DBRoom(res.getLong(1), model);
 
-            room.addAdminUser(user);
+            room.addAdminMember(userId);
 
             rooms.put(room.getRoomId(), room);
 
@@ -57,9 +57,9 @@ public class RoomsDBManager implements Rooms {
     }
 
     @Override
-    public Room getRoom(long roomId, long user) {
+    public Room getRoom(long roomId, long userId) {
         Room room = getRoom(roomId);
-        if (!room.isInRoom(user)) throw new IllegalStateException("Du har ikke adgang til dette rum");
+        if (!room.isMember(userId)) throw new IllegalStateException("Du har ikke adgang til dette rum");
         return room;
     }
 
@@ -70,16 +70,16 @@ public class RoomsDBManager implements Rooms {
     }
 
     @Override
-    public List<Room> getParticipatingRooms(long user) {
+    public List<Room> getParticipatingRooms(long userId) {
         List<Room> rooms = new ArrayList<>();
         try (var connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT room_id FROM room_user WHERE profile_id=?");
-            statement.setLong(1, user);
+            statement.setLong(1, userId);
             statement.executeQuery();
 
             ResultSet res = statement.getResultSet();
             while (res.next()) {
-                rooms.add(getRoom(res.getLong("room_id"), user));
+                rooms.add(getRoom(res.getLong("room_id"), userId));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -89,47 +89,47 @@ public class RoomsDBManager implements Rooms {
     }
 
     @Override
-    public void addUser(long chatroom, long newUser, long adminUser) {
-        if (model.getProfiles().getProfile(newUser).isEmpty()) throw new IllegalStateException("Brugeren findes ikke");
+    public void addMember(long roomId, long addUserId, long adminUserId) {
+        if (model.getProfiles().getProfile(addUserId).isEmpty()) throw new IllegalStateException("Brugeren findes ikke");
 
-        Room room = getRoom(chatroom, adminUser);
-        room.addUser(newUser, adminUser);
+        Room room = getRoom(roomId, adminUserId);
+        room.addMember(addUserId, adminUserId);
 
-        fireRoomChangedBroadcast(chatroom);
+        fireRoomChangedBroadcast(roomId);
     }
 
     @Override
-    public void removeUser(long chatroom, long kickedUser, long adminUser) {
-        Room room = getRoom(chatroom, adminUser);
-        room.removeUser(kickedUser, adminUser);
+    public void removeMember(long roomId, long removeUserId, long adminUserId) {
+        Room room = getRoom(roomId, adminUserId);
+        room.removeMember(removeUserId, adminUserId);
 
         property.firePropertyChange("KICKED_OUT_OF_ROOM", null,
-                new Broadcast(new DataMap().with("roomId", chatroom), kickedUser));
+                new Broadcast(new DataMap().with("roomId", roomId), removeUserId));
 
-        fireRoomChangedBroadcast(chatroom);
+        fireRoomChangedBroadcast(roomId);
     }
 
     @Override
-    public void setName(long chatroom, String name, long adminUser) {
-        Room room = getRoom(chatroom, adminUser);
-        room.setName(name, adminUser);
+    public void setName(long roomId, String name, long adminUserId) {
+        Room room = getRoom(roomId, adminUserId);
+        room.setName(name, adminUserId);
 
-        fireRoomChangedBroadcast(chatroom);
+        fireRoomChangedBroadcast(roomId);
     }
 
     @Override
-    public void muteUser(long chatroom, long user, long adminUser) {
-        Room room = getRoom(chatroom, adminUser);
-        room.muteUser(user, adminUser);
+    public void muteMember(long roomId, long muteUserId, long adminUserId) {
+        Room room = getRoom(roomId, adminUserId);
+        room.muteUser(muteUserId, adminUserId);
 
-        fireRoomChangedBroadcast(chatroom);
+        fireRoomChangedBroadcast(roomId);
     }
 
     @Override
-    public boolean doesRoomExists(long chatroom) {
+    public boolean doesRoomExists(long roomId) {
         try (var connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM room WHERE id=?");
-            statement.setLong(1, chatroom);
+            statement.setLong(1, roomId);
             statement.executeQuery();
             return statement.getResultSet().next();
         } catch (SQLException e) {
@@ -138,51 +138,51 @@ public class RoomsDBManager implements Rooms {
     }
 
     @Override
-    public void editColor(long chatroom, long user, String color) {
-        Room room = getRoom(chatroom, user);
-        room.editColor(color);
+    public void editColor(long roomId, long userId, String color) {
+        Room room = getRoom(roomId, userId);
+        room.setColor(color);
 
-        fireRoomChangedBroadcast(chatroom);
+        fireRoomChangedBroadcast(roomId);
     }
 
     @Override
-    public void unmuteUser(long chatroom, long user, long adminUser) {
-        Room room = getRoom(chatroom, adminUser);
-        room.unmuteUser(user, adminUser);
+    public void unmuteMember(long roomId, long unmuteUserId, long adminUserId) {
+        Room room = getRoom(roomId, adminUserId);
+        room.unmuteUser(unmuteUserId, adminUserId);
 
-        fireRoomChangedBroadcast(chatroom);
+        fireRoomChangedBroadcast(roomId);
     }
 
     @Override
-    public void promoteUser(long chatroom, long user, long adminUser) {
-        Room room = getRoom(chatroom, adminUser);
-        room.promoteUser(user, adminUser);
+    public void promoteMember(long roomId, long promoteUserId, long adminUserId) {
+        Room room = getRoom(roomId, adminUserId);
+        room.promoteUser(promoteUserId, adminUserId);
 
-        fireRoomChangedBroadcast(chatroom);
+        fireRoomChangedBroadcast(roomId);
     }
 
     @Override
-    public void demoteUser(long chatroom, long user, long adminUser) {
-        Room room = getRoom(chatroom, adminUser);
-        room.demoteUser(user, adminUser);
+    public void demoteMember(long roomId, long demoteUserId, long adminUserId) {
+        Room room = getRoom(roomId, adminUserId);
+        room.demoteUser(demoteUserId, adminUserId);
 
-        fireRoomChangedBroadcast(chatroom);
+        fireRoomChangedBroadcast(roomId);
     }
 
     @Override
-    public void setNicknameOfUser(long chatroom, long user, String nickname) {
-        Room room = getRoom(chatroom, user);
-        room.setNicknameOfUser(user, nickname);
+    public void setMemberNickname(long roomId, long userId, String nickname) {
+        Room room = getRoom(roomId, userId);
+        room.setNicknameOfUser(userId, nickname);
 
-        fireRoomChangedBroadcast(chatroom);
+        fireRoomChangedBroadcast(roomId);
     }
 
     @Override
-    public void removeNicknameOfUser(long chatroom, long user) {
-        Room room = getRoom(chatroom, user);
-        room.removeNicknameFromUser(user);
+    public void removeMemberNickname(long roomId, long userId) {
+        Room room = getRoom(roomId, userId);
+        room.removeNicknameFromUser(userId);
 
-        fireRoomChangedBroadcast(chatroom);
+        fireRoomChangedBroadcast(roomId);
     }
 
     @Override
@@ -195,7 +195,7 @@ public class RoomsDBManager implements Rooms {
                     break;
                 case "GET_ROOM":
                     request.respond(new DataMap()
-                            .with("room", getRoom(request.getData().getLong("room"), request.getUser()).getData()));
+                            .with("room", getRoom(request.getData().getLong("roomId"), request.getUser()).getData()));
                     break;
                 case "GET_MY_ROOMS":
                     ArrayList<DataMap> rooms = new ArrayList<>();
@@ -204,48 +204,48 @@ public class RoomsDBManager implements Rooms {
                     }
                     request.respond(new DataMap().with("rooms", rooms));
                     break;
-                case "ADD_USER":
-                    addUser(request.getData().getLong("room"), request.getData().getLong("user"), request.getUser());
+                case "ADD_MEMBER":
+                    addMember(request.getData().getLong("roomId"), request.getData().getLong("userId"), request.getUser());
                     request.respond("Bruger tilføjet til rummet");
                     break;
-                case "REMOVE_USER":
-                    removeUser(request.getData().getLong("room"), request.getData().getLong("user"), request.getUser());
+                case "REMOVE_MEMBER":
+                    removeMember(request.getData().getLong("roomId"), request.getData().getLong("userId"), request.getUser());
                     request.respond("Bruger fjernet fra rummet");
                     break;
                 case "UPDATE_ROOM_NAME":
-                    setName(request.getData().getLong("room"), request.getData().getString("name"), request.getUser());
+                    setName(request.getData().getLong("roomId"), request.getData().getString("name"), request.getUser());
                     request.respond("Rummets navn blev opdateret");
                     break;
-                case "MUTE_USER":
-                    muteUser(request.getData().getLong("chatroomId"), request.getData().getLong("user"), request.getUser());
+                case "MUTE_MEMBER":
+                    muteMember(request.getData().getLong("roomId"), request.getData().getLong("userId"), request.getUser());
                     request.respond("Bruger er blevet muted");
                     break;
-                case "UNMUTE_USER":
-                    unmuteUser(request.getData().getLong("chatroomId"), request.getData().getLong("user"), request.getUser());
+                case "UNMUTE_MEMBER":
+                    unmuteMember(request.getData().getLong("roomId"), request.getData().getLong("userId"), request.getUser());
                     request.respond("Bruger er blevet unmuted");
                     break;
-                case "PROMOTE_USER":
-                    promoteUser(request.getData().getLong("chatroomId"), request.getData().getLong("user"), request.getUser());
+                case "PROMOTE_MEMBER":
+                    promoteMember(request.getData().getLong("roomId"), request.getData().getLong("userId"), request.getUser());
                     request.respond("Bruger er blevet promoted");
                     break;
-                case "DEMOTE_USER":
-                    demoteUser(request.getData().getLong("chatroomId"), request.getData().getLong("user"), request.getUser());
+                case "DEMOTE_MEMBER":
+                    demoteMember(request.getData().getLong("roomId"), request.getData().getLong("userId"), request.getUser());
                     request.respond("Bruger er blevet degraderet");
                     break;
                 case "SET_NICKNAME":
-                    setNicknameOfUser(request.getData().getLong("chatroomId"), request.getData().getLong("userId"), request.getData().getString("nickname"));
+                    setMemberNickname(request.getData().getLong("roomId"), request.getData().getLong("userId"), request.getData().getString("nickname"));
                     request.respond("Brugeren har fået ændret sit kaldenavn");
                     break;
                 case "REMOVE_NICKNAME":
-                    removeNicknameOfUser(request.getData().getLong("chatroomId"), request.getData().getLong("userId"));
+                    removeMemberNickname(request.getData().getLong("roomId"), request.getData().getLong("userId"));
                     request.respond("Brugeren har fået fjernet sit kaldenavn");
                     break;
                 case "EDIT_COLOR":
-                    editColor(request.getData().getLong("chatroomId"), request.getUser(), request.getData().getString("color"));
+                    editColor(request.getData().getLong("roomId"), request.getUser(), request.getData().getString("color"));
                     request.respond("Farven er blevet ændret");
                     break;
                 case "SET_FONT":
-                    setFont(request.getData().getLong("chatroomId"),request.getUser(),request.getData().getString("font"));
+                    setFont(request.getData().getLong("roomId"),request.getUser(),request.getData().getString("font"));
                     request.respond("Skrifttypen er blevet ændret");
                     break;
             }
@@ -256,9 +256,9 @@ public class RoomsDBManager implements Rooms {
     }
 
     @Override
-    public void setFont(long chatroomId, long user, String font) {
-        getRoom(chatroomId,user).setFont(font,user);
-        fireRoomChangedBroadcast(chatroomId);
+    public void setFont(long roomId, long userId, String font) {
+        getRoom(roomId, userId).setFont(font);
+        fireRoomChangedBroadcast(roomId);
     }
 
     @Override
@@ -278,6 +278,6 @@ public class RoomsDBManager implements Rooms {
     public void fireRoomChangedBroadcast(long roomId) {
         Room room = getRoom(roomId);
         property.firePropertyChange("ROOM_CHANGED", null,
-                new Broadcast(new DataMap().with("room", room.getData()), room.getUsers()));
+                new Broadcast(new DataMap().with("room", room.getData()), room.getMembers()));
     }
 }

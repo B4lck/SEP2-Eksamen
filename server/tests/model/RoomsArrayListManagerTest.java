@@ -27,7 +27,7 @@ class RoomsArrayListManagerTest {
         user1 = model.getProfiles().createProfile("Mazen", "1234");
         user2 = model.getProfiles().createProfile("TykkeBalck", "6789");
         user3 = model.getProfiles().createProfile("Malthe", "1234");
-        room = model.getRooms().createRoom("test", user1.getUUID());
+        room = model.getRooms().createRoom("test", user1.getUserId());
     }
 
     @AfterEach
@@ -41,7 +41,7 @@ class RoomsArrayListManagerTest {
     @org.junit.jupiter.api.Test
     void createRoomNormal() {
 
-        var room = model.getRooms().createRoom("test", user1.getUUID());
+        var room = model.getRooms().createRoom("test", user1.getUserId());
 
         assertEquals(room.getName(), "test");
     }
@@ -51,7 +51,7 @@ class RoomsArrayListManagerTest {
      */
     @org.junit.jupiter.api.Test
     void createRoomWithNullName() {
-        assertThrows(IllegalArgumentException.class, () -> model.getRooms().createRoom(null, user1.getUUID()));
+        assertThrows(IllegalArgumentException.class, () -> model.getRooms().createRoom(null, user1.getUserId()));
     }
 
     /**
@@ -59,7 +59,7 @@ class RoomsArrayListManagerTest {
      */
     @org.junit.jupiter.api.Test
     void createRoomWithEmptyName() {
-        assertThrows(IllegalArgumentException.class, () -> model.getRooms().createRoom("", user1.getUUID()));
+        assertThrows(IllegalArgumentException.class, () -> model.getRooms().createRoom("", user1.getUserId()));
     }
 
     /**
@@ -75,7 +75,7 @@ class RoomsArrayListManagerTest {
      */
     @org.junit.jupiter.api.Test
     void getExistingRoom() {
-        assertEquals(model.getRooms().getRoom(room.getRoomId(), user1.getUUID()).getRoomId(), room.getRoomId());
+        assertEquals(model.getRooms().getRoom(room.getRoomId(), user1.getUserId()).getRoomId(), room.getRoomId());
     }
 
     /**
@@ -83,7 +83,7 @@ class RoomsArrayListManagerTest {
      */
     @org.junit.jupiter.api.Test
     void getExistingRoomNoAccess() {
-        assertThrows(IllegalStateException.class, () -> model.getRooms().getRoom(room.getRoomId(), user2.getUUID()));
+        assertThrows(IllegalStateException.class, () -> model.getRooms().getRoom(room.getRoomId(), user2.getUserId()));
     }
 
     /**
@@ -92,9 +92,9 @@ class RoomsArrayListManagerTest {
     @org.junit.jupiter.api.Test
     void getNonexistingRoom() {
         if (room.getRoomId() == 123)
-            assertThrows(IllegalStateException.class, () -> model.getRooms().getRoom(124, user1.getUUID()));
+            assertThrows(IllegalStateException.class, () -> model.getRooms().getRoom(124, user1.getUserId()));
         else
-            assertThrows(IllegalStateException.class, () -> model.getRooms().getRoom(123, user1.getUUID()));
+            assertThrows(IllegalStateException.class, () -> model.getRooms().getRoom(123, user1.getUserId()));
     }
 
     /**
@@ -110,13 +110,13 @@ class RoomsArrayListManagerTest {
      */
     @org.junit.jupiter.api.Test
     void getParticipatingRooms() {
-        var room2 = model.getRooms().createRoom("test2", user2.getUUID());
-        var room3 = model.getRooms().createRoom("test", user2.getUUID());
-        room3.addUser(user1.getUUID(), user2.getUUID());
-        var room4 = model.getRooms().createRoom("test4", user2.getUUID());
-        room4.addUser(user1.getUUID(), user2.getUUID());
+        var room2 = model.getRooms().createRoom("test2", user2.getUserId());
+        var room3 = model.getRooms().createRoom("test", user2.getUserId());
+        room3.addMember(user1.getUserId(), user2.getUserId());
+        var room4 = model.getRooms().createRoom("test4", user2.getUserId());
+        room4.addMember(user1.getUserId(), user2.getUserId());
 
-        var participatingRooms = model.getRooms().getParticipatingRooms(user1.getUUID());
+        var participatingRooms = model.getRooms().getParticipatingRooms(user1.getUserId());
 
         assertEquals(participatingRooms.size(), 3);
     }
@@ -126,7 +126,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void getRoomWithoutBeingMember() {
-        assertEquals(0, model.getRooms().getParticipatingRooms(user2.getUUID()).size());
+        assertEquals(0, model.getRooms().getParticipatingRooms(user2.getUserId()).size());
     }
 
     /**
@@ -134,9 +134,9 @@ class RoomsArrayListManagerTest {
      */
     @org.junit.jupiter.api.Test
     void addUser() {
-        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
+        model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
 
-        assertEquals(room.getUsers().size(), 2);
+        assertEquals(room.getMembers().size(), 2);
     }
 
     /**
@@ -144,11 +144,11 @@ class RoomsArrayListManagerTest {
      */
     @org.junit.jupiter.api.Test
     void addUserAlreadyInRoom() {
-        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
+        model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
 
-        assertThrows(IllegalStateException.class, () -> model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID()));
+        assertThrows(IllegalStateException.class, () -> model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId()));
 
-        assertEquals(room.getUsers().size(), 2);
+        assertEquals(room.getMembers().size(), 2);
     }
 
     /**
@@ -156,7 +156,7 @@ class RoomsArrayListManagerTest {
      */
     @org.junit.jupiter.api.Test
     void addUserToNonExistingRoom() {
-        assertThrows(IllegalStateException.class, () -> model.getRooms().addUser(69, user2.getUUID(), user1.getUUID()));
+        assertThrows(IllegalStateException.class, () -> model.getRooms().addMember(69, user2.getUserId(), user1.getUserId()));
     }
 
     /**
@@ -164,9 +164,9 @@ class RoomsArrayListManagerTest {
      */
     @org.junit.jupiter.api.Test
     void addUserRoomNonAdmin() {
-        assertThrows(IllegalStateException.class, () -> model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user2.getUUID()));
+        assertThrows(IllegalStateException.class, () -> model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user2.getUserId()));
 
-        assertEquals(room.getUsers().size(), 1);
+        assertEquals(room.getMembers().size(), 1);
     }
 
     /**
@@ -174,9 +174,9 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void addNotExistingUser() {
-        assertThrows(IllegalStateException.class, () -> model.getRooms().addUser(room.getRoomId(), 123, user1.getUUID()));
+        assertThrows(IllegalStateException.class, () -> model.getRooms().addMember(room.getRoomId(), 123, user1.getUserId()));
 
-        assertEquals(1, room.getUsers().size());
+        assertEquals(1, room.getMembers().size());
     }
 
     /**
@@ -184,8 +184,8 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void addUserWithoutBeingInRoom() {
-        assertThrows(IllegalStateException.class, () -> model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user3.getUUID()));
-        assertEquals(1, room.getUsers().size());
+        assertThrows(IllegalStateException.class, () -> model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user3.getUserId()));
+        assertEquals(1, room.getMembers().size());
     }
 
     /**
@@ -193,7 +193,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void addNoneExistingUser() {
-        assertThrows(IllegalStateException.class, () -> model.getRooms().addUser(room.getRoomId(), 123, user1.getUUID()));
+        assertThrows(IllegalStateException.class, () -> model.getRooms().addMember(room.getRoomId(), 123, user1.getUserId()));
     }
 
     /**
@@ -201,9 +201,9 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void addExistingUser() {
-        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
-        assertThrows(IllegalStateException.class, () -> model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID()));
-        assertEquals(2, room.getUsers().size());
+        model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
+        assertThrows(IllegalStateException.class, () -> model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId()));
+        assertEquals(2, room.getMembers().size());
     }
 
     /**
@@ -211,10 +211,10 @@ class RoomsArrayListManagerTest {
      */
     @org.junit.jupiter.api.Test
     void removeUser() {
-        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
-        model.getRooms().removeUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
+        model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
+        model.getRooms().removeMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
 
-        assertEquals(room.getUsers().size(), 1);
+        assertEquals(room.getMembers().size(), 1);
     }
 
     /**
@@ -222,7 +222,7 @@ class RoomsArrayListManagerTest {
      */
     @org.junit.jupiter.api.Test
     void removeUserToNonExistingRoom() {
-        assertThrows(IllegalStateException.class, () -> model.getRooms().removeUser(69, user2.getUUID(), user1.getUUID()));
+        assertThrows(IllegalStateException.class, () -> model.getRooms().removeMember(69, user2.getUserId(), user1.getUserId()));
     }
 
     /**
@@ -230,12 +230,12 @@ class RoomsArrayListManagerTest {
      */
     @org.junit.jupiter.api.Test
     void removeUserNonAdmin() {
-        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
+        model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
 
         var user3 = model.getProfiles().createProfile("jørn123", "456");
-        assertThrows(IllegalStateException.class, () -> model.getRooms().removeUser(room.getRoomId(), user2.getUUID(), user3.getUUID()));
+        assertThrows(IllegalStateException.class, () -> model.getRooms().removeMember(room.getRoomId(), user2.getUserId(), user3.getUserId()));
 
-        assertEquals(room.getUsers().size(), 2);
+        assertEquals(room.getMembers().size(), 2);
     }
 
     /**
@@ -243,7 +243,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void removeNotExistingUser() {
-        assertThrows(IllegalStateException.class, () -> model.getRooms().removeUser(room.getRoomId(), 123, user1.getUUID()));
+        assertThrows(IllegalStateException.class, () -> model.getRooms().removeMember(room.getRoomId(), 123, user1.getUserId()));
 
     }
 
@@ -252,11 +252,11 @@ class RoomsArrayListManagerTest {
      */
     @org.junit.jupiter.api.Test
     void removeAdminUser() {
-        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
+        model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
 
-        assertThrows(IllegalStateException.class, () -> model.getRooms().removeUser(room.getRoomId(), user1.getUUID(), user2.getUUID()));
+        assertThrows(IllegalStateException.class, () -> model.getRooms().removeMember(room.getRoomId(), user1.getUserId(), user2.getUserId()));
 
-        assertEquals(room.getUsers().size(), 2);
+        assertEquals(room.getMembers().size(), 2);
     }
 
     /**
@@ -264,8 +264,8 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void removeUserWithoutBeingInRoom() {
-        assertThrows(IllegalStateException.class, () -> model.getRooms().removeUser(room.getRoomId(), user2.getUUID(), user3.getUUID()));
-        assertEquals(1, room.getUsers().size());
+        assertThrows(IllegalStateException.class, () -> model.getRooms().removeMember(room.getRoomId(), user2.getUserId(), user3.getUserId()));
+        assertEquals(1, room.getMembers().size());
     }
 
     /**
@@ -273,7 +273,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void removeNoneExistingUser() {
-        assertThrows(IllegalStateException.class, () -> model.getRooms().removeUser(room.getRoomId(), 123, user1.getUUID()));
+        assertThrows(IllegalStateException.class, () -> model.getRooms().removeMember(room.getRoomId(), 123, user1.getUserId()));
     }
 
     /**
@@ -281,8 +281,8 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void removeNotMember() {
-        assertThrows(IllegalStateException.class, () -> model.getRooms().removeUser(room.getRoomId(), user3.getUUID(), user1.getUUID()));
-        assertEquals(1, room.getUsers().size());
+        assertThrows(IllegalStateException.class, () -> model.getRooms().removeMember(room.getRoomId(), user3.getUserId(), user1.getUserId()));
+        assertEquals(1, room.getMembers().size());
     }
 
     /**
@@ -290,11 +290,11 @@ class RoomsArrayListManagerTest {
      */
     @org.junit.jupiter.api.Test
     void removeSelf() {
-        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
+        model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
 
-        model.getRooms().removeUser(room.getRoomId(), user2.getUUID(), user2.getUUID());
+        model.getRooms().removeMember(room.getRoomId(), user2.getUserId(), user2.getUserId());
 
-        assertEquals(room.getUsers().size(), 1);
+        assertEquals(room.getMembers().size(), 1);
     }
 
     /**
@@ -302,9 +302,9 @@ class RoomsArrayListManagerTest {
      */
     @org.junit.jupiter.api.Test
     void changeRoomName() {
-        model.getRooms().setName(room.getRoomId(), "test2", user1.getUUID());
+        model.getRooms().setName(room.getRoomId(), "test2", user1.getUserId());
 
-        assertEquals(model.getRooms().getRoom(room.getRoomId(), user1.getUUID()).getName(), "test2");
+        assertEquals(model.getRooms().getRoom(room.getRoomId(), user1.getUserId()).getName(), "test2");
     }
 
     /**
@@ -312,9 +312,9 @@ class RoomsArrayListManagerTest {
      */
     @org.junit.jupiter.api.Test
     void changeRoomNameNonAdmin() {
-        assertThrows(IllegalStateException.class, () -> model.getRooms().setName(room.getRoomId(), "test2", user2.getUUID()));
+        assertThrows(IllegalStateException.class, () -> model.getRooms().setName(room.getRoomId(), "test2", user2.getUserId()));
 
-        assertEquals(model.getRooms().getRoom(room.getRoomId(), user1.getUUID()).getName(), "test");
+        assertEquals(model.getRooms().getRoom(room.getRoomId(), user1.getUserId()).getName(), "test");
     }
 
     /**
@@ -322,9 +322,9 @@ class RoomsArrayListManagerTest {
      */
     @org.junit.jupiter.api.Test
     void changeRoomNameToNull() {
-        assertThrows(IllegalArgumentException.class, () -> model.getRooms().setName(room.getRoomId(), null, user1.getUUID()));
+        assertThrows(IllegalArgumentException.class, () -> model.getRooms().setName(room.getRoomId(), null, user1.getUserId()));
 
-        assertEquals(model.getRooms().getRoom(room.getRoomId(), user1.getUUID()).getName(), "test");
+        assertEquals(model.getRooms().getRoom(room.getRoomId(), user1.getUserId()).getName(), "test");
     }
 
     /**
@@ -332,9 +332,9 @@ class RoomsArrayListManagerTest {
      */
     @org.junit.jupiter.api.Test
     void changeRoomNameToEmptyString() {
-        assertThrows(IllegalArgumentException.class, () -> model.getRooms().setName(room.getRoomId(), "", user1.getUUID()));
+        assertThrows(IllegalArgumentException.class, () -> model.getRooms().setName(room.getRoomId(), "", user1.getUserId()));
 
-        assertEquals(model.getRooms().getRoom(room.getRoomId(), user1.getUUID()).getName(), "test");
+        assertEquals(model.getRooms().getRoom(room.getRoomId(), user1.getUserId()).getName(), "test");
     }
 
     /**
@@ -342,8 +342,8 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void changeRoomNameNotMember() {
-        assertThrows(IllegalStateException.class, () -> model.getRooms().setName(room.getRoomId(), "GRR", user3.getUUID()));
-        assertEquals(model.getRooms().getRoom(room.getRoomId(), user1.getUUID()).getName(), "test");
+        assertThrows(IllegalStateException.class, () -> model.getRooms().setName(room.getRoomId(), "GRR", user3.getUserId()));
+        assertEquals(model.getRooms().getRoom(room.getRoomId(), user1.getUserId()).getName(), "test");
     }
 
     /**
@@ -352,7 +352,7 @@ class RoomsArrayListManagerTest {
     @Test
     void changeRoomNameNotExistingUser() {
         assertThrows(IllegalStateException.class, () -> model.getRooms().setName(room.getRoomId(), "GRR", 123224));
-        assertEquals(model.getRooms().getRoom(room.getRoomId(), user1.getUUID()).getName(), "test");
+        assertEquals(model.getRooms().getRoom(room.getRoomId(), user1.getUserId()).getName(), "test");
     }
 
     /**
@@ -360,7 +360,7 @@ class RoomsArrayListManagerTest {
      */
     @org.junit.jupiter.api.Test
     void changeNonExistingRoomName() {
-        assertThrows(IllegalStateException.class, () -> model.getRooms().setName(123, "", user1.getUUID()));
+        assertThrows(IllegalStateException.class, () -> model.getRooms().setName(123, "", user1.getUserId()));
     }
 
     /**
@@ -368,11 +368,11 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void muteUser() {
-        room.addUser(user2.getUUID(), user1.getUUID());
-        room.muteUser(user2.getUUID(), user1.getUUID());
+        room.addMember(user2.getUserId(), user1.getUserId());
+        room.muteUser(user2.getUserId(), user1.getUserId());
 
         // Skal throw, fordi user2 skal ikke kunne skrive
-        assertThrows(IllegalStateException.class, () -> model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user2.getUUID()));
+        assertThrows(IllegalStateException.class, () -> model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user2.getUserId()));
     }
 
     /**
@@ -380,14 +380,14 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void unmuteUser() {
-        room.addUser(user2.getUUID(), user1.getUUID());
+        room.addMember(user2.getUserId(), user1.getUserId());
         // mute først
-        room.muteUser(user2.getUUID(), user1.getUUID());
+        room.muteUser(user2.getUserId(), user1.getUserId());
         // unmute igen
-        room.unmuteUser(user2.getUUID(), user1.getUUID());
+        room.unmuteUser(user2.getUserId(), user1.getUserId());
 
         // Skal ikke kaste
-        assertDoesNotThrow(() -> model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user2.getUUID()));
+        assertDoesNotThrow(() -> model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user2.getUserId()));
     }
 
     /**
@@ -395,10 +395,10 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void muteMutedUser() {
-        room.addUser(user2.getUUID(), user1.getUUID());
-        room.muteUser(user2.getUUID(), user1.getUUID());
+        room.addMember(user2.getUserId(), user1.getUserId());
+        room.muteUser(user2.getUserId(), user1.getUserId());
 
-        assertThrows(IllegalStateException.class, () -> room.muteUser(user2.getUUID(), user1.getUUID()));
+        assertThrows(IllegalStateException.class, () -> room.muteUser(user2.getUserId(), user1.getUserId()));
     }
 
     /**
@@ -406,9 +406,9 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void unmuteUnmutedUser() {
-        room.addUser(user2.getUUID(), user1.getUUID());
+        room.addMember(user2.getUserId(), user1.getUserId());
 
-        assertThrows(IllegalStateException.class, () -> room.unmuteUser(user2.getUUID(), user1.getUUID()));
+        assertThrows(IllegalStateException.class, () -> room.unmuteUser(user2.getUserId(), user1.getUserId()));
     }
 
     /**
@@ -416,7 +416,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void muteThemself() {
-        assertThrows(IllegalStateException.class, () -> room.muteUser(user1.getUUID(), user1.getUUID()));
+        assertThrows(IllegalStateException.class, () -> room.muteUser(user1.getUserId(), user1.getUserId()));
     }
 
     /**
@@ -424,9 +424,9 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void muteWithoutPermission() {
-        room.addUser(user2.getUUID(), user1.getUUID());
+        room.addMember(user2.getUserId(), user1.getUserId());
 
-        assertThrows(IllegalStateException.class, () -> room.muteUser(user1.getUUID(), user2.getUUID()));
+        assertThrows(IllegalStateException.class, () -> room.muteUser(user1.getUserId(), user2.getUserId()));
     }
 
     /**
@@ -434,9 +434,9 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void unmuteWithoutPermission() {
-        room.addUser(user2.getUUID(), user1.getUUID());
+        room.addMember(user2.getUserId(), user1.getUserId());
 
-        assertThrows(IllegalStateException.class, () -> room.unmuteUser(user1.getUUID(), user2.getUUID()));
+        assertThrows(IllegalStateException.class, () -> room.unmuteUser(user1.getUserId(), user2.getUserId()));
     }
 
     /**
@@ -444,7 +444,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void muteUserNotInRoom() {
-        assertThrows(IllegalStateException.class, () -> room.muteUser(user2.getUUID(), user1.getUUID()));
+        assertThrows(IllegalStateException.class, () -> room.muteUser(user2.getUserId(), user1.getUserId()));
     }
 
     /**
@@ -452,7 +452,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void unmuteUserNotInRoom() {
-        assertThrows(IllegalStateException.class, () -> room.unmuteUser(user2.getUUID(), user1.getUUID()));
+        assertThrows(IllegalStateException.class, () -> room.unmuteUser(user2.getUserId(), user1.getUserId()));
     }
 
     /**
@@ -460,8 +460,8 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void muteAdmin() {
-        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
-        assertThrows(IllegalStateException.class, () -> room.muteUser(user1.getUUID(), user2.getUUID()));
+        model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
+        assertThrows(IllegalStateException.class, () -> room.muteUser(user1.getUserId(), user2.getUserId()));
     }
 
     /**
@@ -469,8 +469,8 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void unmuteAdmin() {
-        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
-        assertThrows(IllegalStateException.class, () -> room.unmuteUser(user1.getUUID(), user2.getUUID()));
+        model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
+        assertThrows(IllegalStateException.class, () -> room.unmuteUser(user1.getUserId(), user2.getUserId()));
     }
 
     /**
@@ -478,7 +478,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void muteNotMemberUser() {
-        assertThrows(IllegalStateException.class, () -> room.muteUser(user2.getUUID(), user1.getUUID()));
+        assertThrows(IllegalStateException.class, () -> room.muteUser(user2.getUserId(), user1.getUserId()));
     }
 
     /**
@@ -486,7 +486,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void unmuteNotMemberUser() {
-        assertThrows(IllegalStateException.class, () -> room.unmuteUser(user2.getUUID(), user1.getUUID()));
+        assertThrows(IllegalStateException.class, () -> room.unmuteUser(user2.getUserId(), user1.getUserId()));
     }
 
     /**
@@ -494,8 +494,8 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void muteMemberWithoutBeingExisting() {
-        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
-        assertThrows(IllegalStateException.class, () -> room.muteUser(user2.getUUID(), 1234));
+        model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
+        assertThrows(IllegalStateException.class, () -> room.muteUser(user2.getUserId(), 1234));
     }
 
     /**
@@ -503,8 +503,8 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void unmuteMemberWithoutBeingExisting() {
-        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
-        assertThrows(IllegalStateException.class, () -> room.unmuteUser(user2.getUUID(), 1234));
+        model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
+        assertThrows(IllegalStateException.class, () -> room.unmuteUser(user2.getUserId(), 1234));
     }
 
     /**
@@ -512,7 +512,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void muteNotExistingUser() {
-        assertThrows(IllegalStateException.class, () -> room.muteUser(1234, user1.getUUID()));
+        assertThrows(IllegalStateException.class, () -> room.muteUser(1234, user1.getUserId()));
     }
 
     /**
@@ -520,7 +520,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void unmuteNotExistingUser() {
-        assertThrows(IllegalStateException.class, () -> room.unmuteUser(1234, user1.getUUID()));
+        assertThrows(IllegalStateException.class, () -> room.unmuteUser(1234, user1.getUserId()));
     }
 
     /**
@@ -528,7 +528,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void promoteNotExistingUser() {
-        assertThrows(IllegalStateException.class, ()-> room.promoteUser(1234,user1.getUUID()));
+        assertThrows(IllegalStateException.class, ()-> room.promoteUser(1234,user1.getUserId()));
     }
 
     /**
@@ -536,7 +536,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void demoteNotExistingUser() {
-        assertThrows(IllegalStateException.class, ()-> room.demoteUser(1234, user1.getUUID()));
+        assertThrows(IllegalStateException.class, ()-> room.demoteUser(1234, user1.getUserId()));
     }
 
     /**
@@ -544,9 +544,9 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void promoteByNotExistingUser() {
-        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
-        assertThrows(IllegalStateException.class, ()-> room.promoteUser(user2.getUUID(), 1234));
-        assertEquals(RegularState.class ,room.getUser(user2.getUUID()).getState().getClass());
+        model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
+        assertThrows(IllegalStateException.class, ()-> room.promoteUser(user2.getUserId(), 1234));
+        assertEquals(RegularState.class ,room.getProfile(user2.getUserId()).getState().getClass());
     }
 
     /**
@@ -554,9 +554,9 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void demoteByNotExistingUser() {
-        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
-        assertThrows(IllegalStateException.class, ()-> room.demoteUser(user2.getUUID(), 1234));
-        assertEquals(RegularState.class ,room.getUser(user2.getUUID()).getState().getClass());
+        model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
+        assertThrows(IllegalStateException.class, ()-> room.demoteUser(user2.getUserId(), 1234));
+        assertEquals(RegularState.class ,room.getProfile(user2.getUserId()).getState().getClass());
     }
 
     /**
@@ -564,7 +564,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void promoteNotExistingMember() {
-        assertThrows(IllegalStateException.class, ()-> room.promoteUser(user3.getUUID(), user1.getUUID()));
+        assertThrows(IllegalStateException.class, ()-> room.promoteUser(user3.getUserId(), user1.getUserId()));
     }
 
     /**
@@ -572,7 +572,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void demoteNotExistingMember() {
-        assertThrows(IllegalStateException.class, ()-> room.demoteUser(user3.getUUID(), user1.getUUID()));
+        assertThrows(IllegalStateException.class, ()-> room.demoteUser(user3.getUserId(), user1.getUserId()));
     }
 
     /**
@@ -580,9 +580,9 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void promoteUser(){
-        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
-        room.promoteUser(user2.getUUID(), user1.getUUID());
-        assertEquals(AdministratorState.class ,room.getUser(user2.getUUID()).getState().getClass());
+        model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
+        room.promoteUser(user2.getUserId(), user1.getUserId());
+        assertEquals(AdministratorState.class ,room.getProfile(user2.getUserId()).getState().getClass());
     }
 
     /**
@@ -590,10 +590,10 @@ class RoomsArrayListManagerTest {
      */
      @Test
     void demoteUser(){
-        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
-        room.promoteUser(user2.getUUID(), user1.getUUID());
-        room.demoteUser(user2.getUUID(), user1.getUUID());
-        assertEquals(RegularState.class ,room.getUser(user2.getUUID()).getState().getClass());
+        model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
+        room.promoteUser(user2.getUserId(), user1.getUserId());
+        room.demoteUser(user2.getUserId(), user1.getUserId());
+        assertEquals(RegularState.class ,room.getProfile(user2.getUserId()).getState().getClass());
     }
 
     /**
@@ -601,9 +601,9 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void promoteAdmin(){
-        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
-        room.promoteUser(user2.getUUID(), user1.getUUID());
-        assertThrows(IllegalStateException.class, ()-> room.promoteUser(user1.getUUID(), user2.getUUID()));
+        model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
+        room.promoteUser(user2.getUserId(), user1.getUserId());
+        assertThrows(IllegalStateException.class, ()-> room.promoteUser(user1.getUserId(), user2.getUserId()));
     }
 
     /**
@@ -611,10 +611,10 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void demoteAdmin(){
-        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
-        room.promoteUser(user2.getUUID(), user1.getUUID());
-        room.demoteUser(user1.getUUID(), user2.getUUID());
-        assertEquals(RegularState.class ,room.getUser(user1.getUUID()).getState().getClass());
+        model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
+        room.promoteUser(user2.getUserId(), user1.getUserId());
+        room.demoteUser(user1.getUserId(), user2.getUserId());
+        assertEquals(RegularState.class ,room.getProfile(user1.getUserId()).getState().getClass());
     }
 
     /**
@@ -622,8 +622,8 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void promoteUserWithoutBeingMember(){
-        assertThrows(IllegalStateException.class, ()-> room.promoteUser(user1.getUUID(), user3.getUUID()));
-        assertEquals(AdministratorState.class ,room.getUser(user1.getUUID()).getState().getClass());
+        assertThrows(IllegalStateException.class, ()-> room.promoteUser(user1.getUserId(), user3.getUserId()));
+        assertEquals(AdministratorState.class ,room.getProfile(user1.getUserId()).getState().getClass());
     }
 
     /**
@@ -631,8 +631,8 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void demoteUserWithoutBeingMember(){
-        assertThrows(IllegalStateException.class, ()-> room.demoteUser(user1.getUUID(), user3.getUUID()));
-        assertEquals(AdministratorState.class ,room.getUser(user1.getUUID()).getState().getClass());
+        assertThrows(IllegalStateException.class, ()-> room.demoteUser(user1.getUserId(), user3.getUserId()));
+        assertEquals(AdministratorState.class ,room.getProfile(user1.getUserId()).getState().getClass());
     }
 
     /**
@@ -640,9 +640,9 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void promoteUserWithoutBeingAdmin(){
-        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
-        assertThrows(IllegalStateException.class, ()-> room.promoteUser(user1.getUUID(), user2.getUUID()));
-        assertEquals(AdministratorState.class ,room.getUser(user1.getUUID()).getState().getClass());
+        model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
+        assertThrows(IllegalStateException.class, ()-> room.promoteUser(user1.getUserId(), user2.getUserId()));
+        assertEquals(AdministratorState.class ,room.getProfile(user1.getUserId()).getState().getClass());
     }
 
     /**
@@ -650,9 +650,9 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void demoteUserWithoutBeingAdmin(){
-        model.getRooms().addUser(room.getRoomId(), user2.getUUID(), user1.getUUID());
-        assertThrows(IllegalStateException.class, ()-> room.demoteUser(user1.getUUID(), user2.getUUID()));
-        assertEquals(AdministratorState.class ,room.getUser(user1.getUUID()).getState().getClass());
+        model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
+        assertThrows(IllegalStateException.class, ()-> room.demoteUser(user1.getUserId(), user2.getUserId()));
+        assertEquals(AdministratorState.class ,room.getProfile(user1.getUserId()).getState().getClass());
     }
 
     @Test
@@ -667,17 +667,17 @@ class RoomsArrayListManagerTest {
 
     @Test
     void changeNicknameOnUserNotInRoom() {
-        assertThrows(IllegalStateException.class, () -> room.setNicknameOfUser(user3.getUUID(), "test"));
+        assertThrows(IllegalStateException.class, () -> room.setNicknameOfUser(user3.getUserId(), "test"));
     }
 
     @Test
     void setNicknameToNull() {
-        assertThrows(IllegalArgumentException.class, () -> room.setNicknameOfUser(user1.getUUID(), null));
+        assertThrows(IllegalArgumentException.class, () -> room.setNicknameOfUser(user1.getUserId(), null));
     }
 
     @Test
     void setNicknameToEmptyString() {
-        assertThrows(IllegalArgumentException.class, () -> room.setNicknameOfUser(user1.getUUID(), ""));
+        assertThrows(IllegalArgumentException.class, () -> room.setNicknameOfUser(user1.getUserId(), ""));
     }
 
     @Test
@@ -692,6 +692,6 @@ class RoomsArrayListManagerTest {
 
     @Test
     void deleteNicknameFromUserNotInRoom() {
-        assertThrows(IllegalStateException.class, () -> room.removeNicknameFromUser(user2.getUUID()));
+        assertThrows(IllegalStateException.class, () -> room.removeNicknameFromUser(user2.getUserId()));
     }
 }

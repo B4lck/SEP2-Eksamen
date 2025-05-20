@@ -2,13 +2,13 @@ package model;
 
 import utils.DataMap;
 
-public class RoomUser {
+public class RoomMember {
     private long userId;
     private String state;
     private long latestReadMessage;
     private String nickname;
 
-    public RoomUser(long userId, String state, long latestReadMessage, String nickname) {
+    public RoomMember(long userId, String state, long latestReadMessage, String nickname) {
         this.userId = userId;
         this.state = state;
         this.latestReadMessage = latestReadMessage;
@@ -27,9 +27,9 @@ public class RoomUser {
         return latestReadMessage;
     }
 
-    public static RoomUser fromData(DataMap data) {
-        return new RoomUser(
-                data.getLong("id"),
+    public static RoomMember fromData(DataMap data) {
+        return new RoomMember(
+                data.getLong("userId"),
                 data.getString("state"),
                 data.getLong("latestReadMessage"),
                 data.getString("nickname")

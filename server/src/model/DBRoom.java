@@ -5,17 +5,14 @@ import model.statemachine.MutedUser;
 import model.statemachine.UserStateId;
 import utils.DataMap;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DBRoom implements Room {
     private long roomId;
     private String name;
-    private ArrayList<RoomUser> users = new ArrayList<>();
+    private ArrayList<RoomMember> members = new ArrayList<>();
     private String color;
     private String font;
 
@@ -44,7 +41,7 @@ public class DBRoom implements Room {
             ResultSet res = statement.getResultSet();
 
             while (res.next()) {
-                users.add(new RoomUser(
+                members.add(new RoomMember(
                         res.getLong("profile_id"),
                         UserStateId.fromString(res.getString("state")),
                         res.getLong("latest_read_message"),
@@ -67,42 +64,42 @@ public class DBRoom implements Room {
     }
 
     @Override
-    public List<Long> getUsers() {
-        return users.stream().map(RoomUser::getId).toList();
+    public List<Long> getMembers() {
+        return members.stream().map(RoomMember::getUserId).toList();
     }
 
     @Override
-    public void addUser(long userToAdd, long addedByUser) {
-        if (!isAdmin(addedByUser))
+    public void addMember(long addUserId, long adminUserId) {
+        if (!isAdmin(adminUserId))
             throw new IllegalStateException("Brugeren har ikke tilladelse til at tilføje brugere til dette chatrum");
-        if (isInRoom(userToAdd)) throw new IllegalStateException("Brugeren er allerede i rummet");
+        if (isMember(addUserId)) throw new IllegalStateException("Brugeren er allerede i rummet");
 
         try (var connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("INSERT INTO room_user (room_id, profile_id, state) VALUES (?,?,?)");
             statement.setLong(1, roomId);
-            statement.setLong(2, userToAdd);
+            statement.setLong(2, addUserId);
             statement.setString(3, UserStateId.REGULAR.getStateId());
             statement.executeUpdate();
 
-            users.add(new RoomUser(userToAdd, UserStateId.REGULAR, 0, null));
+            members.add(new RoomMember(addUserId, UserStateId.REGULAR, 0, null));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public void removeUser(long user, long removedByUser) {
-        if (!isAdmin(removedByUser) && user != removedByUser)
+    public void removeMember(long removeUserId, long adminUserId) {
+        if (!isAdmin(adminUserId) && removeUserId != adminUserId)
             throw new IllegalStateException("Brugeren har ikke tilladelse til at fjerne brugere fra dette chatrum");
-        if (!isInRoom(user)) throw new IllegalStateException("Brugeren er ikke i rummet");
+        if (!isMember(removeUserId)) throw new IllegalStateException("Brugeren er ikke i rummet");
 
         try (var connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("DELETE FROM room_user WHERE room_id = ? AND profile_id = ?");
             statement.setLong(1, roomId);
-            statement.setLong(2, user);
+            statement.setLong(2, removeUserId);
             statement.executeUpdate();
 
-            users.removeIf(ru -> ru.getId() == user);
+            members.removeIf(member -> member.getUserId() == removeUserId);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -112,22 +109,23 @@ public class DBRoom implements Room {
     public DataMap getData() {
         return new DataMap()
                 .with("name", getName())
-                .with("chatroomId", getRoomId())
-                .with("users", users.stream().map(RoomUser::getData).toList())
+                .with("roomId", getRoomId())
+                .with("membersIds", members.stream().map(RoomMember::getData).toList())
                 .with("color", getColor())
                 .with("font", getFont())
-                .with("latestActivity", getLatestActivity());
+                .with("latestActivityTime", getLatestActivity())
+                .with("latestMessageId", getLatestMessage());
     }
 
     @Override
-    public boolean isInRoom(long user) {
-        return users.stream().anyMatch(ru -> ru.getId() == user);
+    public boolean isMember(long userId) {
+        return members.stream().anyMatch(member -> member.getUserId() == userId);
     }
 
     @Override
-    public void setName(String name, long changedByUser) {
+    public void setName(String name, long adminUserId) {
         if (name == null || name.isEmpty()) throw new IllegalArgumentException("Rummet må ikke have et tomt navn");
-        if (!isAdmin(changedByUser))
+        if (!isAdmin(adminUserId))
             throw new IllegalStateException("Brugeren har ikke tilladelse til at ændre på navnet");
         try (var connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("UPDATE room SET name=? WHERE id = ?");
@@ -141,15 +139,15 @@ public class DBRoom implements Room {
     }
 
     @Override
-    public void muteUser(long userId, long byUser) {
-        if (!isAdmin(byUser)) throw new IllegalStateException("Brugeren har ikke tilladelse til at mute brugere");
+    public void muteUser(long muteUserId, long adminUserId) {
+        if (!isAdmin(adminUserId)) throw new IllegalStateException("Brugeren har ikke tilladelse til at mute brugere");
         try (var connection = Database.getConnection()) {
-            RoomUser roomUser = getUser(userId);
+            RoomMember roomUser = getProfile(muteUserId);
             roomUser.getState().mute();
 
             PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET state=? WHERE profile_id=? AND room_id=?");
             statement.setString(1, roomUser.getState().getStateAsString());
-            statement.setLong(2, userId);
+            statement.setLong(2, muteUserId);
             statement.setLong(3, roomId);
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -158,15 +156,15 @@ public class DBRoom implements Room {
     }
 
     @Override
-    public void unmuteUser(long userId, long byUser) {
-        if (!isAdmin(byUser)) throw new IllegalStateException("Brugeren har ikke tilladelse til at mute brugere");
+    public void unmuteUser(long unmuteUserId, long adminUserId) {
+        if (!isAdmin(adminUserId)) throw new IllegalStateException("Brugeren har ikke tilladelse til at mute brugere");
         try (var connection = Database.getConnection()) {
-            RoomUser roomUser = getUser(userId);
+            RoomMember roomUser = getProfile(unmuteUserId);
             roomUser.getState().unmute();
 
             PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET state=? WHERE profile_id=? AND room_id=?");
             statement.setString(1, roomUser.getState().getStateAsString());
-            statement.setLong(2, userId);
+            statement.setLong(2, unmuteUserId);
             statement.setLong(3, roomId);
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -176,19 +174,19 @@ public class DBRoom implements Room {
 
     @Override
     public boolean isMuted(long userId) {
-        return getUser(userId).getState() instanceof MutedUser;
+        return getProfile(userId).getState() instanceof MutedUser;
     }
 
     @Override
-    public void promoteUser(long userId, long promotedByUser) {
-        if (!isAdmin(promotedByUser)) throw new IllegalStateException("Brugeren har ikke tilladelse forfremme brugere");
+    public void promoteUser(long promoteUserId, long adminUserId) {
+        if (!isAdmin(adminUserId)) throw new IllegalStateException("Brugeren har ikke tilladelse forfremme brugere");
         try (var connection = Database.getConnection()) {
-            RoomUser roomUser = getUser(userId);
+            RoomMember roomUser = getProfile(promoteUserId);
             roomUser.getState().promote();
 
             PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET state=? WHERE profile_id=? AND room_id=?");
             statement.setString(1, roomUser.getState().getStateAsString());
-            statement.setLong(2, userId);
+            statement.setLong(2, promoteUserId);
             statement.setLong(3, roomId);
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -197,15 +195,15 @@ public class DBRoom implements Room {
     }
 
     @Override
-    public void demoteUser(long userId, long promotedByUser) {
-        if (!isAdmin(promotedByUser)) throw new IllegalStateException("Brugeren har ikke tilladelse");
+    public void demoteUser(long demoteUserId, long adminUserId) {
+        if (!isAdmin(adminUserId)) throw new IllegalStateException("Brugeren har ikke tilladelse");
         try (var connection = Database.getConnection()) {
-            RoomUser roomUser = getUser(userId);
+            RoomMember roomUser = getProfile(demoteUserId);
             roomUser.getState().demote();
 
             PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET state=? WHERE profile_id=? AND room_id=?");
             statement.setString(1, roomUser.getState().getStateAsString());
-            statement.setLong(2, userId);
+            statement.setLong(2, demoteUserId);
             statement.setLong(3, roomId);
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -223,22 +221,22 @@ public class DBRoom implements Room {
             statement.setLong(3, userId);
             if (statement.executeUpdate() == 0)
                 throw new IllegalStateException("Brugeren enten findes ikke, eller er ikke i rummet");
-            getUser(userId).setNickname(nickname);
+            getProfile(userId).setNickname(nickname);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public void removeNicknameFromUser(long user) {
+    public void removeNicknameFromUser(long userId) {
         try (var connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET nickname = ? WHERE profile_id = ? AND room_id = ?");
             statement.setNull(1, Types.NULL);
-            statement.setLong(2, user);
+            statement.setLong(2, userId);
             statement.setLong(3, roomId);
             if (statement.executeUpdate() == 0)
                 throw new IllegalStateException("Brugeren enten findes ikke, eller er ikke i rummet");
-            getUser(user).setNickname(null);
+            getProfile(userId).setNickname(null);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -246,16 +244,16 @@ public class DBRoom implements Room {
 
     @Override
     public boolean isAdmin(long userId) {
-        return getUser(userId).getState() instanceof AdministratorState;
+        return getProfile(userId).getState() instanceof AdministratorState;
     }
 
     @Override
-    public RoomUser getUser(long userId) {
-        return users.stream().filter(ru -> ru.getId() == userId).findAny().orElseThrow();
+    public RoomMember getProfile(long userId) {
+        return members.stream().filter(ru -> ru.getUserId() == userId).findAny().orElseThrow();
     }
 
     @Override
-    public void editColor(String color) {
+    public void setColor(String color) {
         try (var connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("UPDATE room SET color=? WHERE id=?");
             statement.setString(1, color);
@@ -280,24 +278,30 @@ public class DBRoom implements Room {
     }
 
     @Override
-    public void addAdminUser(long user) {
-        if (isInRoom(user)) throw new IllegalStateException("Brugeren er allerede i rummet");
+    public long getLatestMessage() {
+        List<Message> firstMessages = model.getMessages().getMessages(getRoomId(), 1);
+        return firstMessages.isEmpty() ? -1 : firstMessages.getFirst().getMessageId();
+    }
+
+    @Override
+    public void addAdminMember(long userId) {
+        if (isMember(userId)) throw new IllegalStateException("Brugeren er allerede i rummet");
 
         try (var connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("INSERT INTO room_user (room_id, profile_id, state) VALUES (?,?,?)");
             statement.setLong(1, roomId);
-            statement.setLong(2, user);
+            statement.setLong(2, userId);
             statement.setString(3, UserStateId.ADMIN.getStateId());
             statement.executeUpdate();
 
-            users.add(new RoomUser(user, UserStateId.ADMIN, 0, null));
+            members.add(new RoomMember(userId, UserStateId.ADMIN, 0, null));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public void setFont(String font, long user) {
+    public void setFont(String font) {
         try (var connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("UPDATE room SET font=? WHERE id=?");
             statement.setString(1, font);
@@ -313,5 +317,20 @@ public class DBRoom implements Room {
     @Override
     public String getFont() {
         return this.font;
+    }
+
+    @Override
+    public void setLatestReadMessage(long messageId, long userId) {
+        try (Connection connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET latest_read_message = ? WHERE room_id = ? AND profile_id = ?");
+            statement.setLong(1, messageId);
+            statement.setLong(2, this.getRoomId());
+            statement.setLong(3, userId);
+            statement.executeUpdate();
+
+            getProfile(userId).setLatestReadMessage(messageId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

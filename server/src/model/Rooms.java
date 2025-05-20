@@ -8,124 +8,126 @@ public interface Rooms extends ServerRequestHandler, PropertyChangeSubject {
     /**
      * Opretter et nyt chatrum
      *
-     * @param name navn på chatrummet
-     * @param user id'et på brugeren som opretter chatrummet
+     * @param name      navn på chatrummet
+     * @param userId id'et på brugeren som opretter chatrummet
      * @return ChatRoom objektet som bliver oprettet
      */
-    Room createRoom(String name, long user);
+    Room createRoom(String name, long userId);
 
     /**
      * Henter et rum ud fra id'et på rummet
      *
-     * @param room id'et på rummet
-     * @param user id'et på brugeren som prøver at hente rummet
+     * @param roomId    id'et på rummet
+     * @param userId id'et på brugeren som prøver at hente rummet
      * @return ChatRoom hvis brugeren er en del af rummet, ellers thrower den
      */
-    Room getRoom(long room, long user);
+    Room getRoom(long roomId, long userId);
 
     Room getRoom(long roomId);
 
     /**
      * Henter alle rum som en bruger deltager i
      *
-     * @param user id'et på brugeren
+     * @param userId id'et på brugeren
      * @return ChatRoom objektet for alle rum som brugeren deltager i
      */
-    List<Room> getParticipatingRooms(long user);
+    List<Room> getParticipatingRooms(long userId);
 
     /**
      * Tilføjer en ny bruger til et chatrum
      *
-     * @param chatroom  id'et på chatrummet
-     * @param newUser   id'et på den nye bruger
-     * @param adminUser id'et på brugeren som forsøger at tilføje newUser
+     * @param roomId         id'et på chatrummet
+     * @param addUserId   id'et på den nye bruger
+     * @param adminUserId id'et på brugeren som forsøger at tilføje newUser
      */
-    void addUser(long chatroom, long newUser, long adminUser);
+    void addMember(long roomId, long addUserId, long adminUserId);
 
     /**
      * Fjerner en bruger fra et chatrum
      *
-     * @param chatroom  id'et på chatrummet
-     * @param user      id'et på brugeren som skal fjernes
-     * @param adminUser id'et på brugeren som forsøger
+     * @param roomId          id'et på chatrummet
+     * @param removeUserId id'et på brugeren som skal fjernes
+     * @param adminUserId  id'et på brugeren som forsøger
      */
-    void removeUser(long chatroom, long user, long adminUser);
+    void removeMember(long roomId, long removeUserId, long adminUserId);
 
     /**
      * Sætter navnet på et chatrum
      *
-     * @param chatroom  id' på chatrummet
-     * @param name      det nye navn på chatrummet
-     * @param adminUser id'et på brugeren der forsøger at ændre navnet på chatrummet
+     * @param roomId         id' på chatrummet
+     * @param name           det nye navn på chatrummet
+     * @param adminUserId id'et på brugeren der forsøger at ændre navnet på chatrummet
      */
-    void setName(long chatroom, String name, long adminUser);
+    void setName(long roomId, String name, long adminUserId);
 
     /**
      * Muter en bruger
      *
-     * @param chatroom  id'et på chatrummet
-     * @param user      id'et på user
-     * @param adminUser id'et på adminUser
+     * @param roomId         id'et på chatrummet
+     * @param muteUserId  id'et på brugeren som skal mutes.
+     * @param adminUserId id'et på brugeren der muter.
      */
-    void muteUser(long chatroom, long user, long adminUser);
+    void muteMember(long roomId, long muteUserId, long adminUserId);
 
     /**
      * Unmuter en bruger
      *
-     * @param chatroom  id'et på chatrummet
-     * @param user      id'et på user
-     * @param adminUser id'et på adminUser
+     * @param roomId          id'et på chatrummet
+     * @param unmuteUserId id'et på user
+     * @param adminUserId  id'et på adminUser
      */
-    void unmuteUser(long chatroom, long user, long adminUser);
+    void unmuteMember(long roomId, long unmuteUserId, long adminUserId);
 
     /**
      * Forfremmer en bruger
-     * @param chatroom  Id på chatRoom
-     * @param user Id på brugeren der skal forfremmes
-     * @param adminUser Id på udførende
+     *
+     * @param roomId           Id på chatRoom
+     * @param promoteUserId Id på brugeren der skal forfremmes
+     * @param adminUserId   Id på udførende
      */
-    void promoteUser(long chatroom, long user, long adminUser);
+    void promoteMember(long roomId, long promoteUserId, long adminUserId);
 
     /**
      * Degradere en bruger
-     * @param chatroom  Id på chatRoom
-     * @param user Id på brugeren der skal degraderes
-     * @param adminUser Id på udførende
+     *
+     * @param roomId          Id på chatRoom
+     * @param demoteUserId Id på brugeren der skal degraderes
+     * @param adminUserId  Id på udførende
      */
-    void demoteUser(long chatroom, long user, long adminUser);
+    void demoteMember(long roomId, long demoteUserId, long adminUserId);
 
     /**
      * Sætter et kaldenavn på en bruger i et chatrum
      *
-     * @param chatroom id'et på chatrummet
-     * @param user id'et på brugeren
-     * @param nickname det nye kaldenavn
+     * @param roomId    id'et på chatrummet
+     * @param userId id'et på brugeren
+     * @param nickname  det nye kaldenavn
      */
-    void setNicknameOfUser(long chatroom, long user, String nickname);
+    void setMemberNickname(long roomId, long userId, String nickname);
 
     /**
      * Fjerner et kaldenavn på en bruger i et chatrum
-     * @param chatroom id'et på chatrummet
-     * @param user id'et på brugeren
+     *
+     * @param roomId    id'et på chatrummet
+     * @param userId id'et på brugeren
      */
-    void removeNicknameOfUser(long chatroom, long user);
+    void removeMemberNickname(long roomId, long userId);
 
     /**
      * Tjekker om rummet eksistere
      *
-     * @param chatroom id'et på chatrummet
+     * @param roomId id'et på chatrummet
      * @return true hvis rummet findes
      */
-    boolean doesRoomExists(long chatroom);
+    boolean doesRoomExists(long roomId);
 
     /**
-     *
-     * @param chatroom id'et på chatrummet
-     * @param user id'et på udførende
-     * @param color farve
+     * @param roomId id'et på chatrummet
+     * @param userId     id'et på udførende
+     * @param color    farve
      * @return true hvis den findes
      */
-    void editColor (long chatroom, long user, String color);
+    void editColor(long roomId, long userId, String color);
 
-    void setFont(long chatroomId, long user, String font);
+    void setFont(long roomId, long userId, String font);
 }

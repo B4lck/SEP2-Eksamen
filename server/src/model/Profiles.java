@@ -7,10 +7,10 @@ public interface Profiles extends ServerRequestHandler {
     /**
      * Henter profilen ud fra et id
      *
-     * @param uuid - id'et på brugeren
+     * @param userId - id'et på brugeren
      * @return En optional med profilen
      */
-    Optional<Profile> getProfile(long uuid);
+    Optional<Profile> getProfile(long userId);
 
     /**
      * Henter profilen ud fra et brugernavn
@@ -42,11 +42,11 @@ public interface Profiles extends ServerRequestHandler {
      */
     List<Profile> searchProfiles(String query);
 
-    void updateUserActivity(long userId);
+    void updateProfileActivity(long userId);
 
-    void blockUser(long blockUserId, long blockedByUserId);
+    void blockProfile(long blockUserId, long blockedByUserId);
 
-    void unblockUser(long blockUserId, long blockedByUserId);
+    void unblockProfile(long blockUserId, long blockedByUserId);
 
-    List<Long> getBlockedUsers(long userId);
+    List<Long> getBlockedProfiles(long userId);
 }

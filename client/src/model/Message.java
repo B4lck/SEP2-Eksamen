@@ -5,31 +5,31 @@ import utils.DataMap;
 import java.util.List;
 
 public class Message {
-    private long sentBy;
-    private String body;
-    private long dateTime;
-    private long messageId;
-    private long chatRoom;
-    private List<String> attachments;
-    private List<Reaction> reactions;
+    private final long messageId;
+    private final long roomId;
+    private final String body;
+    private final long sentBy;
+    private final long dateTime;
+    private final List<String> attachments;
+    private final List<Reaction> reactions;
 
-    public Message(long sentBy, String body, long dateTime, long messageId, long chatRoom, List<String> attachments, List<Reaction> reactions) {
-        this.sentBy = sentBy;
-        this.body = body;
-        this.dateTime = dateTime;
+    public Message(long messageId, long roomId, String body, long sentBy, long dateTime, List<String> attachments, List<Reaction> reactions) {
         this.messageId = messageId;
-        this.chatRoom = chatRoom;
+        this.roomId = roomId;
+        this.body = body;
+        this.sentBy = sentBy;
+        this.dateTime = dateTime;
         this.attachments = attachments;
         this.reactions = reactions;
     }
 
     public static Message fromData(DataMap message) {
         return new Message(
-                message.getLong("sentBy"),
+                message.getLong("messageId"),
+                message.getLong("roomId"),
                 message.getString("body"),
+                message.getLong("sentBy"),
                 message.getLong("dateTime"),
-                message.getLong("id"),
-                message.getLong("chatRoom"),
                 message.getArray("attachments"),
                 message.getMapArray("reactions").stream().map(Reaction::fromData).toList()
         );
@@ -51,8 +51,8 @@ public class Message {
         return messageId;
     }
 
-    public long getChatRoom() {
-        return chatRoom;
+    public long getRoomId() {
+        return roomId;
     }
 
     public List<String> getAttachments() {

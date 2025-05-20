@@ -1,11 +1,11 @@
 package model.statemachine;
 
-import model.RoomUser;
+import model.RoomMember;
 
 public class RegularState extends UserState {
-    private RoomUser user;
+    private RoomMember user;
 
-    public RegularState(RoomUser user) {
+    public RegularState(RoomMember user) {
         this.user = user;
     }
 

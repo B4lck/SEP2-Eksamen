@@ -28,11 +28,11 @@ public class MessagesDBManager implements Messages {
      * @throws RuntimeException Hvis serveren støder på en SQL-fejl.
      */
     @Override
-    public Message sendMessage(long chatroom, String messageBody, List<String> attachments, long senderId) {
-        if (!model.getRooms().doesRoomExists(chatroom))
+    public Message sendMessage(long roomId, String messageBody, List<String> attachments, long senderUserId) {
+        if (!model.getRooms().doesRoomExists(roomId))
             throw new IllegalStateException("Rummet findes ikke");
 
-        if (senderId != 0 && model.getRooms().getRoom(chatroom, senderId).isMuted(senderId))
+        if (senderUserId != 0 && model.getRooms().getRoom(roomId, senderUserId).isMuted(senderUserId))
             throw new IllegalStateException("Du snakker for meget brormand");
 
         if (messageBody == null)
@@ -46,8 +46,8 @@ public class MessagesDBManager implements Messages {
 
             PreparedStatement statement = connection.prepareStatement("INSERT INTO message (body, sent_by_id, room_id, time) VALUES (?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             statement.setString(1, messageBody);
-            statement.setLong(2, senderId);
-            statement.setLong(3, chatroom);
+            statement.setLong(2, senderUserId);
+            statement.setLong(3, roomId);
             statement.setLong(4, currentTime);
             statement.executeUpdate();
             ResultSet res = statement.getGeneratedKeys();
@@ -55,7 +55,7 @@ public class MessagesDBManager implements Messages {
             if (res.next()) {
                 long id = res.getLong(1);
 
-                Message message = new DBMessage(id, senderId, messageBody, currentTime, chatroom);
+                Message message = new DBMessage(id, senderUserId, messageBody, currentTime, roomId);
 
                 messages.put(id, message);
 
@@ -64,8 +64,8 @@ public class MessagesDBManager implements Messages {
                 }
 
                 // Broadcast til klienter
-                Room room = model.getRooms().getRoom(message.getChatRoom());
-                property.firePropertyChange("RECEIVE_MESSAGE", null, new Broadcast(new DataMap().with("message", message.getData()), room.getUsers()));
+                Room room = model.getRooms().getRoom(message.getRoomId());
+                property.firePropertyChange("RECEIVE_MESSAGE", null, new Broadcast(new DataMap().with("message", message.getData()), room.getMembers()));
 
                 return message;
             } else {
@@ -82,16 +82,16 @@ public class MessagesDBManager implements Messages {
      * @throws RuntimeException Hvis serveren støder på en SQL-fejl.
      */
     @Override
-    public List<Message> getMessages(long chatroom, int amount, long userId) {
+    public List<Message> getMessages(long roomId, int amount, long userId) {
         if (amount <= 0) throw new IllegalArgumentException("Ikke nok beskeder");
-        if (!model.getRooms().doesRoomExists(chatroom))
+        if (!model.getRooms().doesRoomExists(roomId))
             throw new IllegalStateException("Rummet findes ikke brormand");
 
         // Tjekker om brugeren har adgang til rummet
         // TODO: Lav en .hasAccessTo(chatroom, userId)
-        model.getRooms().getRoom(chatroom, userId);
+        model.getRooms().getRoom(roomId, userId);
 
-        return getMessages(chatroom, amount);
+        return getMessages(roomId, amount);
     }
 
     /**
@@ -100,14 +100,14 @@ public class MessagesDBManager implements Messages {
      * @throws RuntimeException Hvis serveren støder på en SQL-fejl.
      */
     @Override
-    public List<Message> getMessages(long chatroom, int amount) {
+    public List<Message> getMessages(long roomId, int amount) {
         if (amount <= 0) throw new IllegalArgumentException("Ikke nok beskeder");
-        if (!model.getRooms().doesRoomExists(chatroom))
+        if (!model.getRooms().doesRoomExists(roomId))
             throw new IllegalStateException("Rummet findes ikke brormand");
 
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM message WHERE room_id = ? ORDER BY time DESC LIMIT ?;");
-            statement.setLong(1, chatroom);
+            statement.setLong(1, roomId);
             statement.setInt(2, amount);
             ResultSet res = statement.executeQuery();
 
@@ -151,7 +151,7 @@ public class MessagesDBManager implements Messages {
 
         // Hent beskeder i cache
         ArrayList<Message> msgs = new ArrayList<>(messages.values().stream()
-                .filter(msg -> msg.getChatRoom() == beforeThis.getChatRoom()
+                .filter(msg -> msg.getRoomId() == beforeThis.getRoomId()
                         && msg.getDateTime() <= beforeThis.getDateTime()
                         && msg != beforeThis)
                 .sorted(Comparator.comparingLong(Message::getDateTime).reversed())
@@ -171,7 +171,7 @@ public class MessagesDBManager implements Messages {
                     "SELECT * FROM message WHERE message.time < ? AND message.room_id = ? ORDER BY message.time DESC LIMIT ?;"
             );
             statement.setLong(1, beforeThisOrOlder.getDateTime());
-            statement.setLong(2, beforeThisOrOlder.getChatRoom());
+            statement.setLong(2, beforeThisOrOlder.getRoomId());
             statement.setInt(3, amount - msgs.size());
             ResultSet res = statement.executeQuery();
 
@@ -238,8 +238,8 @@ public class MessagesDBManager implements Messages {
      * @see #sendMessage(long, String, List, long) Samme fejl kan blive kastet som fra sendMessage, udover dem med brugere.
      */
     @Override
-    public void sendSystemMessage(long chatroom, String message) {
-        sendMessage(chatroom, message, new ArrayList<>(), 0);
+    public void sendSystemMessage(long roomId, String message) {
+        sendMessage(roomId, message, new ArrayList<>(), 0);
     }
 
     /**
@@ -250,20 +250,20 @@ public class MessagesDBManager implements Messages {
      * @throws RuntimeException Hvis serveren støder på en SQL-fejl.
      */
     @Override
-    public void editMessage(long messageId, String messageBody, long byUserId) {
+    public void editMessage(long messageId, String messageBody, long userId) {
         // Hent beskeden
-        var message = getMessage(messageId, byUserId);
+        var message = getMessage(messageId, userId);
 
         // Rediger beskeden
-        message.editBody(messageBody, byUserId);
+        message.editBody(messageBody, userId);
 
         // Broadcast til klienter
-        Room chatroom = model.getRooms().getRoom(message.getChatRoom());
-        property.firePropertyChange("UPDATE_MESSAGE", null, new Broadcast(new DataMap().with("message", message.getData()), chatroom.getUsers()));
+        Room chatroom = model.getRooms().getRoom(message.getRoomId());
+        property.firePropertyChange("UPDATE_MESSAGE", null, new Broadcast(new DataMap().with("message", message.getData()), chatroom.getMembers()));
 
         // Send system besked
-        sendSystemMessage(message.getChatRoom(),
-                model.getProfiles().getProfile(byUserId).map(Profile::getUsername).orElse("En bruger")
+        sendSystemMessage(message.getRoomId(),
+                model.getProfiles().getProfile(userId).map(Profile::getUsername).orElse("En bruger")
                         + " har ændret en besked.");
     }
 
@@ -275,26 +275,26 @@ public class MessagesDBManager implements Messages {
      * @throws RuntimeException Hvis serveren støder på en SQL-fejl.
      */
     @Override
-    public void deleteMessage(long messageId, long byUserId) {
+    public void deleteMessage(long messageId, long userId) {
         // Hent beskeden
-        var message = getMessage(messageId, byUserId);
+        var message = getMessage(messageId, userId);
 
         // Gem bilag inden content bliver slettet
         List<String> attachments = message.getAttachments();
 
         // Slet selve beskeden
-        message.deleteContent(byUserId);
+        message.deleteContent(userId);
 
         // Slet bilagene på serveren, når beskeden er blevet slettet
         UserFilesManager.getInstance().removeFiles(attachments);
 
         // Broadcast til klienter
-        Room chatroom = model.getRooms().getRoom(message.getChatRoom());
-        property.firePropertyChange("UPDATE_MESSAGE", null, new Broadcast(new DataMap().with("message", message.getData()), chatroom.getUsers()));
+        Room chatroom = model.getRooms().getRoom(message.getRoomId());
+        property.firePropertyChange("UPDATE_MESSAGE", null, new Broadcast(new DataMap().with("message", message.getData()), chatroom.getMembers()));
 
         // Send system besked
-        String username = model.getProfiles().getProfile(byUserId).map(Profile::getUsername).orElse("En bruger");
-        sendSystemMessage(message.getChatRoom(), username + " har slettet en besked.");
+        String username = model.getProfiles().getProfile(userId).map(Profile::getUsername).orElse("En bruger");
+        sendSystemMessage(message.getRoomId(), username + " har slettet en besked.");
     }
 
     /**
@@ -310,8 +310,8 @@ public class MessagesDBManager implements Messages {
         message.addReaction(reaction, userId);
 
         // Broadcast til klienter
-        Room chatroom = model.getRooms().getRoom(message.getChatRoom());
-        property.firePropertyChange("UPDATE_MESSAGE", null, new Broadcast(new DataMap().with("message", message.getData()), chatroom.getUsers()));
+        Room chatroom = model.getRooms().getRoom(message.getRoomId());
+        property.firePropertyChange("UPDATE_MESSAGE", null, new Broadcast(new DataMap().with("message", message.getData()), chatroom.getMembers()));
 
         // Send notifikation til senderen af beskeden
         property.firePropertyChange("NEW_REACTION", null, new Broadcast(new DataMap().with("message", message.getData()).with("reactedBy", userId).with("reaction", reaction), message.getSentBy()));
@@ -330,8 +330,8 @@ public class MessagesDBManager implements Messages {
         message.removeReaction(reaction, userId);
 
         // Broadcast til klienter
-        Room chatroom = model.getRooms().getRoom(message.getChatRoom());
-        property.firePropertyChange("UPDATE_MESSAGE", null, new Broadcast(new DataMap().with("message", message.getData()), chatroom.getUsers()));
+        Room chatroom = model.getRooms().getRoom(message.getRoomId());
+        property.firePropertyChange("UPDATE_MESSAGE", null, new Broadcast(new DataMap().with("message", message.getData()), chatroom.getMembers()));
     }
 
     /**
@@ -343,36 +343,29 @@ public class MessagesDBManager implements Messages {
     @Override
     public void setLatestReadMessage(long messageId, long userId) {
         Message message = getMessage(messageId, userId);
-        long roomId = message.getChatRoom();
+        long roomId = message.getRoomId();
         Room room = model.getRooms().getRoom(roomId, userId);
-        long previousReadMessageId = room.getUser(userId).getLatestReadMessage();
+        RoomMember user = room.getProfile(userId);
+        long previousReadMessageId = user.getLatestReadMessage();
 
         if (previousReadMessageId == messageId) return;
         if (previousReadMessageId != 0 && message.getDateTime() <= getMessage(previousReadMessageId, userId).getDateTime())
             return;
 
-        try (Connection connection = Database.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET latest_read_message = ? WHERE room_id = ? AND profile_id = ?");
-            statement.setLong(1, messageId);
-            statement.setLong(2, roomId);
-            statement.setLong(3, userId);
-            statement.executeUpdate();
+        room.setLatestReadMessage(messageId, userId);
 
-            property.firePropertyChange("READ_MESSAGE", null, new Broadcast(
-                    new DataMap()
-                            .with("messageId", messageId)
-                            .with("roomId", roomId)
-                            .with("userId", userId),
-                    room.getUsers()
-            ));
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        property.firePropertyChange("READ_MESSAGE", null, new Broadcast(
+                new DataMap()
+                        .with("messageId", messageId)
+                        .with("roomId", roomId)
+                        .with("userId", userId),
+                room.getMembers()
+        ));
     }
 
     @Override
     public void handleRequest(ServerRequest request) {
-        long chatRoom;
+        long roomId;
         var data = request.getData();
         int amount;
         long messageId;
@@ -381,7 +374,7 @@ public class MessagesDBManager implements Messages {
             switch (request.getType()) {
                 // Send besked
                 case "SEND_MESSAGE":
-                    chatRoom = data.getLong("chatroom");
+                    roomId = data.getLong("roomId");
                     String messageBody = data.getString("body");
 
                     if (messageBody == null) messageBody = "";
@@ -394,16 +387,16 @@ public class MessagesDBManager implements Messages {
                         attachments.add(name);
                     }
 
-                    sendMessage(chatRoom, messageBody, attachments, request.getUser());
+                    sendMessage(roomId, messageBody, attachments, request.getUser());
 
                     request.respond("Beskeden blev sendt");
                     break;
                 // Hent antal beskeder
                 case "RECEIVE_MESSAGES":
-                    chatRoom = data.getLong("chatroom");
+                    roomId = data.getLong("roomId");
                     amount = data.getInt("amount");
 
-                    request.respond(new DataMap().with("messages", toSendableData(getMessages(chatRoom, amount, request.getUser()))));
+                    request.respond(new DataMap().with("messages", toSendableData(getMessages(roomId, amount, request.getUser()))));
                     break;
                 // Hent antal beskeder
                 case "RECEIVE_MESSAGES_BEFORE":
@@ -415,13 +408,13 @@ public class MessagesDBManager implements Messages {
                     if (messages.isEmpty()) {
                         request.respond(new DataMap()
                                 .with("messages", new ArrayList<DataMap>())
-                                .with("newest_time", 0));
+                                .with("newestTime", 0));
                         return;
                     }
 
                     request.respond(new DataMap()
                             .with("messages", toSendableData(messages))
-                            .with("newest_time", messages.getFirst().getDateTime()));
+                            .with("newestTime", messages.getFirst().getDateTime()));
                     break;
                 case "EDIT_MESSAGE":
                     messageId = data.getLong("messageId");

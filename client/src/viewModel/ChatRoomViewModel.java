@@ -141,8 +141,8 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     /**
      * Skift det nuværende chatrum i view staten
      */
-    public void setChatRoom(long chatRoom) {
-        viewState.setCurrentChatRoom(chatRoom);
+    public void setChatRoom(long roomId) {
+        viewState.setCurrentChatRoom(roomId);
         // Der er en listener på currentChatRoom, som resetter rummet :)
     }
 
@@ -166,9 +166,9 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
             Room room = model.getRoomManager().getRoom(roomId);
             // # Hent medlemmer
             // ID'et på den nuværende bruger
-            long myId = model.getProfileManager().getCurrentUserUUID();
+            long myId = model.getProfileManager().getCurrentUserId();
             // Tilføj brugere
-            for (RoomUser user : room.getUsers()) {
+            for (RoomMember user : room.getMembers()) {
                 // Opret ViewRoomUser, som view'et kan bruge til display
                 Profile userProfile = model.getProfileManager().getProfile(user.getUserId());
                 var vru = new ViewRoomUser(
@@ -190,7 +190,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
             }
 
             // # Opdater chatrummets oplysninger
-            roomProperty.set(new ViewRoom(room.getName(), roomId, room.getLatestActivity(), room.getColor(), room.getFont()));
+            roomProperty.set(new ViewRoom(room.getName(), roomId, room.getLatestActivityTime(), room.getColor(), room.getFont(), false));
 
             // # Hent beskeder
             List<Message> initialMessages = model.getMessagesManager().getMessages(roomId, 10);
@@ -215,7 +215,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
      */
     private void addMessage(Message message) {
         try {
-            if (message.getChatRoom() == viewState.getCurrentChatRoom()) {
+            if (message.getRoomId() == viewState.getCurrentChatRoom()) {
                 List<File> files = new ArrayList<>();
                 // Download attachments
                 for (String attachmentName : message.getAttachments()) {
@@ -226,7 +226,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                 // Fjern hvis det er en redigering
                 messagesProperty.removeIf(m -> m.messageId == message.getMessageId());
 
-                long myId = model.getProfileManager().getCurrentUserUUID();
+                long myId = model.getProfileManager().getCurrentUserId();
 
                 // "Stak" reactions
                 Map<String, ViewReaction> messageReactions = new HashMap<>();
@@ -288,7 +288,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                     // Opdater read receipts
                     case "READ_UPDATE":
                         if ((long) evt.getOldValue() != viewState.getCurrentChatRoom()) return;
-                        RoomUser roomUser = (RoomUser) evt.getNewValue();
+                        RoomMember roomUser = (RoomMember) evt.getNewValue();
                         roomUsersProperty.removeIf(viewUser -> viewUser.getUserId() == roomUser.getUserId());
                         Profile userProfile = model.getProfileManager().getProfile(roomUser.getUserId());
                         roomUsersProperty.add(new ViewRoomUser(
@@ -299,6 +299,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                                 roomUser.getLatestReadMessage(),
                                 userProfile.getLastActive()
                         ));
+                        resetRooms();
                         break;
                     // Opdater rum
                     case "ROOM_CHANGED":
@@ -417,7 +418,13 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
             Stream<ViewRoom> tempRooms = model.getRoomManager().getMyRooms().stream()
                     .filter(r -> r.getName().toLowerCase().contains(query.toLowerCase()))
-                    .map(r -> new ViewRoom(r.getName(), r.getRoomId(), r.getLatestActivity(), r.getColor(), r.getFont()));
+                    .map(r -> new ViewRoom(
+                            r.getName(),
+                            r.getRoomId(),
+                            r.getLatestActivityTime(),
+                            r.getColor(),
+                            r.getFont(),
+                            r.getLatestMessageId() != r.getUser(model.getProfileManager().getCurrentUserId()).map(RoomMember::getLatestReadMessage).orElse(-1L)));
 
             tempRooms = switch (sortingMethod) {
                 case ALPHABETICALLY -> tempRooms.sorted((r1, r2) -> r1.getName().compareToIgnoreCase(r2.getName()));

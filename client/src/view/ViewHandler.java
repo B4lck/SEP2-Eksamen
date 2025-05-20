@@ -43,7 +43,7 @@ public class ViewHandler {
                 Message message = (Message) evt.getNewValue();
                 // Send ikke system beskeder, eller egne beskeder som notifikationer
                 if (message.getSentBy() == 0) return;
-                if (message.getSentBy() == model.getProfileManager().getCurrentUserUUID()) return;
+                if (message.getSentBy() == model.getProfileManager().getCurrentUserId()) return;
                 if (model.getProfileManager().isBlocked(message.getSentBy())) return;
                 // Send notifikation
                 Platform.runLater(() -> {
@@ -85,7 +85,7 @@ public class ViewHandler {
                 case SIGNUP -> getRoot(view, viewModelFactory.getSignUpViewModel(), this);
                 case CHATROOM -> getRoot(view, viewModelFactory.getChatRoomViewModel(), this);
                 case CREATE_EDIT_ROOM -> getRoot(view, viewModelFactory.getCreateEditChatRoomViewModel(), this);
-                case ROOM_USERS -> getRoot(view, viewModelFactory.getEditNicknameViewModel(), this);
+                case ROOM_MEMBERS -> getRoot(view, viewModelFactory.getEditNicknameViewModel(), this);
             };
         } catch (IOException e) {
             throw new IllegalStateException("Kunne ikke indlæse siden :(");

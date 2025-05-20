@@ -1,6 +1,6 @@
 package model.statemachine;
 
-import model.RoomUser;
+import model.RoomMember;
 
 public abstract class UserState {
     /**
@@ -36,7 +36,7 @@ public abstract class UserState {
      * @param user  RoomUser objektet af en profil i et chatrum
      * @return User state objekt
      */
-    public static UserState stateFromString(UserStateId state, RoomUser user) {
+    public static UserState stateFromString(UserStateId state, RoomMember user) {
         return switch (state.getStateId()) {
             case "Regular" -> new RegularState(user);
             case "Muted" -> new MutedUser(user);
