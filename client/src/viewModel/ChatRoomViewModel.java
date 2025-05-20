@@ -23,10 +23,8 @@ import java.util.stream.Stream;
 public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
     private StringProperty greetingTextProperty;
-    private StringProperty roomNameProperty;
+    private ObjectProperty<ViewRoom> roomProperty;
     private StringProperty searchFieldProperty;
-    private StringProperty colorProperty;
-    private StringProperty fontProperty;
 
     private SortingMethod sortingMethod = SortingMethod.ACTIVITY;
 
@@ -45,11 +43,8 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         this.model = model;
 
         this.greetingTextProperty = new SimpleStringProperty();
-        this.roomNameProperty = new SimpleStringProperty();
+        this.roomProperty = new SimpleObjectProperty<>();
         this.searchFieldProperty = new SimpleStringProperty();
-
-        this.colorProperty = new SimpleStringProperty("#FFFFFF");
-        this.fontProperty = new SimpleStringProperty("Arial");
 
         this.composeMessageProperty = new SimpleStringProperty();
         this.attachmentsProperty = FXCollections.observableArrayList();
@@ -90,8 +85,8 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     /**
      * Indeholder navnet på det nuværende valgte rum
      */
-    public StringProperty getRoomNameProperty() {
-        return roomNameProperty;
+    public ObjectProperty<ViewRoom> getRoomProperty() {
+        return roomProperty;
     }
 
     /**
@@ -100,18 +95,6 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     public StringProperty getSearchFieldProperty() {
         return searchFieldProperty;
     }
-
-    /**
-     * Indeholder farvet på rummet
-     */
-    public StringProperty getColorProperty() {
-        return colorProperty;
-    }
-
-    /**
-     * Indeholder skriften på rummet
-     */
-    public StringProperty getFontProperty() { return fontProperty;}
 
     /**
      * Indholdet bliver sendt når sendMessage eller editMessage kaldes.
@@ -175,14 +158,12 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
         // Stop tidligt hvis brugeren ikke er i et rum
         if (roomId == -1) {
-            roomNameProperty.set("Vælg et rum!");
+            roomProperty.set(null);
             return;
         }
 
         try {
             Room room = model.getRoomManager().getRoom(roomId);
-            this.colorProperty.set(room.getColor());
-            this.fontProperty.set(room.getFont());
             // # Hent medlemmer
             // ID'et på den nuværende bruger
             long myId = model.getProfileManager().getCurrentUserUUID();
@@ -209,7 +190,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
             }
 
             // # Opdater chatrummets oplysninger
-            roomNameProperty.set(room.getName());
+            roomProperty.set(new ViewRoom(room.getName(), roomId, room.getLatestActivity(), room.getColor(), room.getFont()));
 
             // # Hent beskeder
             List<Message> initialMessages = model.getMessagesManager().getMessages(roomId, 10);
@@ -349,6 +330,8 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
      * Hent ældre beskeder i det nuværende rum
      */
     public void loadOlderMessages() {
+        if (viewState.getCurrentChatRoom() == -1) return;
+
         try {
             var messages = model.getMessagesManager().getMessagesBefore(viewState.getCurrentChatRoom(), messagesProperty.getFirst().messageId, 10);
             for (Message message : messages) {
@@ -375,6 +358,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
     /**
      * Redigere en besked med den tekst som er i composeMessageProperty
+     *
      * @param messageId - ID'et på den besked som skal redigeres
      */
     public void editMessage(long messageId) {
@@ -387,6 +371,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
     /**
      * Sletter en besked
+     *
      * @param messageId - ID'et på den besked som skal slettes
      */
     public void deleteMessage(long messageId) {
@@ -399,8 +384,9 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
     /**
      * Tilføjer en reaktion på en besked
+     *
      * @param messageId - ID'et på den besked som reageres på
-     * @param reaction - Streng med den emoji der reageres med
+     * @param reaction  - Streng med den emoji der reageres med
      */
     public void addReaction(long messageId, String reaction) {
         try {
@@ -412,8 +398,9 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
     /**
      * Sletter en reaktion på en besked
+     *
      * @param messageId - ID'et på den besked som ikke længere skal reageres på
-     * @param reaction - Streng med den emoji der ikke længere skal reageres med
+     * @param reaction  - Streng med den emoji der ikke længere skal reageres med
      */
     public void removeReaction(long messageId, String reaction) {
         try {
@@ -429,7 +416,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
             String query = searchFieldProperty.get() == null ? "" : searchFieldProperty.get();
 
             Stream<ViewRoom> tempRooms = model.getRoomManager().getMyRooms().stream()
-                    .filter(r -> r.getName().contains(query))
+                    .filter(r -> r.getName().toLowerCase().contains(query.toLowerCase()))
                     .map(r -> new ViewRoom(r.getName(), r.getRoomId(), r.getLatestActivity(), r.getColor(), r.getFont()));
 
             tempRooms = switch (sortingMethod) {
@@ -446,5 +433,13 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     public void setSortingMethod(SortingMethod sortingMethod) {
         this.sortingMethod = sortingMethod;
         resetRooms();
+    }
+
+    public void logout() {
+        try {
+            model.getProfileManager().logout();
+        } catch (ServerError e) {
+            e.showAlert();
+        }
     }
 }

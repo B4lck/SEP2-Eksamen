@@ -44,6 +44,7 @@ public class SignUpViewModel implements ViewModel {
         try {
             if (!passwordInputProperty.getValue().equals(verifyPasswordInputProperty.getValue())) {
                 errorProperty.set("Passordene er ikke ens");
+                return false;
             }
             model.getProfileManager().signUp(userNameInputProperty.getValue(), passwordInputProperty.getValue());
             return true;

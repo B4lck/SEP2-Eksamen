@@ -33,9 +33,12 @@ public class ProfileManager {
         return res.getData().getLong("uuid");
     }
 
-    public void logout() {
+    public void logout() throws ServerError {
         this.currentUserId = -1;
-        // TODO: Bed serveren om at logge ud
+
+        client.sendMessage(new ClientMessage("LOG_OUT", new DataMap()));
+
+        client.waitingForReply("ProfileManager logger ud");
     }
 
     public long login(String username, String password) throws ServerError {

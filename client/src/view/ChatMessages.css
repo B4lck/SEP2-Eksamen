@@ -1,11 +1,19 @@
+.message-alignment-container {
+  -fx-fill: -fx-color-font-primary;
+}
+
+.message-alignment-container * {
+  -fx-fill: inherit;
+}
+
 .message-container {
-  -fx-background-color: #e2e2e2;
-  -fx-padding: 4px;
+  -fx-background-color:  #0002;
+  -fx-padding:           4px;
   -fx-background-radius: 4px;
 }
 
 .message-time {
-  -fx-text-fill:     gray;
+  -fx-fill:    -fx-color-font-secondary;
   /*Til fremtidig reference, så er det TOP, RIGHT, BOTTOM, LEFT*/
   -fx-padding: 1px 4px 1px 4px;
 }
@@ -20,7 +28,7 @@
 }
 
 .left-menu {
-  -fx-background-color: #979797;
+  -fx-background-color: #BBB;
 }
 
 .message-reactions {
@@ -28,7 +36,23 @@
 }
 
 .message-reaction-box {
-  -fx-background-color: #fff;
-  -fx-padding: 1px 4px 1px 4px;
+  -fx-background-color:  #fff8;
+  -fx-padding:           1px 4px 1px 4px;
   -fx-background-radius: 6px;
+}
+
+.room-button {
+  -fx-background-color: transparent;
+  -fx-alignment: TOP_LEFT;
+  -fx-padding: 5px;
+  -fx-border-width: 0 0 1px 0; /* top right bottom left */
+  -fx-border-color: black;
+}
+
+.room-button.active {
+  -fx-background-color: #08f4;
+}
+
+.room-button:focused {
+  -fx-background-color: #08f2;
 }

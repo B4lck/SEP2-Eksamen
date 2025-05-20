@@ -15,7 +15,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import util.Attachment;
@@ -28,7 +30,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 public class ChatRoomViewController extends ViewController<viewModel.ChatRoomViewModel> {
     // References til ChatRoomView.fxml
@@ -41,6 +46,12 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
     @FXML
     public HBox composeSection;
     @FXML
+    public Text welcomeQuote;
+    @FXML
+    public VBox welcomeScreen;
+    @FXML
+    public VBox roomScreen;
+    @FXML
     private TextField composeField;
     @FXML
     public VBox messages;
@@ -51,12 +62,27 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
     @FXML
     private TextField searchRoomField;
 
+    public static String[] quotes = new String[]{
+            "Simplicity is beautiful.",
+            "Slå din AI fra. Slå din hjerne til.",
+            "Læring er en rejse, ikke en destination.",
+            "En dag uden læring er en dag spildt.",
+            "Det er okay at fejle - det er sådan man lærer.",
+            "Små skridt hver dag fører til store resultater.",
+            "Din indsats i dag former din fremtid i morgen.",
+            "Uddannelse er ikke forberedelse til livet; uddannelse er livet selv.",
+            "Der er ingen genveje til viden - kun hårdt arbejde.",
+            "Nysgerrighed er den bedste læremester."
+    };
+
     // "activity" eller "alphabetically"
     private String roomSortingMethod = "activity";
 
     private Map<Long, MessageBox> messageNodes = new HashMap<>();
 
     public ObjectProperty<ViewMessage> editingMessageProperty = new SimpleObjectProperty<>();
+
+    private boolean loadOnScroll = false;
 
     @Override
     protected void init() {
@@ -66,19 +92,22 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
         searchRoomField.textProperty().bindBidirectional(getViewModel().getSearchFieldProperty());
         searchRoomField.textProperty().addListener(_ -> getViewModel().resetRooms());
 
-        roomName.textProperty().bind(getViewModel().getRoomNameProperty());
+        roomName.textProperty().bind(getViewModel().getRoomProperty().map(ViewRoom::getName).orElse("Vælg et rum!"));
 
-        getViewModel().getColorProperty().addListener((_, _, newColor) -> {
-            applyStyle();
-        });
-        getViewModel().getFontProperty().addListener((_, _, newFont) -> {
-            applyStyle();
-        });
+        Pane fullHeightPane = new Pane();
+        fullHeightPane.minHeightProperty().bind(scrollPane.heightProperty());
+        messages.getChildren().add(fullHeightPane);
 
-        Button loadMoreButton = new Button();
-        loadMoreButton.setText("Indlæs mere du");
-        loadMoreButton.addEventHandler(ActionEvent.ACTION, evt -> getViewModel().loadOlderMessages());
-        messages.getChildren().add(loadMoreButton);
+        welcomeQuote.setText(quotes[new Random().nextInt(quotes.length)]);
+
+        roomScreen.setVisible(false);
+
+        getViewModel().getRoomProperty().addListener((_, _, newRoom) -> {
+            applyStyle();
+            roomScreen.setVisible(newRoom != null);
+            welcomeScreen.setVisible(newRoom == null);
+            composeField.requestFocus();
+        });
 
         getViewModel().getCurrentRoomUserProperty().addListener((_, _, u) -> {
             composeSection.setDisable(u == null || u.getState().equals("Muted"));
@@ -89,9 +118,14 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
         getViewModel().getRoomsProperty().addListener((ListChangeListener<ViewRoom>) change -> {
             rooms.getChildren().clear();
 
+            ViewRoom currentRoom = getViewModel().getRoomProperty().get();
+
             change.getList().forEach(r -> {
                 Button roomButton = new Button(r.getName());
-                roomButton.setPrefWidth(150);
+                roomButton.setPrefWidth(200);
+                roomButton.getStyleClass().add("room-button");
+                if (currentRoom != null && currentRoom.getRoomId() == r.getRoomId())
+                    roomButton.getStyleClass().add("active");
                 roomButton.addEventHandler(ActionEvent.ACTION, evt -> getViewModel().setChatRoom(r.getRoomId()));
                 rooms.getChildren().add(roomButton);
             });
@@ -119,8 +153,10 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
             // Hvis listen er helt tom, er der højst sandsynligt blevet åbnet en anden chat, så nulstil scroll til bunden.
             if (change.getList().isEmpty()) {
                 Platform.runLater(() -> {
+                    loadOnScroll = false;
                     previousScrollHeight = 0;
                     scrollPane.setVvalue(1.0);
+                    loadOnScroll = true;
                 });
             }
         });
@@ -192,6 +228,14 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
         scrollPane.setVvalue(1.0);
 
         messages.getChildren().addListener((ListChangeListener<Node>) _ -> updateScroll());
+
+        scrollPane.vvalueProperty().addListener((observable, oldValue, newValue) -> {
+            // Tjek om brugeren er tæt på toppen (f.eks. inden for de øverste 5%)
+            if (loadOnScroll && newValue.doubleValue() * (messages.getHeight() - scrollPane.getHeight()) < fullHeightPane.getHeight() + 50 ) {
+                loadOnScroll = false;
+                getViewModel().loadOlderMessages();
+            }
+        });
     }
 
     private double previousScrollHeight = 0;
@@ -200,7 +244,9 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
         Platform.runLater(() -> {
             double newScrollHeight = Math.max(messages.getHeight() - scrollPane.getHeight(), 0);
 
+            loadOnScroll = false;
             scrollPane.setVvalue(scrollPane.getVvalue() + (newScrollHeight - previousScrollHeight) / newScrollHeight);
+            loadOnScroll = true;
 
             previousScrollHeight = newScrollHeight;
         });
@@ -230,7 +276,9 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
             getViewModel().sendMessage();
         }
         composeField.clear();
+        loadOnScroll = false;
         scrollPane.setVvalue(1.0);
+        loadOnScroll = true;
     }
 
     @FXML
@@ -274,8 +322,32 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
     }
 
     public void applyStyle() {
-        messages.setStyle("-fx-background-color: " + getViewModel().getColorProperty().get() + ";" +
-                "-fx-font-family: '" + getViewModel().getFontProperty().get() + "';");
-        System.out.println(getViewModel().getFontProperty().get());
+        ViewRoom room = getViewModel().getRoomProperty().get();
+
+        if (room == null) return;
+
+        messages.setStyle("-fx-background-color: " + room.getColor() + ";" +
+                "-fx-color-font-primary: " + colorToHex(colorContrastText(Color.web(room.getColor()))) + ";" +
+                "-fx-color-font-secondary: " + colorToHex(colorContrastText(Color.web(room.getColor()))) + "88;" +
+                "-fx-font-family: '" + room.getFont() + "';");
+    }
+
+    public String colorToHex(Color color) {
+        return String.format("#%02x%02x%02x", (int) (color.getRed() * 255), (int) (color.getGreen() * 255), (int) (color.getBlue() * 255));
+    }
+
+    public Color colorContrastText(Color color) {
+        return (color.getRed() * 0.299 + color.getGreen() * 0.587 + color.getBlue() * 0.114) > 0.72 ? Color.BLACK : Color.WHITE;
+    }
+
+    @FXML
+    public void logout() {
+        getViewModel().logout();
+        getViewHandler().openView(ViewID.LOGIN);
+    }
+
+    @FXML
+    public void quote(ActionEvent actionEvent) {
+        getViewModel().setChatRoom(-1);
     }
 }

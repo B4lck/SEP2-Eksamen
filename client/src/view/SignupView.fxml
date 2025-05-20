@@ -1,24 +1,44 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12"
+<AnchorPane prefHeight="400.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/17.0.12"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.SignupViewController">
-    <ImageView fitHeight="82.0" fitWidth="327.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true"
-               preserveRatio="true">
+    <ImageView fitHeight="82.0" fitWidth="327.0" layoutX="10.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
         <Image url="@viaLogo.png"/>
     </ImageView>
-    <TextField fx:id="viaId" layoutX="236.0" layoutY="158.0"/>
-    <PasswordField fx:id="passwordField" layoutX="236.0" layoutY="204.0"/>
-    <PasswordField fx:id="passwordCheck" layoutX="236.0" layoutY="247.0"/>
-    <Label layoutX="150.0" layoutY="208.0" text="Password"/>
-    <Label layoutX="128.0" layoutY="251.0" text="Bekræft Password"/>
-    <Label layoutX="162.0" layoutY="162.0" text="Via ID"/>
-    <Button layoutX="385.0" layoutY="286.0" mnemonicParsing="false" onAction="#signUp"
-            text="Opret Bruger"/>
-    <Button layoutX="14.0" layoutY="335.0" mnemonicParsing="false" onAction="#logIn" text="Log ind"/>
-    <Label fx:id="error" alignment="TOP_LEFT" minHeight="50.0" minWidth="200.0" text="Error" textFill="RED"
-           translateX="150.0" translateY="280.0"/>
+    <HBox alignment="CENTER" fillHeight="false" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="0.0"
+          AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="100.0">
+        <VBox prefWidth="200.0" spacing="10.0">
+            <Label text="Via-ID:">
+                <VBox.margin>
+                    <Insets bottom="-5.0"/>
+                </VBox.margin>
+            </Label>
+            <TextField fx:id="viaId" onAction="#signUp"/>
+            <Label text="Password:">
+                <VBox.margin>
+                    <Insets bottom="-5.0"/>
+                </VBox.margin>
+            </Label>
+            <PasswordField fx:id="passwordField" onAction="#signUp"/>
+            <Label text="Gentag Password:">
+                <VBox.margin>
+                    <Insets bottom="-5.0"/>
+                </VBox.margin>
+            </Label>
+            <PasswordField fx:id="passwordCheck" onAction="#signUp"/>
+            <Label fx:id="error" text="Fejl" textFill="#e10000"/>
+        </VBox>
+    </HBox>
+    <ButtonBar AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+        <buttons>
+            <Button mnemonicParsing="false" onAction="#logIn" text="Log in"/>
+            <Button mnemonicParsing="false" onAction="#signUp" text="Opret Bruger"/>
+        </buttons>
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        </padding>
+    </ButtonBar>
 </AnchorPane>

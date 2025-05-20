@@ -20,6 +20,10 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
     @FXML
     public Button confirmButton;
     @FXML
+    public Label colorLabel;
+    @FXML
+    public Label fontLabel;
+    @FXML
     private Button muteButton;
     @FXML
     private Button unmuteButton;
@@ -66,11 +70,12 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
         unmuteButton.setVisible(getViewModel().isEdit());
         promoteButton.setVisible(getViewModel().isEdit());
         demoteButton.setVisible(getViewModel().isEdit());
+        colorLabel.setVisible(getViewModel().isEdit());
         colorButton.setVisible(getViewModel().isEdit());
         colorButton.setValue(Color.web(getViewModel().getRoomColor()));
+        fontLabel.setVisible(getViewModel().isEdit());
         fontButton.setVisible(getViewModel().isEdit());
         fontButton.setValue(getViewModel().getFont());
-
     }
 
     @FXML

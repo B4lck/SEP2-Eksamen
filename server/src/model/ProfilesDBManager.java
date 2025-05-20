@@ -202,6 +202,13 @@ public class ProfilesDBManager implements Profiles {
                         throw new IllegalStateException("Forkert brugernavn eller adgangskode");
                     }
                     break;
+                // Log out
+                case "LOG_OUT":
+                    // Log out
+                    request.setUser(-1);
+                    // Respond with uuid
+                    request.respond("Du er blevet logget ud.");
+                    break;
                 // Get profile
                 case "GET_CURRENT_PROFILE":
                     user = getProfile(request.getUser())
