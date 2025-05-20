@@ -57,6 +57,7 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
         unmuteButton.setVisible(getViewModel().isEdit());
         promoteButton.setVisible(getViewModel().isEdit());
         demoteButton.setVisible(getViewModel().isEdit());
+        colorButton.setVisible(getViewModel().isEdit());
     }
 
     @FXML
