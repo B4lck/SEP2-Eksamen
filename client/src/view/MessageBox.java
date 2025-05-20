@@ -14,7 +14,7 @@ import javafx.scene.text.TextFlow;
 import viewModel.ChatRoomViewModel;
 import viewModel.ViewMessage;
 import viewModel.ViewReaction;
-import viewModel.ViewRoomUser;
+import viewModel.ViewRoomMember;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -77,7 +77,12 @@ public class MessageBox extends HBox {
 
         TextFlow messageBody = new TextFlow();
         Text rawBody = new Text(viewMessage.body);
-        messageBody.maxWidthProperty().bind(controller.messages.widthProperty().subtract(100));
+        if (viewMessage.isSystemMessage) {
+            messageBody.prefWidthProperty().bind(controller.messages.widthProperty());
+        }
+        else {
+            messageBody.maxWidthProperty().bind(controller.messages.widthProperty().subtract(100));
+        }
         messageBody.getStyleClass().add("message-body-text");
         messageBody.getChildren().add(rawBody);
         body.getChildren().add(messageBody);
@@ -184,7 +189,7 @@ public class MessageBox extends HBox {
             contextMenu.show(messageContainer, e.getScreenX(), e.getScreenY());
         });
 
-        List<ViewRoomUser> readByUsers = viewModel.getRoomUsersProperty().stream()
+        List<ViewRoomMember> readByUsers = viewModel.getRoomMembersProperty().stream()
                 .filter(u -> u.getLatestReadMessage() == viewMessage.messageId).toList();
 
         if (!readByUsers.isEmpty()) {
@@ -198,7 +203,7 @@ public class MessageBox extends HBox {
             } else {
                 readByLabel.setText(
                         "Læst af "
-                                + String.join(", ", readByUsers.stream().map(ViewRoomUser::getDisplayName).limit(readByUsers.size() - 1).toList())
+                                + String.join(", ", readByUsers.stream().map(ViewRoomMember::getDisplayName).limit(readByUsers.size() - 1).toList())
                                 + " og "
                                 + readByUsers.getLast().getDisplayName()
                 );

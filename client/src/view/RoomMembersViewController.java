@@ -5,10 +5,10 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.text.Text;
-import viewModel.RoomUsersViewModel;
-import viewModel.ViewRoomUser;
+import viewModel.RoomMembersViewModel;
+import viewModel.ViewRoomMember;
 
-public class RoomUsersViewController extends ViewController<RoomUsersViewModel> {
+public class RoomMembersViewController extends ViewController<RoomMembersViewModel> {
     @FXML
     public Button blockButton;
     @FXML
@@ -16,7 +16,7 @@ public class RoomUsersViewController extends ViewController<RoomUsersViewModel> 
     @FXML
     private Text title;
     @FXML
-    private ListView<ViewRoomUser> users;
+    private ListView<ViewRoomMember> users;
 
     @Override
     protected void init() {
@@ -24,9 +24,9 @@ public class RoomUsersViewController extends ViewController<RoomUsersViewModel> 
         title.textProperty().bind(getViewModel().getTitleText());
         users.setItems(getViewModel().getUsersProperty());
 
-        users.setCellFactory(cell -> new RoomUserCell());
+        users.setCellFactory(cell -> new RoomMemberCell());
 
-        users.getSelectionModel().getSelectedItems().addListener((ListChangeListener<ViewRoomUser>) user -> {
+        users.getSelectionModel().getSelectedItems().addListener((ListChangeListener<ViewRoomMember>) user -> {
             user.next();
 
             blockButton.setText(getViewModel().isBlocked(user.getList().getFirst().getUserId()) ? "Unblock" : "Block");

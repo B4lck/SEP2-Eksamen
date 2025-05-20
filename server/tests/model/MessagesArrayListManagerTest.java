@@ -152,7 +152,7 @@ class MessagesArrayListManagerTest {
     }
 
     @Test
-    void sendMessageToRoomUserIsNotIn() {
+    void sendMessageToRoomMemberIsNotIn() {
         assertThrows(IllegalStateException.class, () -> model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user2.getUserId()));
     }
 

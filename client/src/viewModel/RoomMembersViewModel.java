@@ -9,15 +9,15 @@ import model.Profile;
 import model.RoomMember;
 import util.ServerError;
 
-public class RoomUsersViewModel implements ViewModel {
+public class RoomMembersViewModel implements ViewModel {
     private final Model model;
     private final ViewState viewState;
 
     private final StringProperty errorText;
     private final StringProperty titleText;
-    private ObservableList<ViewRoomUser> usersProperty;
+    private ObservableList<ViewRoomMember> usersProperty;
 
-    public RoomUsersViewModel(Model model, ViewState viewState) {
+    public RoomMembersViewModel(Model model, ViewState viewState) {
         this.model = model;
         this.viewState = viewState;
 
@@ -34,7 +34,7 @@ public class RoomUsersViewModel implements ViewModel {
             titleText.setValue(viewState.getCurrentChatRoomProperty().getName());
             var room = model.getRoomManager().getRoom(viewState.getCurrentChatRoom());
             for (RoomMember user : room.getMembers()) {
-                addUser(user);
+                addMember(user);
             }
         } catch (ServerError e) {
             e.showAlert();
@@ -49,7 +49,7 @@ public class RoomUsersViewModel implements ViewModel {
         return titleText;
     }
 
-    public ObservableList<ViewRoomUser> getUsersProperty() {
+    public ObservableList<ViewRoomMember> getUsersProperty() {
         return usersProperty;
     }
 
@@ -70,10 +70,10 @@ public class RoomUsersViewModel implements ViewModel {
         }
     }
 
-    private void addUser(RoomMember user) {
+    private void addMember(RoomMember user) {
         try {
             Profile userProfile = model.getProfileManager().fetchProfile(user.getUserId());
-            ViewRoomUser viewRoomUser = new ViewRoomUser(
+            ViewRoomMember viewRoomMember = new ViewRoomMember(
                     user.getUserId(),
                     userProfile.getUsername(),
                     user.getNickname(),
@@ -82,7 +82,7 @@ public class RoomUsersViewModel implements ViewModel {
                     userProfile.getLastActive(),
                     model.getProfileManager().isBlocked(user.getUserId())
             );
-            usersProperty.add(viewRoomUser);
+            usersProperty.add(viewRoomMember);
         } catch (ServerError e) {
             e.showAlert();
         }

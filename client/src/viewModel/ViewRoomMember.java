@@ -1,6 +1,6 @@
 package viewModel;
 
-public class ViewRoomUser {
+public class ViewRoomMember {
 
     private long userId;
     private String name;
@@ -10,7 +10,17 @@ public class ViewRoomUser {
     private long lastActive;
     private boolean isBlocked;
 
-    public ViewRoomUser(long userId, String name, String nickname, String state, long latestReadMessage, long lastActive) {
+    public ViewRoomMember(long userId, String name, String nickname, String state) {
+        this.userId = userId;
+        this.name = name;
+        this.nickname = nickname;
+        this.state = state;
+        this.latestReadMessage = 0;
+        this.lastActive = 0;
+        this.isBlocked = false;
+    }
+
+    public ViewRoomMember(long userId, String name, String nickname, String state, long latestReadMessage, long lastActive) {
         this.userId = userId;
         this.name = name;
         this.nickname = nickname;
@@ -20,7 +30,7 @@ public class ViewRoomUser {
         this.isBlocked = false;
     }
 
-    public ViewRoomUser(long userId, String name, String nickname, String state, long latestReadMessage, long lastActive, boolean isBlocked) {
+    public ViewRoomMember(long userId, String name, String nickname, String state, long latestReadMessage, long lastActive, boolean isBlocked) {
         this.userId = userId;
         this.name = name;
         this.nickname = nickname;
@@ -60,5 +70,15 @@ public class ViewRoomUser {
 
     public boolean isBlocked() {
         return isBlocked;
+    }
+
+    private String newState = null;
+
+    public String getNewState() {
+        return newState;
+    }
+
+    public void setNewState(String state) {
+        this.newState = state;
     }
 }

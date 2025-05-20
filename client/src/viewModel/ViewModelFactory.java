@@ -8,7 +8,7 @@ public class ViewModelFactory {
     private SignUpViewModel signUpViewModel;
     private LogInViewModel logInViewModel;
     private CreateEditChatRoomViewModel createEditChatRoomViewModel;
-    private RoomUsersViewModel roomUsersViewModel;
+    private RoomMembersViewModel roomUsersViewModel;
 
     private ViewState viewState = new ViewState();
 
@@ -56,7 +56,7 @@ public class ViewModelFactory {
 
     public ViewModel getEditNicknameViewModel() {
         if (roomUsersViewModel == null) {
-            roomUsersViewModel = new RoomUsersViewModel(model, viewState);
+            roomUsersViewModel = new RoomMembersViewModel(model, viewState);
         }
         return roomUsersViewModel;
     }

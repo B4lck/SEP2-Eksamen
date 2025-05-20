@@ -24,7 +24,7 @@ import util.Attachment;
 import viewModel.SortingMethod;
 import viewModel.ViewMessage;
 import viewModel.ViewRoom;
-import viewModel.ViewRoomUser;
+import viewModel.ViewRoomMember;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -109,7 +109,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
             composeField.requestFocus();
         });
 
-        getViewModel().getCurrentRoomUserProperty().addListener((_, _, u) -> {
+        getViewModel().getCurrentRoomMemberProperty().addListener((_, _, u) -> {
             composeSection.setDisable(u == null || u.getState().equals("Muted"));
             composeField.setText(u == null || u.getState().equals("Muted") ? "Du er muted :(" : "");
         });
@@ -163,18 +163,18 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
         });
 
         // Lyt efter ændringer i brugerne rummet
-        getViewModel().getRoomUsersProperty().addListener((ListChangeListener<ViewRoomUser>) change -> {
+        getViewModel().getRoomMembersProperty().addListener((ListChangeListener<ViewRoomMember>) change -> {
             change.next();
 
-            // Brugere som er blevet tilføjet (eller ændret, da de bliver udskiftet med en ny ViewRoomUser
-            for (ViewRoomUser user : change.getRemoved()) {
+            // Brugere som er blevet tilføjet (eller ændret, da de bliver udskiftet med en ny ViewRoomMember
+            for (ViewRoomMember user : change.getRemoved()) {
                 if (messageNodes.containsKey(user.getLatestReadMessage())) {
                     messageNodes.get(user.getLatestReadMessage()).update();
                 }
             }
 
-            // Brugere som er blevet tilføjet (eller ændret, da de bliver udskiftet med en ny ViewRoomUser
-            for (ViewRoomUser user : change.getAddedSubList()) {
+            // Brugere som er blevet tilføjet (eller ændret, da de bliver udskiftet med en ny ViewRoomMember
+            for (ViewRoomMember user : change.getAddedSubList()) {
                 if (messageNodes.containsKey(user.getLatestReadMessage())) {
                     messageNodes.get(user.getLatestReadMessage()).update();
                 }
@@ -331,6 +331,10 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
                 "-fx-color-font-primary: " + colorToHex(colorContrastText(Color.web(room.getColor()))) + ";" +
                 "-fx-color-font-secondary: " + colorToHex(colorContrastText(Color.web(room.getColor()))) + "88;" +
                 "-fx-font-family: '" + room.getFont() + "';");
+
+        this.getRoot().setStyle("-fx-background-color: " + room.getColor() + ";" +
+                "-fx-color-font-primary: " + colorToHex(colorContrastText(Color.web(room.getColor()))) + ";" +
+                "-fx-color-font-secondary: " + colorToHex(colorContrastText(Color.web(room.getColor()))) + "88;");
     }
 
     public String colorToHex(Color color) {

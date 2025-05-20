@@ -302,7 +302,7 @@ public class RoomManager implements PropertyChangeSubject, PropertyChangeListene
      * @param color  Streng med hex værdi for den nye farve, i formatet #RRGGBB.
      * @throws ServerError Hvis serveren støder på en fejl.
      */
-    public void editColor(long roomId, String color) throws ServerError {
+    public void setColor(long roomId, String color) throws ServerError {
         client.sendMessage(new ClientMessage("EDIT_COLOR", new DataMap()
                 .with("roomId", roomId)
                 .with("color", color)));

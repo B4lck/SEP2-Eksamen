@@ -5,12 +5,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ListCell;
 import javafx.scene.text.Text;
-import viewModel.ViewRoomUser;
+import viewModel.ViewRoomMember;
 
 import java.io.IOException;
 import java.time.Duration;
 
-public class RoomUserCell extends ListCell<ViewRoomUser> {
+public class RoomMemberCell extends ListCell<ViewRoomMember> {
 
     @FXML
     private Text name;
@@ -18,9 +18,9 @@ public class RoomUserCell extends ListCell<ViewRoomUser> {
     @FXML
     private Text lastOnline;
 
-    public RoomUserCell() {
+    public RoomMemberCell() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("RoomUserCell.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("RoomMemberCell.fxml"));
             loader.setController(this);
             loader.setRoot(this);
             loader.load();
@@ -30,7 +30,7 @@ public class RoomUserCell extends ListCell<ViewRoomUser> {
     }
 
     @Override
-    protected void updateItem(ViewRoomUser item, boolean empty) {
+    protected void updateItem(ViewRoomMember item, boolean empty) {
         super.updateItem(item, empty);
 
         if (empty || item == null) {

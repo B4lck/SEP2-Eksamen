@@ -22,22 +22,23 @@ import java.util.stream.Stream;
 
 public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
-    private StringProperty greetingTextProperty;
-    private ObjectProperty<ViewRoom> roomProperty;
-    private StringProperty searchFieldProperty;
+    private final StringProperty greetingTextProperty; // Velkommen tekst / Nuværende brugernavn
+    private final ObjectProperty<ViewRoom> roomProperty; // Nuværende rum
 
+    // Rum oversigt
+    private final StringProperty searchFieldProperty;
     private SortingMethod sortingMethod = SortingMethod.ACTIVITY;
+    private final ObservableList<ViewRoom> roomsProperty; // Alle brugerens rum
 
-    private StringProperty composeMessageProperty; // Nuværende indtastede besked i compose
-    private ObservableList<Attachment> attachmentsProperty; // De nuværende valgte attachments i compose
+    // Chat
+    private final StringProperty composeMessageProperty; // Nuværende indtastede besked i compose
+    private final ObservableList<Attachment> attachmentsProperty; // De nuværende valgte attachments i compose
+    private final ObservableList<ViewMessage> messagesProperty; // Indlæste beskeder i det nuværende rum
+    private final ObservableList<ViewRoomMember> roomUsersProperty; // Brugere i det nuværende rum
+    private final ObjectProperty<ViewRoomMember> currentRoomMemberProperty; // Den nuværende bruger i det nuværende rum
 
-    private ObservableList<ViewRoom> roomsProperty; // Alle brugerens rum
-    private ObservableList<ViewMessage> messagesProperty; // Indlæste beskeder i det nuværende rum
-    private ObservableList<ViewRoomUser> roomUsersProperty; // Brugere i det nuværende rum
-    private ObjectProperty<ViewRoomUser> currentRoomUserProperty; // Den nuværende bruger i det nuværende rum
-
-    private Model model;
-    private ViewState viewState;
+    private final Model model;
+    private final ViewState viewState;
 
     public ChatRoomViewModel(Model model, ViewState viewState) {
         this.model = model;
@@ -52,7 +53,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         this.roomsProperty = FXCollections.observableArrayList();
         this.messagesProperty = FXCollections.observableArrayList();
         this.roomUsersProperty = FXCollections.observableArrayList();
-        this.currentRoomUserProperty = new SimpleObjectProperty<>();
+        this.currentRoomMemberProperty = new SimpleObjectProperty<>();
 
         this.viewState = viewState;
 
@@ -127,15 +128,15 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     /**
      * Liste over alle medlemmer af det nuværende rum
      */
-    public ObservableList<ViewRoomUser> getRoomUsersProperty() {
+    public ObservableList<ViewRoomMember> getRoomMembersProperty() {
         return roomUsersProperty;
     }
 
     /**
      * Medlemmet som er logget ind
      */
-    public ObjectProperty<ViewRoomUser> getCurrentRoomUserProperty() {
-        return currentRoomUserProperty;
+    public ObjectProperty<ViewRoomMember> getCurrentRoomMemberProperty() {
+        return currentRoomMemberProperty;
     }
 
     /**
@@ -169,24 +170,24 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
             long myId = model.getProfileManager().getCurrentUserId();
             // Tilføj brugere
             for (RoomMember user : room.getMembers()) {
-                // Opret ViewRoomUser, som view'et kan bruge til display
-                Profile userProfile = model.getProfileManager().getProfile(user.getUserId());
-                var vru = new ViewRoomUser(
+                // Opret ViewRoomMember, som view'et kan bruge til display
+                Profile profile = model.getProfileManager().getProfile(user.getUserId());
+                var member = new ViewRoomMember(
                         user.getUserId(),
-                        userProfile.getUsername(),
+                        profile.getUsername(),
                         user.getNickname(),
                         user.getState(),
                         user.getLatestReadMessage(),
-                        userProfile.getLastActive()
+                        profile.getLastActive()
                 );
 
-                // Dette er RoomUser objektet til den nuværende bruger
-                if (vru.getUserId() == myId) {
-                    currentRoomUserProperty.set(vru);
+                // Dette er RoomMember objektet til den nuværende bruger
+                if (member.getUserId() == myId) {
+                    currentRoomMemberProperty.set(member);
                 }
 
-                // Tilføj ViewRoomUser til property
-                roomUsersProperty.add(vru);
+                // Tilføj ViewRoomMember til property
+                roomUsersProperty.add(member);
             }
 
             // # Opdater chatrummets oplysninger
@@ -211,7 +212,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     /**
      * Tilføj en ny besked, eller opdater beskeden hvis den allerede findes
      *
-     * @param message - Tilføj en besked
+     * @param message Tilføj en besked
      */
     private void addMessage(Message message) {
         try {
@@ -251,7 +252,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                 messagesProperty.add(new ViewMessage() {{
                     sender = isBlocked ? "<<blokeret bruger>>" : roomUsersProperty.stream()
                             .filter(u -> u.getUserId() == message.getSentBy()).findAny()
-                            .map(ViewRoomUser::getDisplayName).orElse("System");
+                            .map(ViewRoomMember::getDisplayName).orElse("System");
                     body = isBlocked ? "<<besked fra en blokeret bruger>>" : message.getBody();
                     dateTime = LocalDateTime.ofEpochSecond(message.getDateTime() / 1000, (int) (message.getDateTime() % 1000 * 1000), ZoneOffset.UTC);
                     messageId = message.getMessageId();
@@ -291,7 +292,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                         RoomMember roomUser = (RoomMember) evt.getNewValue();
                         roomUsersProperty.removeIf(viewUser -> viewUser.getUserId() == roomUser.getUserId());
                         Profile userProfile = model.getProfileManager().getProfile(roomUser.getUserId());
-                        roomUsersProperty.add(new ViewRoomUser(
+                        roomUsersProperty.add(new ViewRoomMember(
                                 roomUser.getUserId(),
                                 userProfile.getUsername(),
                                 roomUser.getNickname(),

@@ -35,20 +35,18 @@
                         <Insets bottom="-5.0"/>
                     </VBox.margin>
                 </Label>
-                <Button mnemonicParsing="false" onAction="#addUser" prefWidth="150.0" text="Tilføj deltager"/>
-                <Button mnemonicParsing="false" onAction="#removeUser" prefWidth="150.0" text="Fjern deltager"/>
+                <Button mnemonicParsing="false" onAction="#addMember" prefWidth="150.0" text="Tilføj deltager"/>
+                <Button fx:id="removeMemberButton" mnemonicParsing="false" onAction="#removeMember" prefWidth="150.0" text="Fjern deltager"/>
                 <HBox alignment="CENTER" spacing="10.0">
                     <Button fx:id="muteButton" mnemonicParsing="false" onAction="#mute" prefWidth="70.0" text="Mute"/>
                     <Button fx:id="unmuteButton" mnemonicParsing="false" onAction="#unmute" prefWidth="70.0"
                             text="Unmute"/>
                 </HBox>
                 <HBox alignment="CENTER" spacing="10.0">
-                    <children>
-                        <Button fx:id="promoteButton" mnemonicParsing="false" onAction="#promote" prefWidth="70.0"
-                                text="Forfrem" textAlignment="CENTER"/>
-                        <Button fx:id="demoteButton" mnemonicParsing="false" onAction="#demote" prefWidth="70.0"
-                                text="Degrader" textAlignment="CENTER"/>
-                    </children>
+                    <Button fx:id="promoteButton" mnemonicParsing="false" onAction="#promote" prefWidth="70.0"
+                            text="Forfrem" textAlignment="CENTER"/>
+                    <Button fx:id="demoteButton" mnemonicParsing="false" onAction="#demote" prefWidth="70.0"
+                            text="Degrader" textAlignment="CENTER"/>
                 </HBox>
                 <Label prefWidth="150.0" text="Baggrundsfarve:" fx:id="colorLabel">
                     <VBox.margin>

@@ -2,7 +2,7 @@
   -fx-fill: -fx-color-font-primary;
 }
 
-.message-alignment-container * {
+* {
   -fx-fill: inherit;
 }
 
@@ -10,6 +10,15 @@
   -fx-background-color:  #0002;
   -fx-padding:           4px;
   -fx-background-radius: 4px;
+}
+
+.message-container.system-message {
+  -fx-background-color: transparent;
+  -fx-font-style:       italic;
+}
+
+.message-container.system-message .message-body-text {
+  -fx-text-alignment:   center;
 }
 
 .message-time {
@@ -36,21 +45,21 @@
 }
 
 .message-reaction-box {
-  -fx-background-color:  #fff8;
+  -fx-background-color:  #FFF8;
   -fx-padding:           1px 4px 1px 4px;
   -fx-background-radius: 6px;
 }
 
 .room-button {
   -fx-background-color: transparent;
-  -fx-alignment: TOP_LEFT;
-  -fx-padding: 5px;
-  -fx-border-width: 0 0 1px 0; /* top right bottom left */
-  -fx-border-color: black;
+  -fx-alignment:        TOP_LEFT;
+  -fx-padding:          5px;
+  -fx-border-width:     0 0 1px 0; /* top right bottom left */
+  -fx-border-color:     black;
 }
 
 .room-button.active {
-  -fx-background-color: #08f4;
+  -fx-background-color: #08F4;
 }
 
 .room-button.new-activity {
@@ -58,5 +67,13 @@
 }
 
 .room-button:focused {
-  -fx-background-color: #08f2;
+  -fx-background-color: #08F2;
+}
+
+.room-title {
+  -fx-fill: -fx-color-font-primary;
+}
+
+#scrollPane {
+  -fx-background-color: transparent;
 }

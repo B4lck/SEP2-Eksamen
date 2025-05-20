@@ -6,7 +6,7 @@ import utils.DataMap;
 
 public class RoomMember {
     /**
-     * Id'et på profilen som RoomUser skal tilknyttes
+     * Id'et på profilen som RoomMember skal tilknyttes
      */
     private long userId;
     /**
@@ -17,7 +17,7 @@ public class RoomMember {
     private String nickname;
 
     /**
-     * @param userId Id'et på profilen som RoomUser skal tilknyttes
+     * @param userId Id'et på profilen som RoomMember skal tilknyttes
      * @param state Staten på profilen
      */
     public RoomMember(long userId, UserStateId state, long latestReadMessage, String nickname) {
