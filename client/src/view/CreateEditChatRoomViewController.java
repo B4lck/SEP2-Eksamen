@@ -16,7 +16,7 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
     @FXML
     public ColorPicker colorButton;
     @FXML
-    public ChoiceBox <String> fontButton;
+    public ChoiceBox<String> fontButton;
     @FXML
     public Button confirmButton;
     @FXML
@@ -46,7 +46,7 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
 
         fontButton.getItems().addAll("Arial", "Comic Sans MS", "Times New Roman", "Courier New", "Brush Script MT");
         fontButton.setValue("Arial");
-        fontButton.getSelectionModel().selectedItemProperty().addListener((_,_,newValue)-> getViewModel().setFont(newValue));
+        fontButton.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> getViewModel().setFont(newValue));
 
         users.setItems(getViewModel().getMembersProperty());
 
@@ -76,6 +76,7 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
         fontLabel.setVisible(getViewModel().isEdit());
         fontButton.setVisible(getViewModel().isEdit());
         fontButton.setValue(getViewModel().getFont());
+        confirmButton.setText(getViewModel().isEdit()? "Bekræft": "Opret");
     }
 
     @FXML
