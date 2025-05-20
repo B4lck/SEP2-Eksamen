@@ -68,9 +68,11 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
 
         roomName.textProperty().bind(getViewModel().getRoomNameProperty());
 
-        getViewModel().getColorProperty().addListener((__, oldColor, newColor) -> {
-            System.out.println(newColor);
-            messages.setStyle("-fx-background-color: " + newColor);
+        getViewModel().getColorProperty().addListener((_, _, newColor) -> {
+            applyStyle();
+        });
+        getViewModel().getFontProperty().addListener((_, _, newFont) -> {
+            applyStyle();
         });
 
         Button loadMoreButton = new Button();
@@ -220,11 +222,6 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
     }
 
     @FXML
-    public void logud(ActionEvent actionEvent) {
-        getViewHandler().openView(ViewID.LOGIN);
-    }
-
-    @FXML
     public void send(ActionEvent actionEvent) {
         if (editingMessageProperty.get() != null) {
             getViewModel().editMessage(editingMessageProperty.get().messageId);
@@ -274,5 +271,11 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
     public void sortAlphabetically() {
         getViewModel().setSortingMethod(SortingMethod.ALPHABETICALLY);
         reset();
+    }
+
+    public void applyStyle() {
+        messages.setStyle("-fx-background-color: " + getViewModel().getColorProperty().get() + ";" +
+                "-fx-font-family: '" + getViewModel().getFontProperty().get() + "';");
+        System.out.println(getViewModel().getFontProperty().get());
     }
 }

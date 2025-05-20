@@ -140,8 +140,14 @@ public interface Room {
     void editColor (String color);
 
 
+    String getColor();
+
     long getLatestActivity();
 
     void addAdminUser(long user);
+
+    void setFont(String font, long user);
+
+    String getFont();
 }
 

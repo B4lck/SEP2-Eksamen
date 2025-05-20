@@ -2,7 +2,6 @@ package model;
 
 import mediator.Broadcast;
 import mediator.ServerRequest;
-import model.statemachine.UserStateId;
 import utils.DataMap;
 
 import java.beans.PropertyChangeListener;
@@ -43,7 +42,7 @@ public class RoomsDBManager implements Rooms {
             if (!res.next())
                 throw new RuntimeException();
 
-            Room room = new DBRoom(res.getLong(1), name, model);
+            Room room = new DBRoom(res.getLong(1), model);
 
             room.addAdminUser(user);
 
@@ -245,11 +244,21 @@ public class RoomsDBManager implements Rooms {
                     editColor(request.getData().getLong("chatroomId"), request.getUser(), request.getData().getString("color"));
                     request.respond("Farven er blevet ændret");
                     break;
+                case "SET_FONT":
+                    setFont(request.getData().getLong("chatroomId"),request.getUser(),request.getData().getString("font"));
+                    request.respond("Skrifttypen er blevet ændret");
+                    break;
             }
         } catch (Exception e) {
             e.printStackTrace();
             request.respondWithError(e.getMessage());
         }
+    }
+
+    @Override
+    public void setFont(long chatroomId, long user, String font) {
+        getRoom(chatroomId,user).setFont(font,user);
+        fireRoomChangedBroadcast(chatroomId);
     }
 
     @Override

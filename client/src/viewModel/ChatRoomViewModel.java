@@ -25,7 +25,8 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     private StringProperty greetingTextProperty;
     private StringProperty roomNameProperty;
     private StringProperty searchFieldProperty;
-    private StringProperty color;
+    private StringProperty colorProperty;
+    private StringProperty fontProperty;
 
     private SortingMethod sortingMethod = SortingMethod.ACTIVITY;
 
@@ -47,7 +48,8 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         this.roomNameProperty = new SimpleStringProperty();
         this.searchFieldProperty = new SimpleStringProperty();
 
-        this.color = new SimpleStringProperty("#FFFFFF");
+        this.colorProperty = new SimpleStringProperty("#FFFFFF");
+        this.fontProperty = new SimpleStringProperty("Arial");
 
         this.composeMessageProperty = new SimpleStringProperty();
         this.attachmentsProperty = FXCollections.observableArrayList();
@@ -103,8 +105,13 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
      * Indeholder farvet på rummet
      */
     public StringProperty getColorProperty() {
-        return color;
+        return colorProperty;
     }
+
+    /**
+     * Indeholder skriften på rummet
+     */
+    public StringProperty getFontProperty() { return fontProperty;}
 
     /**
      * Indholdet bliver sendt når sendMessage eller editMessage kaldes.
@@ -174,7 +181,8 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
         try {
             Room room = model.getRoomManager().getRoom(roomId);
-            this.color.set(room.getColor());
+            this.colorProperty.set(room.getColor());
+            this.fontProperty.set(room.getFont());
             // # Hent medlemmer
             // ID'et på den nuværende bruger
             long myId = model.getProfileManager().getCurrentUserUUID();
@@ -422,7 +430,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
 
             Stream<ViewRoom> tempRooms = model.getRoomManager().getMyRooms().stream()
                     .filter(r -> r.getName().contains(query))
-                    .map(r -> new ViewRoom(r.getName(), r.getRoomId(), r.getLatestActivity(), r.getColor()));
+                    .map(r -> new ViewRoom(r.getName(), r.getRoomId(), r.getLatestActivity(), r.getColor(), r.getFont()));
 
             tempRooms = switch (sortingMethod) {
                 case ALPHABETICALLY -> tempRooms.sorted((r1, r2) -> r1.getName().compareToIgnoreCase(r2.getName()));

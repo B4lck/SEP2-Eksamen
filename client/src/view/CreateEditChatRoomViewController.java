@@ -16,6 +16,10 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
     @FXML
     public ColorPicker colorButton;
     @FXML
+    public ChoiceBox <String> fontButton;
+    @FXML
+    public Button confirmButton;
+    @FXML
     private Button muteButton;
     @FXML
     private Button unmuteButton;
@@ -35,6 +39,10 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
         nameTextField.textProperty().bindBidirectional(getViewModel().getNameProperty());
         errorLabel.textProperty().bind(getViewModel().getErrorProperty());
         title.textProperty().bind(getViewModel().getTitleProperty());
+
+        fontButton.getItems().addAll("Arial", "Comic Sans MS", "Times New Roman", "Courier New", "Brush Script MT");
+        fontButton.setValue("Arial");
+        fontButton.getSelectionModel().selectedItemProperty().addListener((_,_,newValue)-> getViewModel().setFont(newValue));
 
         users.setItems(getViewModel().getMembersProperty());
 
@@ -60,6 +68,9 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
         demoteButton.setVisible(getViewModel().isEdit());
         colorButton.setVisible(getViewModel().isEdit());
         colorButton.setValue(Color.web(getViewModel().getRoomColor()));
+        fontButton.setVisible(getViewModel().isEdit());
+        fontButton.setValue(getViewModel().getFont());
+
     }
 
     @FXML

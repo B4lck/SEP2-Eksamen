@@ -126,4 +126,6 @@ public interface Rooms extends ServerRequestHandler, PropertyChangeSubject {
      * @return true hvis den findes
      */
     void editColor (long chatroom, long user, String color);
+
+    void setFont(long chatroomId, long user, String font);
 }

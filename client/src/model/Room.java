@@ -12,13 +12,15 @@ public class Room {
     private List<RoomUser> users;
     private long latestActivity;
     private String color;
+    private String font;
 
-    public Room(String name, long roomId, List<RoomUser> users, long lastActivity, String color) {
+    public Room(String name, long roomId, List<RoomUser> users, long lastActivity, String color, String font) {
         this.name = name;
         this.roomId = roomId;
         this.users = new ArrayList<>(users);
         this.latestActivity = lastActivity;
         this.color = color;
+        this.font = font;
     }
 
     public void update(Room room) {
@@ -27,6 +29,7 @@ public class Room {
         this.users.addAll(room.users);
         this.latestActivity = room.latestActivity;
         this.color = room.color;
+        this.font = room.font;
     }
 
     public static Room fromData(DataMap message) {
@@ -35,7 +38,8 @@ public class Room {
                 message.getLong("chatroomId"),
                 message.getMapArray("users").stream().map(RoomUser::fromData).toList(),
                 message.getLong("latestActivity"),
-                message.getString("color")
+                message.getString("color"),
+                message.getString("font")
         );
     }
 
@@ -53,6 +57,9 @@ public class Room {
 
     public String getColor() {
         return color;
+    }
+    public String getFont(){
+        return font;
     }
 
     public Optional<RoomUser> getUser(long userId) {

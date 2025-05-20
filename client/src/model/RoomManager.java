@@ -210,4 +210,10 @@ public class RoomManager implements PropertyChangeSubject, PropertyChangeListene
     }
 
 
+    public void setFont(long roomId, String font) throws ServerError {
+        client.sendMessage(new ClientMessage("SET_FONT", new DataMap()
+                .with("chatroomId", roomId)
+                .with("font", font)));
+        client.waitingForReply("SUCCESS");
+    }
 }

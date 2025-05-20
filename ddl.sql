@@ -15,7 +15,8 @@ CREATE TABLE room
 (
     id   BIGSERIAL PRIMARY KEY,
     name username,
-    color TEXT NOT NULL DEFAULT '#ffffff'
+    color TEXT NOT NULL DEFAULT '#ffffff',
+    font TEXT NOT NULL DEFAULT 'Arial' CHECK ( font IN ('Arial', 'Comic Sans MS', 'Times New Roman', 'Courier New', 'Brush Script MT'))
 );
 
 CREATE TABLE message

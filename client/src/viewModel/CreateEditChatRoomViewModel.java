@@ -188,4 +188,23 @@ public class CreateEditChatRoomViewModel implements ViewModel {
     public boolean isEdit() {
         return edit;
     }
+
+    public void setFont(String newValue) {
+        try {
+            model.getRoomManager().setFont(viewState.getCurrentChatRoom(), newValue);
+        } catch (ServerError e) {
+            e.showAlert();
+        }
+    }
+
+    public String getFont() {
+        if (viewState.getCurrentChatRoom() == -1) return "Arial";
+
+        try {
+            return model.getRoomManager().getRoom(viewState.getCurrentChatRoom()).getFont();
+        } catch (ServerError e) {
+            e.showAlert();
+            throw new RuntimeException(e);
+        }
+    }
 }

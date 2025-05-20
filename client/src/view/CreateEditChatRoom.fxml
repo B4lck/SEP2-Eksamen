@@ -33,12 +33,13 @@
                </children>
             </HBox>
             <ColorPicker fx:id="colorButton" onAction="#editColor" promptText="color" />
+            <ChoiceBox fx:id="fontButton" prefWidth="150.0" />
             </VBox>
         </HBox>
         <ButtonBar prefHeight="40.0" prefWidth="200.0">
             <buttons>
                 <Button mnemonicParsing="false" onAction="#cancel" text="Annuller" />
-                <Button mnemonicParsing="false" onAction="#confirm" text="Opret" />
+                <Button fx:id="confirmButton" mnemonicParsing="false" onAction="#confirm" text="Opret" />
             </buttons>
         </ButtonBar>
     </VBox>

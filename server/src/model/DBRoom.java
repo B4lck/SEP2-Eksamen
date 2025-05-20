@@ -17,6 +17,7 @@ public class DBRoom implements Room {
     private String name;
     private ArrayList<RoomUser> users = new ArrayList<>();
     private String color;
+    private String font;
 
     private Model model;
 
@@ -31,6 +32,7 @@ public class DBRoom implements Room {
             ResultSet result = statement.getResultSet();
             if (result.next()) {
                 this.color = result.getString("color");
+                this.font = result.getString("font");
                 this.name = result.getString("name");
             } else {
                 throw new IllegalStateException("Rummet findes ikke");
@@ -52,12 +54,6 @@ public class DBRoom implements Room {
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage());
         }
-    }
-
-    public DBRoom(long roomId, String name, Model model) {
-        this.name = name;
-        this.roomId = roomId;
-        this.model = model;
     }
 
     @Override
@@ -118,7 +114,8 @@ public class DBRoom implements Room {
                 .with("name", getName())
                 .with("chatroomId", getRoomId())
                 .with("users", users.stream().map(RoomUser::getData).toList())
-                .with("color", color)
+                .with("color", getColor())
+                .with("font", getFont())
                 .with("latestActivity", getLatestActivity());
     }
 
@@ -272,6 +269,11 @@ public class DBRoom implements Room {
     }
 
     @Override
+    public String getColor() {
+        return this.color;
+    }
+
+    @Override
     public long getLatestActivity() {
         List<Message> firstMessages = model.getMessages().getMessages(getRoomId(), 1);
         return firstMessages.isEmpty() ? 0 : firstMessages.getFirst().getDateTime();
@@ -294,4 +296,22 @@ public class DBRoom implements Room {
         }
     }
 
+    @Override
+    public void setFont(String font, long user) {
+        try (var connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("UPDATE room SET font=? WHERE id=?");
+            statement.setString(1, font);
+            statement.setLong(2, roomId);
+            statement.executeUpdate();
+
+            this.font = font;
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    public String getFont() {
+        return this.font;
+    }
 }
