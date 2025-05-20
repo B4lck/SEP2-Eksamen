@@ -3,6 +3,7 @@ package view;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import viewModel.CreateEditChatRoomViewModel;
 import viewModel.ViewUser;
@@ -58,6 +59,7 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
         promoteButton.setVisible(getViewModel().isEdit());
         demoteButton.setVisible(getViewModel().isEdit());
         colorButton.setVisible(getViewModel().isEdit());
+        colorButton.setValue(Color.web(getViewModel().getRoomColor()));
     }
 
     @FXML

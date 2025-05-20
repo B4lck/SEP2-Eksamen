@@ -174,6 +174,17 @@ public class CreateEditChatRoomViewModel implements ViewModel {
         }
     }
 
+    public String getRoomColor() {
+        if (viewState.getCurrentChatRoom() == -1)
+            return "#ffffff";
+        try {
+            return model.getRoomManager().getRoom(viewState.getCurrentChatRoom()).getColor();
+        } catch (ServerError e) {
+            e.showAlert();
+            throw new RuntimeException(e);
+        }
+    }
+
     public boolean isEdit() {
         return edit;
     }

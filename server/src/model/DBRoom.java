@@ -226,7 +226,7 @@ public class DBRoom implements Room {
             statement.setLong(3, userId);
             if (statement.executeUpdate() == 0)
                 throw new IllegalStateException("Brugeren enten findes ikke, eller er ikke i rummet");
-            getUser(roomId).setNickname(nickname);
+            getUser(userId).setNickname(nickname);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -241,7 +241,7 @@ public class DBRoom implements Room {
             statement.setLong(3, roomId);
             if (statement.executeUpdate() == 0)
                 throw new IllegalStateException("Brugeren enten findes ikke, eller er ikke i rummet");
-            getUser(roomId).setNickname(null);
+            getUser(user).setNickname(null);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
