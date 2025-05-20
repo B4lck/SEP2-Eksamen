@@ -270,4 +270,10 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
         getViewModel().setSortingMethod(SortingMethod.ALPHABETICALLY);
         reset();
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        messages.setStyle("-fx-background-color: " + getViewModel().getColor() + ";");
+    }
 }

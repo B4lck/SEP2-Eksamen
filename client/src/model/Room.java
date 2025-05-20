@@ -10,11 +10,13 @@ public class Room {
     private String name;
     private long roomId;
     private List<RoomUser> users;
+    private String color;
 
-    public Room(String name, long roomId, List<RoomUser> users) {
+    public Room(String name, long roomId, List<RoomUser> users, String color) {
         this.name = name;
         this.roomId = roomId;
         this.users = new ArrayList<>(users);
+        this.color = color;
     }
 
     public void update(Room room) {
@@ -27,7 +29,8 @@ public class Room {
         return new Room(
                 message.getString("name"),
                 message.getLong("chatroomId"),
-                message.getMapArray("users").stream().map(RoomUser::fromData).toList()
+                message.getMapArray("users").stream().map(RoomUser::fromData).toList(),
+                message.getString("color")
         );
     }
 
@@ -41,6 +44,10 @@ public class Room {
 
     public List<RoomUser> getUsers() {
         return users;
+    }
+
+    public String getColor() {
+        return color;
     }
 
     public Optional<RoomUser> getUser(long userId) {
