@@ -45,13 +45,7 @@ public class RoomsDBManager implements Rooms {
 
             Room room = new DBRoom(res.getLong(1), name, model);
 
-            // Tilføj bruger som admin
-            statement = connection.prepareStatement("INSERT INTO room_user (room_id, profile_id, state) VALUES (?,?,?)");
-            statement.setLong(1, room.getRoomId());
-            statement.setLong(2, user);
-            statement.setString(3, UserStateId.ADMIN.getStateId());
-
-            statement.executeUpdate();
+            room.addAdminUser(user);
 
             rooms.put(room.getRoomId(), room);
 

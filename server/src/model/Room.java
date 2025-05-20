@@ -141,5 +141,7 @@ public interface Room {
 
 
     long getLatestActivity();
+
+    void addAdminUser(long user);
 }
 

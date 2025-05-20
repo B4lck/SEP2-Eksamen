@@ -276,4 +276,22 @@ public class DBRoom implements Room {
         List<Message> firstMessages = model.getMessages().getMessages(getRoomId(), 1);
         return firstMessages.isEmpty() ? 0 : firstMessages.getFirst().getDateTime();
     }
+
+    @Override
+    public void addAdminUser(long user) {
+        if (isInRoom(user)) throw new IllegalStateException("Brugeren er allerede i rummet");
+
+        try (var connection = Database.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO room_user (room_id, profile_id, state) VALUES (?,?,?)");
+            statement.setLong(1, roomId);
+            statement.setLong(2, user);
+            statement.setString(3, UserStateId.ADMIN.getStateId());
+            statement.executeUpdate();
+
+            users.add(new RoomUser(user, UserStateId.ADMIN, 0, null));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
