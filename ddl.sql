@@ -15,7 +15,7 @@ CREATE TABLE room
 (
     id   BIGSERIAL PRIMARY KEY,
     name username,
-    color TEXT
+    color TEXT NOT NULL DEFAULT '#ffffff'
 );
 
 CREATE TABLE message

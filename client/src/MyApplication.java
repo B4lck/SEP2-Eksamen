@@ -8,7 +8,7 @@ import viewModel.ViewModelFactory;
 
 public class MyApplication extends Application {
     public final static int PORT = 30000;
-    public final static String HOST = "localhost";
+    public final static String HOST = "10.154.216.82";
 
     private ChatClient client;
     private Model model;

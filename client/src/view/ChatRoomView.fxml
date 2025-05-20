@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
@@ -48,6 +49,9 @@
                 <padding>
                     <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
                 </padding>
+            <effect>
+               <ColorInput paint="#ff0707" />
+            </effect>
             </VBox>
         </ScrollPane>
         <VBox fx:id="attachments" />

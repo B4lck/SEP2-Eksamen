@@ -14,15 +14,17 @@ import java.util.List;
 public class DBRoom implements Room {
     private long roomId;
     private String name;
+    private String color;
 
     public DBRoom(long roomId) {
         this.roomId = roomId;
 
         try (var connection = Database.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("SELECT name FROM room WHERE id = " + roomId);
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM room WHERE id = " + roomId);
             statement.executeQuery();
             ResultSet result = statement.getResultSet();
             if (result.next()) {
+                this.color = result.getString("color");
                 this.name = result.getString("name");
             } else {
                 throw new IllegalStateException("Rummet findes ikke");
@@ -120,6 +122,7 @@ public class DBRoom implements Room {
             return new DataMap()
                     .with("name", name)
                     .with("chatroomId", roomId)
+                    .with("color", color)
                     .with("users", users.stream().map(RoomUser::getData).toList());
         } catch (SQLException e) {
             throw new RuntimeException(e);
