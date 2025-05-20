@@ -17,6 +17,7 @@ public class RoomManager implements PropertyChangeSubject, PropertyChangeListene
     private PropertyChangeSupport property = new PropertyChangeSupport(this);
 
     private List<Room> rooms = new ArrayList<>();
+    private boolean hasMyRooms = false;
 
     private ChatClient client = ChatClient.getInstance();
 
@@ -24,21 +25,28 @@ public class RoomManager implements PropertyChangeSubject, PropertyChangeListene
         client.addListener(this);
     }
 
-    public List<Room> getChatRooms() throws ServerError {
+    public List<Room> getMyRooms() throws ServerError {
+        if (hasMyRooms) return rooms;
+
         client.sendMessage(new ClientMessage("GET_MY_ROOMS", new DataMap()));
         var reply = client.waitingForReply("RoomManager getChatRooms");
 
-        ArrayList<Room> chatRooms = new ArrayList<>();
         for (var room : reply.getData().getMapArray("rooms")) {
-            chatRooms.add(addOrSetRoom(Room.fromData(room)));
+            addOrSetRoom(Room.fromData(room));
         }
 
-        return chatRooms;
+        hasMyRooms = true;
+
+        return rooms;
     }
 
-    public Room getChatRoom(long chatroom) throws ServerError {
+    public Room getRoom(long roomId) throws ServerError {
+        Optional<Room> room = rooms.stream().filter(r -> r.getRoomId() == roomId).findAny();
+
+        if (room.isPresent()) return room.get();
+
         client.sendMessage(new ClientMessage("GET_ROOM", new DataMap()
-                .with("room", chatroom)));
+                .with("room", roomId)));
 
         var reply = client.waitingForReply("RoomManager getChatRoom");
 
@@ -64,8 +72,7 @@ public class RoomManager implements PropertyChangeSubject, PropertyChangeListene
     }
 
     public long createRoom(String name) throws ServerError {
-        client.sendMessage(new ClientMessage("CREATE_ROOM", new DataMap()
-                .with("name", name)));
+        client.sendMessage(new ClientMessage("CREATE_ROOM", new DataMap().with("name", name)));
 
         return Room.fromData(client.waitingForReply("RoomManager createRoom").getData().getMap("room")).getRoomId();
     }
@@ -118,10 +125,6 @@ public class RoomManager implements PropertyChangeSubject, PropertyChangeListene
         client.waitingForReply("SUCCESS");
     }
 
-    public Optional<Room> getRoom(long roomId) {
-        return rooms.stream().filter(room -> room.getRoomId() == roomId).findAny();
-    }
-
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         var message = (ClientMessage) evt.getNewValue();
@@ -130,10 +133,40 @@ public class RoomManager implements PropertyChangeSubject, PropertyChangeListene
         switch (message.getType().toUpperCase()) {
             case "READ_MESSAGE":
                 try {
-                    Room room = getRoom(request.getLong("roomId")).orElseThrow();
+                    Room room = getRoom(request.getLong("roomId"));
                     RoomUser user = room.getUser(request.getLong("userId")).orElseThrow();
                     user.setRead(request.getLong("messageId"));
                     property.firePropertyChange("READ_UPDATE", room.getRoomId(), user);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    // Gør intet
+                }
+                break;
+            case "ROOM_CHANGED":
+                try {
+                    Room room = Room.fromData(request.getMap("room"));
+                    addOrSetRoom(room);
+                    property.firePropertyChange("ROOM_CHANGED", null, room.getRoomId());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    // Gør intet
+                }
+                break;
+            case "KICKED_OUT_OF_ROOM":
+                try {
+                    long id = request.getLong("roomId");
+                    rooms.removeIf(room -> room.getRoomId() == id);
+                    property.firePropertyChange("ROOM_CHANGED", id, null);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    // Gør intet
+                }
+                break;
+            case "RECEIVE_MESSAGE":
+                try {
+                    DataMap msg = request.getMap("message");
+                    getRoom(msg.getLong("chatRoom")).setLatestActivity(msg.getLong("dateTime"));
+                    property.firePropertyChange("ROOM_CHANGED", null, msg.getLong("chatRoom"));
                 } catch (Exception e) {
                     e.printStackTrace();
                     // Gør intet
@@ -169,19 +202,12 @@ public class RoomManager implements PropertyChangeSubject, PropertyChangeListene
         client.waitingForReply("SUCCESS");
     }
 
-    public String getNicknameOf(long chatroomId, long userId) throws ServerError {
-        client.sendMessage(new ClientMessage("GET_NICKNAME", new DataMap()
-                .with("chatroomId", chatroomId)
-                .with("userId", userId)));
-
-        var reply = client.waitingForReply("NICKNAME");
-        return reply.getData().getString("nickname");
-    }
-
     public void editColor(long chatroomId, String color) throws ServerError {
         client.sendMessage(new ClientMessage("EDIT_COLOR", new DataMap()
                 .with("chatroomId", chatroomId)
                 .with("color", color)));
         client.waitingForReply("SUCCESS");
     }
+
+
 }

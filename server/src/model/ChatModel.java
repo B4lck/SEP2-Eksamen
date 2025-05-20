@@ -36,6 +36,7 @@ public class ChatModel implements Model, PropertyChangeListener {
         rooms = new RoomsDBManager(this);
 
         messages.addListener(this);
+        rooms.addListener(this);
     }
 
     @Override

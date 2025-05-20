@@ -2,7 +2,6 @@
 
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
@@ -17,17 +16,15 @@
             </VBox.margin>
         </Text>
         <Button mnemonicParsing="false" onAction="#createRoom" text="Opret chatrum" />
-      <HBox prefHeight="25.0" prefWidth="200.0">
-         <children>
-              <TextField fx:id="searchRoomField" maxWidth="118.0" />
+        <HBox prefHeight="25.0" prefWidth="200.0">
+            <TextField fx:id="searchRoomField" maxWidth="118.0"/>
             <MenuButton mnemonicParsing="false">
-              <items>
-                <MenuItem mnemonicParsing="false" onAction="#sortActivity" text="Senest aktivitet" />
-                <MenuItem mnemonicParsing="false" onAction="#sortAlphabetically" text="Alfabetisk" />
-              </items>
+                <items>
+                    <MenuItem mnemonicParsing="false" onAction="#sortActivity" text="Senest aktivitet"/>
+                    <MenuItem mnemonicParsing="false" onAction="#sortAlphabetically" text="Alfabetisk"/>
+                </items>
             </MenuButton>
-         </children>
-      </HBox>
+        </HBox>
         <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="ALWAYS" VBox.vgrow="ALWAYS">
             <VBox fx:id="rooms" />
         </ScrollPane>
@@ -49,9 +46,6 @@
                 <padding>
                     <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
                 </padding>
-            <effect>
-               <ColorInput paint="#ff0707" />
-            </effect>
             </VBox>
         </ScrollPane>
         <VBox fx:id="attachments" />

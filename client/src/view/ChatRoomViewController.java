@@ -68,6 +68,11 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
 
         roomName.textProperty().bind(getViewModel().getRoomNameProperty());
 
+        getViewModel().getColorProperty().addListener((__, oldColor, newColor) -> {
+            System.out.println(newColor);
+            messages.setStyle("-fx-background-color: " + newColor);
+        });
+
         Button loadMoreButton = new Button();
         loadMoreButton.setText("Indlæs mere du");
         loadMoreButton.addEventHandler(ActionEvent.ACTION, evt -> getViewModel().loadOlderMessages());
@@ -269,11 +274,5 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
     public void sortAlphabetically() {
         getViewModel().setSortingMethod(SortingMethod.ALPHABETICALLY);
         reset();
-    }
-
-    @Override
-    public void reset() {
-        super.reset();
-        messages.setStyle("-fx-background-color: " + getViewModel().getColor() + ";");
     }
 }

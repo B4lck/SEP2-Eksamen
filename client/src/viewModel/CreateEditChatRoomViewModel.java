@@ -44,7 +44,7 @@ public class CreateEditChatRoomViewModel implements ViewModel {
             titleProperty.set("Rediger chat rum");
             membersProperty.clear();
             try {
-                var room = model.getRoomManager().getChatRoom(viewState.getCurrentChatRoom());
+                var room = model.getRoomManager().getRoom(viewState.getCurrentChatRoom());
                 nameProperty.set(room.getName());
                 for (RoomUser user : room.getUsers()) {
                     addUser(user.getUserId());
@@ -124,7 +124,7 @@ public class CreateEditChatRoomViewModel implements ViewModel {
         }
         try {
             if (edit) {
-                var room = model.getRoomManager().getChatRoom(viewState.getCurrentChatRoom());
+                var room = model.getRoomManager().getRoom(viewState.getCurrentChatRoom());
 
                 // Fjern fjernede brugere og tilføj nye brugere, ved at compare imod de gamle brugere
                 List<Long> previousProfiles = room.getUsers().stream().map(RoomUser::getUserId).toList();

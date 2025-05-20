@@ -1,8 +1,10 @@
 package model;
 
+import utils.PropertyChangeSubject;
+
 import java.util.List;
 
-public interface Rooms extends ServerRequestHandler {
+public interface Rooms extends ServerRequestHandler, PropertyChangeSubject {
     /**
      * Opretter et nyt chatrum
      *
@@ -107,15 +109,6 @@ public interface Rooms extends ServerRequestHandler {
      * @param user id'et på brugeren
      */
     void removeNicknameOfUser(long chatroom, long user);
-
-    /**
-     * Henter kaldenavnet på en bruger i et chatrum
-     *
-     * @param chatroom id'et på chatrummet
-     * @param user id'et på brugeren
-     * @return kaldenavnet
-     */
-    String getNicknameOfUser(long chatroom, long user);
 
     /**
      * Tjekker om rummet eksistere

@@ -87,11 +87,25 @@ public class MessagesDBManager implements Messages {
         if (!model.getRooms().doesRoomExists(chatroom))
             throw new IllegalStateException("Rummet findes ikke brormand");
 
-        try (Connection connection = Database.getConnection()) {
-            // burde throw hvis brugeren ikke har adgang til rummet
-            // TODO: Lav en .hasAccessTo(chatroom, userId)
-            model.getRooms().getRoom(chatroom, userId);
+        // Tjekker om brugeren har adgang til rummet
+        // TODO: Lav en .hasAccessTo(chatroom, userId)
+        model.getRooms().getRoom(chatroom, userId);
 
+        return getMessages(chatroom, amount);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws RuntimeException Hvis serveren støder på en SQL-fejl.
+     */
+    @Override
+    public List<Message> getMessages(long chatroom, int amount) {
+        if (amount <= 0) throw new IllegalArgumentException("Ikke nok beskeder");
+        if (!model.getRooms().doesRoomExists(chatroom))
+            throw new IllegalStateException("Rummet findes ikke brormand");
+
+        try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM message WHERE room_id = ? ORDER BY time DESC LIMIT ?;");
             statement.setLong(1, chatroom);
             statement.setInt(2, amount);

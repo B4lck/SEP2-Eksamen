@@ -25,7 +25,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     private StringProperty greetingTextProperty;
     private StringProperty roomNameProperty;
     private StringProperty searchFieldProperty;
-    private String color;
+    private StringProperty color;
 
     private SortingMethod sortingMethod = SortingMethod.ACTIVITY;
 
@@ -47,8 +47,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         this.roomNameProperty = new SimpleStringProperty();
         this.searchFieldProperty = new SimpleStringProperty();
 
-        Optional<Room> room = model.getRoomManager().getRoom(viewState.getCurrentChatRoom());
-        this.color = room.isPresent() ? room.get().getColor() : "#ffffff";
+        this.color = new SimpleStringProperty("#FFFFFF");
 
         this.composeMessageProperty = new SimpleStringProperty();
         this.attachmentsProperty = FXCollections.observableArrayList();
@@ -103,7 +102,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     /**
      * Indeholder farvet på rummet
      */
-    public String getColor() {
+    public StringProperty getColorProperty() {
         return color;
     }
 
@@ -174,8 +173,8 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
         }
 
         try {
-            Room room = model.getRoomManager().getChatRoom(roomId);
-            this.color = room.getColor();
+            Room room = model.getRoomManager().getRoom(roomId);
+            this.color.set(room.getColor());
             // # Hent medlemmer
             // ID'et på den nuværende bruger
             long myId = model.getProfileManager().getCurrentUserUUID();
@@ -312,6 +311,11 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                                 userProfile.getLastActive()
                         ));
                         break;
+                    // Opdater rum
+                    case "ROOM_CHANGED":
+                        resetRoom();
+                        resetRooms();
+                        break;
                 }
             } catch (ServerError e) {
                 e.printStackTrace();
@@ -416,15 +420,9 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
             this.roomsProperty.clear();
             String query = searchFieldProperty.get() == null ? "" : searchFieldProperty.get();
 
-            Stream<ViewRoom> tempRooms = model.getRoomManager().getChatRooms().stream().filter(r -> r.getName().contains(query)).map(r -> {
-                try {
-                    List<Message> message = model.getMessagesManager().getMessages(r.getRoomId(), 1);
-                    return new ViewRoom(r.getName(), r.getRoomId(), message.isEmpty() ? 0 : message.getFirst().getDateTime(), r.getColor());
-                } catch (ServerError e) {
-                    e.showAlert();
-                    throw new RuntimeException(e);
-                }
-            });
+            Stream<ViewRoom> tempRooms = model.getRoomManager().getMyRooms().stream()
+                    .filter(r -> r.getName().contains(query))
+                    .map(r -> new ViewRoom(r.getName(), r.getRoomId(), r.getLatestActivity(), r.getColor()));
 
             tempRooms = switch (sortingMethod) {
                 case ALPHABETICALLY -> tempRooms.sorted((r1, r2) -> r1.getName().compareToIgnoreCase(r2.getName()));

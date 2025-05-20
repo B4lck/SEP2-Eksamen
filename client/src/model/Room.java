@@ -10,12 +10,14 @@ public class Room {
     private String name;
     private long roomId;
     private List<RoomUser> users;
+    private long latestActivity;
     private String color;
 
-    public Room(String name, long roomId, List<RoomUser> users, String color) {
+    public Room(String name, long roomId, List<RoomUser> users, long lastActivity, String color) {
         this.name = name;
         this.roomId = roomId;
         this.users = new ArrayList<>(users);
+        this.latestActivity = lastActivity;
         this.color = color;
     }
 
@@ -23,6 +25,8 @@ public class Room {
         this.name = room.name;
         this.users.clear();
         this.users.addAll(room.users);
+        this.latestActivity = room.latestActivity;
+        this.color = room.color;
     }
 
     public static Room fromData(DataMap message) {
@@ -30,6 +34,7 @@ public class Room {
                 message.getString("name"),
                 message.getLong("chatroomId"),
                 message.getMapArray("users").stream().map(RoomUser::fromData).toList(),
+                message.getLong("latestActivity"),
                 message.getString("color")
         );
     }
@@ -52,5 +57,13 @@ public class Room {
 
     public Optional<RoomUser> getUser(long userId) {
         return users.stream().filter(user -> user.getUserId() == userId).findAny();
+    }
+
+    public long getLatestActivity() {
+        return latestActivity;
+    }
+
+    public void setLatestActivity(long latestActivity) {
+        this.latestActivity = latestActivity;
     }
 }

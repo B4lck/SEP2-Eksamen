@@ -1,18 +1,26 @@
 package model;
 
+import mediator.Broadcast;
 import mediator.ServerRequest;
 import model.statemachine.UserStateId;
 import utils.DataMap;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RoomsDBManager implements Rooms {
     private final Model model;
+    private final PropertyChangeSupport property = new PropertyChangeSupport(this);
+
+    private final Map<Long, Room> rooms = new HashMap<>();
 
     public RoomsDBManager(Model model) {
         this.model = model;
@@ -35,7 +43,7 @@ public class RoomsDBManager implements Rooms {
             if (!res.next())
                 throw new RuntimeException();
 
-            Room room = new DBRoom(res.getLong(1), name);
+            Room room = new DBRoom(res.getLong(1), name, model);
 
             // Tilføj bruger som admin
             statement = connection.prepareStatement("INSERT INTO room_user (room_id, profile_id, state) VALUES (?,?,?)");
@@ -45,6 +53,10 @@ public class RoomsDBManager implements Rooms {
 
             statement.executeUpdate();
 
+            rooms.put(room.getRoomId(), room);
+
+            fireRoomChangedBroadcast(room.getRoomId());
+
             return room;
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -53,15 +65,15 @@ public class RoomsDBManager implements Rooms {
 
     @Override
     public Room getRoom(long roomId, long user) {
-        Room room = new DBRoom(roomId);
+        Room room = getRoom(roomId);
         if (!room.isInRoom(user)) throw new IllegalStateException("Du har ikke adgang til dette rum");
         return room;
     }
 
     @Override
     public Room getRoom(long roomId) {
-        Room room = new DBRoom(roomId);
-        return room;
+        if (!rooms.containsKey(roomId)) rooms.put(roomId, new DBRoom(roomId, model));
+        return rooms.get(roomId);
     }
 
     @Override
@@ -89,24 +101,35 @@ public class RoomsDBManager implements Rooms {
 
         Room room = getRoom(chatroom, adminUser);
         room.addUser(newUser, adminUser);
+
+        fireRoomChangedBroadcast(chatroom);
     }
 
     @Override
-    public void removeUser(long chatroom, long user, long adminUser) {
+    public void removeUser(long chatroom, long kickedUser, long adminUser) {
         Room room = getRoom(chatroom, adminUser);
-        room.removeUser(user, adminUser);
+        room.removeUser(kickedUser, adminUser);
+
+        property.firePropertyChange("KICKED_OUT_OF_ROOM", null,
+                new Broadcast(new DataMap().with("roomId", chatroom), kickedUser));
+
+        fireRoomChangedBroadcast(chatroom);
     }
 
     @Override
     public void setName(long chatroom, String name, long adminUser) {
         Room room = getRoom(chatroom, adminUser);
         room.setName(name, adminUser);
+
+        fireRoomChangedBroadcast(chatroom);
     }
 
     @Override
     public void muteUser(long chatroom, long user, long adminUser) {
         Room room = getRoom(chatroom, adminUser);
         room.muteUser(user, adminUser);
+
+        fireRoomChangedBroadcast(chatroom);
     }
 
     @Override
@@ -125,42 +148,48 @@ public class RoomsDBManager implements Rooms {
     public void editColor(long chatroom, long user, String color) {
         Room room = getRoom(chatroom, user);
         room.editColor(color);
+
+        fireRoomChangedBroadcast(chatroom);
     }
 
     @Override
     public void unmuteUser(long chatroom, long user, long adminUser) {
         Room room = getRoom(chatroom, adminUser);
         room.unmuteUser(user, adminUser);
+
+        fireRoomChangedBroadcast(chatroom);
     }
 
     @Override
     public void promoteUser(long chatroom, long user, long adminUser) {
         Room room = getRoom(chatroom, adminUser);
         room.promoteUser(user, adminUser);
+
+        fireRoomChangedBroadcast(chatroom);
     }
 
     @Override
     public void demoteUser(long chatroom, long user, long adminUser) {
         Room room = getRoom(chatroom, adminUser);
         room.demoteUser(user, adminUser);
+
+        fireRoomChangedBroadcast(chatroom);
     }
 
     @Override
     public void setNicknameOfUser(long chatroom, long user, String nickname) {
         Room room = getRoom(chatroom, user);
         room.setNicknameOfUser(user, nickname);
+
+        fireRoomChangedBroadcast(chatroom);
     }
 
     @Override
     public void removeNicknameOfUser(long chatroom, long user) {
         Room room = getRoom(chatroom, user);
         room.removeNicknameFromUser(user);
-    }
 
-    @Override
-    public String getNicknameOfUser(long chatroom, long user) {
-        Room room = getRoom(chatroom, user);
-        return room.getNickname(user);
+        fireRoomChangedBroadcast(chatroom);
     }
 
     @Override
@@ -218,11 +247,6 @@ public class RoomsDBManager implements Rooms {
                     removeNicknameOfUser(request.getData().getLong("chatroomId"), request.getData().getLong("userId"));
                     request.respond("Brugeren har fået fjernet sit kaldenavn");
                     break;
-                case "GET_NICKNAME":
-                    String nickname = getNicknameOfUser(request.getData().getLong("chatroomId"), request.getData().getLong("userId"));
-                    request.respond(new DataMap()
-                            .with("nickname", nickname));
-                    break;
                 case "EDIT_COLOR":
                     editColor(request.getData().getLong("chatroomId"), request.getUser(), request.getData().getString("color"));
                     request.respond("Farven er blevet ændret");
@@ -232,5 +256,25 @@ public class RoomsDBManager implements Rooms {
             e.printStackTrace();
             request.respondWithError(e.getMessage());
         }
+    }
+
+    @Override
+    public void addListener(PropertyChangeListener listener) {
+        property.addPropertyChangeListener(listener);
+    }
+
+    @Override
+    public void removeListener(PropertyChangeListener listener) {
+        property.removePropertyChangeListener(listener);
+    }
+
+    /**
+     * Broadcast til alle brugere i rummet, at rummet er blevet opdateret.
+     * @param roomId ID'et på rummet
+     */
+    public void fireRoomChangedBroadcast(long roomId) {
+        Room room = getRoom(roomId);
+        property.firePropertyChange("ROOM_CHANGED", null,
+                new Broadcast(new DataMap().with("room", room.getData()), room.getUsers()));
     }
 }

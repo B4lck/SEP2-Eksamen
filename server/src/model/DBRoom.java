@@ -1,6 +1,7 @@
 package model;
 
 import model.statemachine.AdministratorState;
+import model.statemachine.MutedUser;
 import model.statemachine.UserStateId;
 import utils.DataMap;
 
@@ -14,13 +15,18 @@ import java.util.List;
 public class DBRoom implements Room {
     private long roomId;
     private String name;
+    private ArrayList<RoomUser> users = new ArrayList<>();
     private String color;
 
-    public DBRoom(long roomId) {
+    private Model model;
+
+    public DBRoom(long roomId, Model model) {
         this.roomId = roomId;
+        this.model = model;
 
         try (var connection = Database.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM room WHERE id = " + roomId);
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM room WHERE id = ?");
+            statement.setLong(1, roomId);
             statement.executeQuery();
             ResultSet result = statement.getResultSet();
             if (result.next()) {
@@ -29,14 +35,29 @@ public class DBRoom implements Room {
             } else {
                 throw new IllegalStateException("Rummet findes ikke");
             }
+
+            statement = connection.prepareStatement("SELECT * FROM room_user WHERE room_id = ?");
+            statement.setLong(1, roomId);
+            statement.executeQuery();
+            ResultSet res = statement.getResultSet();
+
+            while (res.next()) {
+                users.add(new RoomUser(
+                        res.getLong("profile_id"),
+                        UserStateId.fromString(res.getString("state")),
+                        res.getLong("latest_read_message"),
+                        res.getString("nickname")
+                ));
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage());
         }
     }
 
-    public DBRoom(long roomId, String name) {
+    public DBRoom(long roomId, String name, Model model) {
         this.name = name;
         this.roomId = roomId;
+        this.model = model;
     }
 
     @Override
@@ -51,21 +72,7 @@ public class DBRoom implements Room {
 
     @Override
     public List<Long> getUsers() {
-        try (var connection = Database.getConnection()) {
-            List<Long> users = new ArrayList<>();
-
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM room_user WHERE room_id=?");
-            statement.setLong(1, roomId);
-            statement.executeQuery();
-            ResultSet res = statement.getResultSet();
-            while (res.next()) {
-                users.add(res.getLong("profile_id"));
-            }
-
-            return users;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        return users.stream().map(RoomUser::getId).toList();
     }
 
     @Override
@@ -80,6 +87,8 @@ public class DBRoom implements Room {
             statement.setLong(2, userToAdd);
             statement.setString(3, UserStateId.REGULAR.getStateId());
             statement.executeUpdate();
+
+            users.add(new RoomUser(userToAdd, UserStateId.REGULAR, 0, null));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -96,6 +105,8 @@ public class DBRoom implements Room {
             statement.setLong(1, roomId);
             statement.setLong(2, user);
             statement.executeUpdate();
+
+            users.removeIf(ru -> ru.getId() == user);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -103,43 +114,17 @@ public class DBRoom implements Room {
 
     @Override
     public DataMap getData() {
-        try (var connection = Database.getConnection()) {
-            List<RoomUser> users = new ArrayList<>();
-
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM room_user WHERE room_id=?");
-            statement.setLong(1, roomId);
-            statement.executeQuery();
-            ResultSet res = statement.getResultSet();
-            while (res.next()) {
-                users.add(new RoomUser(
-                        res.getLong("profile_id"),
-                        UserStateId.fromString(res.getString("state")),
-                        res.getLong("latest_read_message"),
-                        res.getString("nickname")
-                ));
-            }
-
-            return new DataMap()
-                    .with("name", name)
-                    .with("chatroomId", roomId)
-                    .with("color", color)
-                    .with("users", users.stream().map(RoomUser::getData).toList());
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        return new DataMap()
+                .with("name", getName())
+                .with("chatroomId", getRoomId())
+                .with("users", users.stream().map(RoomUser::getData).toList())
+                .with("color", color)
+                .with("latestActivity", getLatestActivity());
     }
 
     @Override
     public boolean isInRoom(long user) {
-        try (var connection = Database.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM room_user WHERE room_id = ? AND profile_id = ?");
-            statement.setLong(1, roomId);
-            statement.setLong(2, user);
-            statement.executeQuery();
-            return statement.getResultSet().next();
-        } catch (SQLException e) {
-            throw new RuntimeException(e.getMessage());
-        }
+        return users.stream().anyMatch(ru -> ru.getId() == user);
     }
 
     @Override
@@ -152,6 +137,7 @@ public class DBRoom implements Room {
             statement.setString(1, name);
             statement.setLong(2, roomId);
             statement.executeUpdate();
+            this.name = name;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -193,16 +179,7 @@ public class DBRoom implements Room {
 
     @Override
     public boolean isMuted(long userId) {
-        try (var connection = Database.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM room_user WHERE room_id=? AND profile_id=? AND state=?");
-            statement.setLong(1, roomId);
-            statement.setLong(2, userId);
-            statement.setString(3, "Muted");
-
-            return statement.executeQuery().next();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        return getUser(userId).getState() instanceof MutedUser;
     }
 
     @Override
@@ -249,6 +226,7 @@ public class DBRoom implements Room {
             statement.setLong(3, userId);
             if (statement.executeUpdate() == 0)
                 throw new IllegalStateException("Brugeren enten findes ikke, eller er ikke i rummet");
+            getUser(roomId).setNickname(nickname);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -263,24 +241,7 @@ public class DBRoom implements Room {
             statement.setLong(3, roomId);
             if (statement.executeUpdate() == 0)
                 throw new IllegalStateException("Brugeren enten findes ikke, eller er ikke i rummet");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public String getNickname(long user) {
-        try (var connection = Database.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("SELECT nickname FROM room_user WHERE room_id = ? AND profile_id = ?");
-            statement.setLong(1, roomId);
-            statement.setLong(2, user);
-            statement.executeQuery();
-
-            ResultSet result = statement.getResultSet();
-            if (result.next())
-                return result.getString("nickname");
-
-            throw new IllegalStateException("Brugeren findes ikke i rummet");
+            getUser(roomId).setNickname(null);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -293,25 +254,7 @@ public class DBRoom implements Room {
 
     @Override
     public RoomUser getUser(long userId) {
-        try (var connection = Database.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM room_user WHERE room_id=? AND profile_id=?");
-            statement.setLong(1, roomId);
-            statement.setLong(2, userId);
-            ResultSet res = statement.executeQuery();
-
-            if (res.next()) {
-                return new RoomUser(
-                        userId,
-                        UserStateId.fromString(res.getString("state")),
-                        res.getLong("latest_read_message"),
-                        res.getString("nickname")
-                );
-            }
-
-            throw new IllegalStateException("Brugeren findes ikke i rummet");
-        } catch (SQLException e) {
-            throw new RuntimeException(e.getMessage());
-        }
+        return users.stream().filter(ru -> ru.getId() == userId).findAny().orElseThrow();
     }
 
     @Override
@@ -322,8 +265,15 @@ public class DBRoom implements Room {
             statement.setLong(2, roomId);
             statement.executeUpdate();
 
+            this.color = color;
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage());
         }
+    }
+
+    @Override
+    public long getLatestActivity() {
+        List<Message> firstMessages = model.getMessages().getMessages(getRoomId(), 1);
+        return firstMessages.isEmpty() ? 0 : firstMessages.getFirst().getDateTime();
     }
 }

@@ -65,4 +65,8 @@ public class RoomUser {
                 .with("latestReadMessage", latestReadMessage)
                 .with("nickname", nickname);
     }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
 }

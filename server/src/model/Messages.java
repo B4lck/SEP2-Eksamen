@@ -26,6 +26,17 @@ public interface Messages extends ServerRequestHandler, PropertyChangeSubject {
      *
      * @param chatroom Chatrummets id.
      * @param amount   Antal beskeder.
+     * @return Returnerer Message-objekter for de nyeste beskeder.
+     * @throws IllegalArgumentException Hvis amount er 0 eller negativ.
+     * @throws IllegalStateException    Hvis chatrummet ikke findes.
+     */
+    List<Message> getMessages(long chatroom, int amount);
+
+    /**
+     * Henter de nyeste beskeder i et chatrum.
+     *
+     * @param chatroom Chatrummets id.
+     * @param amount   Antal beskeder.
      * @param userId   Id'et på brugeren som henter beskederne.
      * @return Returnerer Message-objekter for de nyeste beskeder.
      * @throws IllegalArgumentException Hvis amount er 0 eller negativ.

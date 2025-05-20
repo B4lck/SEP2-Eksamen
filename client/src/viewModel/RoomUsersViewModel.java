@@ -32,7 +32,7 @@ public class RoomUsersViewModel implements ViewModel {
         try {
             errorText.setValue("");
             titleText.setValue(viewState.getCurrentChatRoomProperty().getName());
-            var room = model.getRoomManager().getChatRoom(viewState.getCurrentChatRoom());
+            var room = model.getRoomManager().getRoom(viewState.getCurrentChatRoom());
             for (RoomUser user : room.getUsers()) {
                 addUser(user);
             }
