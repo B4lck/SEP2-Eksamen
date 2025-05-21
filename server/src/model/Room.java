@@ -131,7 +131,7 @@ public interface Room {
      * Henter en bruger i rummet (RoomMember)
      * @param userId
      */
-    RoomMember getProfile(long userId);
+    RoomMember getMember(long userId);
 
     /**
      *

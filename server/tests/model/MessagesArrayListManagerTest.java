@@ -443,7 +443,7 @@ class MessagesArrayListManagerTest {
 
         model.getMessages().setLatestReadMessage(message.getMessageId(), user1.getUserId());
 
-        assertEquals(message.getMessageId(), room.getProfile(user1.getUserId()).getLatestReadMessage());
+        assertEquals(message.getMessageId(), room.getMember(user1.getUserId()).getLatestReadMessage());
     }
 
     @Test

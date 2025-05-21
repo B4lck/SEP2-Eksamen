@@ -345,7 +345,7 @@ public class MessagesDBManager implements Messages {
         Message message = getMessage(messageId, userId);
         long roomId = message.getRoomId();
         Room room = model.getRooms().getRoom(roomId, userId);
-        RoomMember user = room.getProfile(userId);
+        RoomMember user = room.getMember(userId);
         long previousReadMessageId = user.getLatestReadMessage();
 
         if (previousReadMessageId == messageId) return;

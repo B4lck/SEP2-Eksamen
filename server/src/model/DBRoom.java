@@ -142,7 +142,7 @@ public class DBRoom implements Room {
     public void muteUser(long muteUserId, long adminUserId) {
         if (!isAdmin(adminUserId)) throw new IllegalStateException("Brugeren har ikke tilladelse til at mute brugere");
         try (var connection = Database.getConnection()) {
-            RoomMember roomUser = getProfile(muteUserId);
+            RoomMember roomUser = getMember(muteUserId);
             roomUser.getState().mute();
 
             PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET state=? WHERE profile_id=? AND room_id=?");
@@ -159,7 +159,7 @@ public class DBRoom implements Room {
     public void unmuteUser(long unmuteUserId, long adminUserId) {
         if (!isAdmin(adminUserId)) throw new IllegalStateException("Brugeren har ikke tilladelse til at mute brugere");
         try (var connection = Database.getConnection()) {
-            RoomMember roomUser = getProfile(unmuteUserId);
+            RoomMember roomUser = getMember(unmuteUserId);
             roomUser.getState().unmute();
 
             PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET state=? WHERE profile_id=? AND room_id=?");
@@ -174,14 +174,14 @@ public class DBRoom implements Room {
 
     @Override
     public boolean isMuted(long userId) {
-        return getProfile(userId).getState() instanceof MutedUser;
+        return getMember(userId).getState() instanceof MutedUser;
     }
 
     @Override
     public void promoteUser(long promoteUserId, long adminUserId) {
         if (!isAdmin(adminUserId)) throw new IllegalStateException("Brugeren har ikke tilladelse forfremme brugere");
         try (var connection = Database.getConnection()) {
-            RoomMember roomUser = getProfile(promoteUserId);
+            RoomMember roomUser = getMember(promoteUserId);
             roomUser.getState().promote();
 
             PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET state=? WHERE profile_id=? AND room_id=?");
@@ -198,7 +198,7 @@ public class DBRoom implements Room {
     public void demoteUser(long demoteUserId, long adminUserId) {
         if (!isAdmin(adminUserId)) throw new IllegalStateException("Brugeren har ikke tilladelse");
         try (var connection = Database.getConnection()) {
-            RoomMember roomUser = getProfile(demoteUserId);
+            RoomMember roomUser = getMember(demoteUserId);
             roomUser.getState().demote();
 
             PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET state=? WHERE profile_id=? AND room_id=?");
@@ -221,7 +221,7 @@ public class DBRoom implements Room {
             statement.setLong(3, userId);
             if (statement.executeUpdate() == 0)
                 throw new IllegalStateException("Brugeren enten findes ikke, eller er ikke i rummet");
-            getProfile(userId).setNickname(nickname);
+            getMember(userId).setNickname(nickname);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -236,7 +236,7 @@ public class DBRoom implements Room {
             statement.setLong(3, roomId);
             if (statement.executeUpdate() == 0)
                 throw new IllegalStateException("Brugeren enten findes ikke, eller er ikke i rummet");
-            getProfile(userId).setNickname(null);
+            getMember(userId).setNickname(null);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -244,12 +244,12 @@ public class DBRoom implements Room {
 
     @Override
     public boolean isAdmin(long userId) {
-        return getProfile(userId).getState() instanceof AdministratorState;
+        return getMember(userId).getState() instanceof AdministratorState;
     }
 
     @Override
-    public RoomMember getProfile(long userId) {
-        return members.stream().filter(ru -> ru.getUserId() == userId).findAny().orElseThrow();
+    public RoomMember getMember(long userId) {
+        return members.stream().filter(ru -> ru.getUserId() == userId).findAny().orElseThrow(() -> new IllegalStateException("Brugeren er ikke medlem af dette rum"));
     }
 
     @Override
@@ -328,7 +328,7 @@ public class DBRoom implements Room {
             statement.setLong(3, userId);
             statement.executeUpdate();
 
-            getProfile(userId).setLatestReadMessage(messageId);
+            getMember(userId).setLatestReadMessage(messageId);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

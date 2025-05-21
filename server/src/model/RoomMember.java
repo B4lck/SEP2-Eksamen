@@ -73,4 +73,8 @@ public class RoomMember {
     public void setLatestReadMessage(long messageId) {
         this.latestReadMessage = messageId;
     }
+
+    public String getNickname() {
+        return nickname;
+    }
 }

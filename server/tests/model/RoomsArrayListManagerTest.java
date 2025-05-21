@@ -528,7 +528,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void promoteNotExistingUser() {
-        assertThrows(IllegalStateException.class, ()-> room.promoteUser(1234,user1.getUserId()));
+        assertThrows(IllegalStateException.class, () -> room.promoteUser(1234, user1.getUserId()));
     }
 
     /**
@@ -536,7 +536,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void demoteNotExistingUser() {
-        assertThrows(IllegalStateException.class, ()-> room.demoteUser(1234, user1.getUserId()));
+        assertThrows(IllegalStateException.class, () -> room.demoteUser(1234, user1.getUserId()));
     }
 
     /**
@@ -545,8 +545,8 @@ class RoomsArrayListManagerTest {
     @Test
     void promoteByNotExistingUser() {
         model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
-        assertThrows(IllegalStateException.class, ()-> room.promoteUser(user2.getUserId(), 1234));
-        assertEquals(RegularState.class ,room.getProfile(user2.getUserId()).getState().getClass());
+        assertThrows(IllegalStateException.class, () -> room.promoteUser(user2.getUserId(), 1234));
+        assertEquals(RegularState.class, room.getMember(user2.getUserId()).getState().getClass());
     }
 
     /**
@@ -555,8 +555,8 @@ class RoomsArrayListManagerTest {
     @Test
     void demoteByNotExistingUser() {
         model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
-        assertThrows(IllegalStateException.class, ()-> room.demoteUser(user2.getUserId(), 1234));
-        assertEquals(RegularState.class ,room.getProfile(user2.getUserId()).getState().getClass());
+        assertThrows(IllegalStateException.class, () -> room.demoteUser(user2.getUserId(), 1234));
+        assertEquals(RegularState.class, room.getMember(user2.getUserId()).getState().getClass());
     }
 
     /**
@@ -564,7 +564,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void promoteNotExistingMember() {
-        assertThrows(IllegalStateException.class, ()-> room.promoteUser(user3.getUserId(), user1.getUserId()));
+        assertThrows(IllegalStateException.class, () -> room.promoteUser(user3.getUserId(), user1.getUserId()));
     }
 
     /**
@@ -572,92 +572,93 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void demoteNotExistingMember() {
-        assertThrows(IllegalStateException.class, ()-> room.demoteUser(user3.getUserId(), user1.getUserId()));
+        assertThrows(IllegalStateException.class, () -> room.demoteUser(user3.getUserId(), user1.getUserId()));
     }
 
     /**
      * Forfremmer en bruger i rummet
      */
     @Test
-    void promoteUser(){
+    void promoteUser() {
         model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
         room.promoteUser(user2.getUserId(), user1.getUserId());
-        assertEquals(AdministratorState.class ,room.getProfile(user2.getUserId()).getState().getClass());
+        assertEquals(AdministratorState.class, room.getMember(user2.getUserId()).getState().getClass());
     }
 
     /**
      * Degradere en bruger i rummet
      */
-     @Test
-    void demoteUser(){
+    @Test
+    void demoteUser() {
         model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
         room.promoteUser(user2.getUserId(), user1.getUserId());
         room.demoteUser(user2.getUserId(), user1.getUserId());
-        assertEquals(RegularState.class ,room.getProfile(user2.getUserId()).getState().getClass());
+        assertEquals(RegularState.class, room.getMember(user2.getUserId()).getState().getClass());
     }
 
     /**
      * Forfremmer en admin
      */
     @Test
-    void promoteAdmin(){
+    void promoteAdmin() {
         model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
         room.promoteUser(user2.getUserId(), user1.getUserId());
-        assertThrows(IllegalStateException.class, ()-> room.promoteUser(user1.getUserId(), user2.getUserId()));
+        assertThrows(IllegalStateException.class, () -> room.promoteUser(user1.getUserId(), user2.getUserId()));
     }
 
     /**
      * Degradere en admin
      */
     @Test
-    void demoteAdmin(){
+    void demoteAdmin() {
         model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
         room.promoteUser(user2.getUserId(), user1.getUserId());
         room.demoteUser(user1.getUserId(), user2.getUserId());
-        assertEquals(RegularState.class ,room.getProfile(user1.getUserId()).getState().getClass());
+        assertEquals(RegularState.class, room.getMember(user1.getUserId()).getState().getClass());
     }
 
     /**
      * Forfremmer en bruger i rummet, som ikke-deltager af rummet
      */
     @Test
-    void promoteUserWithoutBeingMember(){
-        assertThrows(IllegalStateException.class, ()-> room.promoteUser(user1.getUserId(), user3.getUserId()));
-        assertEquals(AdministratorState.class ,room.getProfile(user1.getUserId()).getState().getClass());
+    void promoteUserWithoutBeingMember() {
+        assertThrows(IllegalStateException.class, () -> room.promoteUser(user1.getUserId(), user3.getUserId()));
+        assertEquals(AdministratorState.class, room.getMember(user1.getUserId()).getState().getClass());
     }
 
     /**
      * Degradere en bruger i rummet, som ikke-deltager af rummet
      */
     @Test
-    void demoteUserWithoutBeingMember(){
-        assertThrows(IllegalStateException.class, ()-> room.demoteUser(user1.getUserId(), user3.getUserId()));
-        assertEquals(AdministratorState.class ,room.getProfile(user1.getUserId()).getState().getClass());
+    void demoteUserWithoutBeingMember() {
+        assertThrows(IllegalStateException.class, () -> room.demoteUser(user1.getUserId(), user3.getUserId()));
+        assertEquals(AdministratorState.class, room.getMember(user1.getUserId()).getState().getClass());
     }
 
     /**
      * Forfremmer en bruger i rummet, som ikke-admin af rummet
      */
     @Test
-    void promoteUserWithoutBeingAdmin(){
+    void promoteUserWithoutBeingAdmin() {
         model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
-        assertThrows(IllegalStateException.class, ()-> room.promoteUser(user1.getUserId(), user2.getUserId()));
-        assertEquals(AdministratorState.class ,room.getProfile(user1.getUserId()).getState().getClass());
+        assertThrows(IllegalStateException.class, () -> room.promoteUser(user1.getUserId(), user2.getUserId()));
+        assertEquals(AdministratorState.class, room.getMember(user1.getUserId()).getState().getClass());
     }
 
     /**
      * Degradere en bruger i rummet, som ikke-admin af rummet
      */
     @Test
-    void demoteUserWithoutBeingAdmin(){
+    void demoteUserWithoutBeingAdmin() {
         model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
-        assertThrows(IllegalStateException.class, ()-> room.demoteUser(user1.getUserId(), user2.getUserId()));
-        assertEquals(AdministratorState.class ,room.getProfile(user1.getUserId()).getState().getClass());
+        assertThrows(IllegalStateException.class, () -> room.demoteUser(user1.getUserId(), user2.getUserId()));
+        assertEquals(AdministratorState.class, room.getMember(user1.getUserId()).getState().getClass());
     }
 
     @Test
     void changeNicknameOnUser() {
-        // TODO
+        room.setNicknameOfUser(user1.getUserId(), "test");
+        assertEquals("test", room.getMember(user1.getUserId()).getNickname());
     }
 
     @Test
@@ -682,7 +683,8 @@ class RoomsArrayListManagerTest {
 
     @Test
     void deleteNicknameFromUser() {
-        // TODO
+        room.removeNicknameFromUser(user1.getUserId());
+        assertNull(room.getMember(user1.getUserId()).getNickname());
     }
 
     @Test
