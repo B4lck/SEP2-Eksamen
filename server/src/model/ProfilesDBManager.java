@@ -126,6 +126,8 @@ public class ProfilesDBManager implements Profiles {
 
     @Override
     public void blockProfile(long blockUserId, long blockedByUserId) {
+        if (getProfile(blockUserId).isEmpty()) throw new IllegalStateException("Brugeren der skal blokeres findes ikke");
+        if (getProfile(blockedByUserId).isEmpty()) throw new IllegalStateException("Brugeren der vil blokere findes ikke");
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("INSERT INTO blocklist (blocked_by, blocked) VALUES (?, ?) ON CONFLICT DO NOTHING");
             statement.setLong(1, blockedByUserId);
@@ -138,6 +140,9 @@ public class ProfilesDBManager implements Profiles {
 
     @Override
     public void unblockProfile(long blockUserId, long blockedByUserId) {
+        if (getProfile(blockUserId).isEmpty()) throw new IllegalStateException("Brugeren der skal blive unblocked findes ikke");
+        if (getProfile(blockedByUserId).isEmpty()) throw new IllegalStateException("Brugeren der vil unblock findes ikke");
+
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("DELETE FROM blocklist WHERE blocked_by = ? AND blocked = ?;");
             statement.setLong(1, blockedByUserId);
@@ -150,6 +155,8 @@ public class ProfilesDBManager implements Profiles {
 
     @Override
     public List<Long> getBlockedProfiles(long userId) {
+        if (getProfile(userId).isEmpty()) throw new IllegalStateException("Brugeren findes ikke");
+
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM blocklist WHERE blocked_by = ?");
             statement.setLong(1, userId);

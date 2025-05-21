@@ -13,10 +13,11 @@ CREATE TABLE profile
 
 CREATE TABLE room
 (
-    id   BIGSERIAL PRIMARY KEY,
-    name username,
+    id    BIGSERIAL PRIMARY KEY,
+    name  username,
     color TEXT NOT NULL DEFAULT '#ffffff',
-    font TEXT NOT NULL DEFAULT 'Arial' CHECK ( font IN ('Arial', 'Comic Sans MS', 'Times New Roman', 'Courier New', 'Brush Script MT'))
+    font  TEXT NOT NULL DEFAULT 'Arial' CHECK ( font IN ('Arial', 'Comic Sans MS', 'Times New Roman', 'Courier New',
+                                                         'Brush Script MT'))
 );
 
 CREATE TABLE message
@@ -65,7 +66,9 @@ CREATE TABLE reaction
 CREATE TABLE blocklist
 (
     blocked_by BIGINT REFERENCES profile (id),
-    blocked BIGINT REFERENCES profile (id)
+    blocked    BIGINT REFERENCES profile (id),
+
+    PRIMARY KEY (blocked_by, blocked)
 );
 
 -- PRIVILEGES

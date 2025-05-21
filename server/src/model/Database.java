@@ -36,6 +36,7 @@ public class Database {
     public static void endTesting() throws SQLException {
         if (testing) {
             try (Connection connection = Database.getConnection()) {
+                connection.prepareStatement("DELETE FROM blocklist CASCADE").executeUpdate();
                 connection.prepareStatement("DELETE FROM reaction CASCADE").executeUpdate();
                 connection.prepareStatement("DELETE FROM room_user CASCADE").executeUpdate();
                 connection.prepareStatement("DELETE FROM attachment CASCADE").executeUpdate();

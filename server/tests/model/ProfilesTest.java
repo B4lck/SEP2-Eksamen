@@ -98,4 +98,95 @@ class ProfilesTest {
         assertThrows(IllegalArgumentException.class, () -> profiles.searchProfiles(null));
     }
 
+    @Test
+    void getBlockedProfiles_Regular() {
+        profiles.createProfile("test1", "1234");
+        profiles.createProfile("test2", "1234");
+
+        profiles.blockProfile(profiles.getProfileByUsername("test1").orElseThrow().getUserId(), profiles.getProfileByUsername("test2").orElseThrow().getUserId());
+
+        assertEquals(1, profiles.getBlockedProfiles(profiles.getProfileByUsername("test2").orElseThrow().getUserId()).size());
+    }
+
+    @Test
+    void getBlockedProfiles_NonExisting() {
+        assertThrows(IllegalStateException.class, () -> profiles.getBlockedProfiles(-1));
+    }
+
+    @Test
+    void blockProfile_Regular() {
+        profiles.createProfile("test1", "1234");
+        profiles.createProfile("test2", "1234");
+
+        profiles.blockProfile(profiles.getProfileByUsername("test1").orElseThrow().getUserId(), profiles.getProfileByUsername("test2").orElseThrow().getUserId());
+
+        assertEquals(1, profiles.getBlockedProfiles(profiles.getProfileByUsername("test2").orElseThrow().getUserId()).size());
+    }
+
+    @Test
+    void blockProfile_BlockNonExisting() {
+        profiles.createProfile("test1", "1234");
+
+        assertThrows(IllegalStateException.class, () -> profiles.blockProfile(-1, profiles.getProfileByUsername("test1").orElseThrow().getUserId()));
+
+        assertEquals(0, profiles.getBlockedProfiles(profiles.getProfileByUsername("test1").orElseThrow().getUserId()).size());
+    }
+
+    @Test
+    void blockProfile_BlockForNonExisting() {
+        profiles.createProfile("test1", "1234");
+
+        assertThrows(IllegalStateException.class, () -> profiles.blockProfile(profiles.getProfileByUsername("test1").orElseThrow().getUserId(), -1));
+    }
+
+    @Test
+    void blockProfile_AlreadyBlocked() {
+        profiles.createProfile("test1", "1234");
+        profiles.createProfile("test2", "1234");
+
+        profiles.blockProfile(profiles.getProfileByUsername("test1").orElseThrow().getUserId(), profiles.getProfileByUsername("test2").orElseThrow().getUserId());
+
+        assertDoesNotThrow(() -> profiles.blockProfile(profiles.getProfileByUsername("test1").orElseThrow().getUserId(), profiles.getProfileByUsername("test2").orElseThrow().getUserId()));
+
+        assertEquals(1, profiles.getBlockedProfiles(profiles.getProfileByUsername("test2").orElseThrow().getUserId()).size());
+    }
+
+    @Test
+    void unblockProfile_Regular() {
+        profiles.createProfile("test1", "1234");
+        profiles.createProfile("test2", "1234");
+
+        profiles.blockProfile(profiles.getProfileByUsername("test1").orElseThrow().getUserId(), profiles.getProfileByUsername("test2").orElseThrow().getUserId());
+
+        profiles.unblockProfile(profiles.getProfileByUsername("test1").orElseThrow().getUserId(), profiles.getProfileByUsername("test2").orElseThrow().getUserId());
+
+        assertEquals(0, profiles.getBlockedProfiles(profiles.getProfileByUsername("test2").orElseThrow().getUserId()).size());
+    }
+
+    @Test
+    void unblockProfile_BlockNonExisting() {
+        profiles.createProfile("test1", "1234");
+
+        assertThrows(IllegalStateException.class, () -> profiles.unblockProfile(-1, profiles.getProfileByUsername("test1").orElseThrow().getUserId()));
+
+        assertEquals(0, profiles.getBlockedProfiles(profiles.getProfileByUsername("test1").orElseThrow().getUserId()).size());
+    }
+
+    @Test
+    void unblockProfile_BlockForNonExisting() {
+        profiles.createProfile("test1", "1234");
+
+        assertThrows(IllegalStateException.class, () -> profiles.unblockProfile(profiles.getProfileByUsername("test1").orElseThrow().getUserId(), -1));
+    }
+
+    @Test
+    void unblockProfile_NotAlreadyBlocked() {
+        profiles.createProfile("test1", "1234");
+        profiles.createProfile("test2", "1234");
+
+        assertDoesNotThrow(() -> profiles.unblockProfile(profiles.getProfileByUsername("test1").orElseThrow().getUserId(), profiles.getProfileByUsername("test2").orElseThrow().getUserId()));
+
+        assertEquals(0, profiles.getBlockedProfiles(profiles.getProfileByUsername("test2").orElseThrow().getUserId()).size());
+    }
+
 }
