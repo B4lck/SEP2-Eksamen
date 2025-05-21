@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.List;
 
 public class RoomsDBManager implements Rooms {
     private final Model model;
@@ -291,7 +292,7 @@ public class RoomsDBManager implements Rooms {
                     request.respond("Farven er blevet ændret");
                     break;
                 case "SET_FONT":
-                    setFont(request.getData().getLong("roomId"),request.getUser(),request.getData().getString("font"));
+                    setFont(request.getData().getLong("roomId"), request.getUser(), request.getData().getString("font"));
                     request.respond("Skrifttypen er blevet ændret");
                     break;
             }
@@ -323,6 +324,7 @@ public class RoomsDBManager implements Rooms {
 
     /**
      * Broadcast til alle brugere i rummet, at rummet er blevet opdateret.
+     *
      * @param roomId ID'et på rummet
      */
     public void fireRoomChangedBroadcast(long roomId) {

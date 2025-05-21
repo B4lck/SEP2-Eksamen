@@ -8,7 +8,7 @@ public interface Rooms extends ServerRequestHandler, PropertyChangeSubject {
     /**
      * Opretter et nyt chatrum
      *
-     * @param name      navn på chatrummet
+     * @param name   navn på chatrummet
      * @param userId id'et på brugeren som opretter chatrummet
      * @return ChatRoom objektet som bliver oprettet
      */
@@ -17,7 +17,7 @@ public interface Rooms extends ServerRequestHandler, PropertyChangeSubject {
     /**
      * Henter et rum ud fra id'et på rummet
      *
-     * @param roomId    id'et på rummet
+     * @param roomId id'et på rummet
      * @param userId id'et på brugeren som prøver at hente rummet
      * @return ChatRoom hvis brugeren er en del af rummet, ellers thrower den
      */
@@ -36,7 +36,7 @@ public interface Rooms extends ServerRequestHandler, PropertyChangeSubject {
     /**
      * Tilføjer en ny bruger til et chatrum
      *
-     * @param roomId         id'et på chatrummet
+     * @param roomId      id'et på chatrummet
      * @param addUserId   id'et på den nye bruger
      * @param adminUserId id'et på brugeren som forsøger at tilføje newUser
      */
@@ -45,7 +45,7 @@ public interface Rooms extends ServerRequestHandler, PropertyChangeSubject {
     /**
      * Fjerner en bruger fra et chatrum
      *
-     * @param roomId          id'et på chatrummet
+     * @param roomId       id'et på chatrummet
      * @param removeUserId id'et på brugeren som skal fjernes
      * @param adminUserId  id'et på brugeren som forsøger
      */
@@ -54,8 +54,8 @@ public interface Rooms extends ServerRequestHandler, PropertyChangeSubject {
     /**
      * Sætter navnet på et chatrum
      *
-     * @param roomId         id' på chatrummet
-     * @param name           det nye navn på chatrummet
+     * @param roomId      id' på chatrummet
+     * @param name        det nye navn på chatrummet
      * @param adminUserId id'et på brugeren der forsøger at ændre navnet på chatrummet
      */
     void setName(long roomId, String name, long adminUserId);
@@ -63,7 +63,7 @@ public interface Rooms extends ServerRequestHandler, PropertyChangeSubject {
     /**
      * Muter en bruger
      *
-     * @param roomId         id'et på chatrummet
+     * @param roomId      id'et på chatrummet
      * @param muteUserId  id'et på brugeren som skal mutes.
      * @param adminUserId id'et på brugeren der muter.
      */
@@ -72,7 +72,7 @@ public interface Rooms extends ServerRequestHandler, PropertyChangeSubject {
     /**
      * Unmuter en bruger
      *
-     * @param roomId          id'et på chatrummet
+     * @param roomId       id'et på chatrummet
      * @param unmuteUserId id'et på user
      * @param adminUserId  id'et på adminUser
      */
@@ -81,7 +81,7 @@ public interface Rooms extends ServerRequestHandler, PropertyChangeSubject {
     /**
      * Forfremmer en bruger
      *
-     * @param roomId           Id på chatRoom
+     * @param roomId        Id på chatRoom
      * @param promoteUserId Id på brugeren der skal forfremmes
      * @param adminUserId   Id på udførende
      */
@@ -90,7 +90,7 @@ public interface Rooms extends ServerRequestHandler, PropertyChangeSubject {
     /**
      * Degradere en bruger
      *
-     * @param roomId          Id på chatRoom
+     * @param roomId       Id på chatRoom
      * @param demoteUserId Id på brugeren der skal degraderes
      * @param adminUserId  Id på udførende
      */
@@ -99,16 +99,16 @@ public interface Rooms extends ServerRequestHandler, PropertyChangeSubject {
     /**
      * Sætter et kaldenavn på en bruger i et chatrum
      *
-     * @param roomId    id'et på chatrummet
-     * @param userId id'et på brugeren
-     * @param nickname  det nye kaldenavn
+     * @param roomId   id'et på chatrummet
+     * @param userId   id'et på brugeren
+     * @param nickname det nye kaldenavn
      */
     void setMemberNickname(long roomId, long userId, String nickname);
 
     /**
      * Fjerner et kaldenavn på en bruger i et chatrum
      *
-     * @param roomId    id'et på chatrummet
+     * @param roomId id'et på chatrummet
      * @param userId id'et på brugeren
      */
     void removeMemberNickname(long roomId, long userId);
@@ -123,8 +123,8 @@ public interface Rooms extends ServerRequestHandler, PropertyChangeSubject {
 
     /**
      * @param roomId id'et på chatrummet
-     * @param userId     id'et på udførende
-     * @param color    farve
+     * @param userId id'et på udførende
+     * @param color  farve
      * @return true hvis den findes
      */
     void editColor(long roomId, long userId, String color);

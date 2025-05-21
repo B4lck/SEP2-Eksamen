@@ -254,6 +254,12 @@ public class DBRoom implements Room {
 
     @Override
     public void setColor(String color) {
+        if (color == null) {
+            throw new IllegalArgumentException("Farvet må ikke være null");
+        }
+        if (!color.matches("^#(?:[0-9a-fA-F]{3}){1,2}$"))
+            throw new IllegalArgumentException("Farven skal være en hex kode");
+
         try (var connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("UPDATE room SET color=? WHERE id=?");
             statement.setString(1, color);
@@ -302,6 +308,13 @@ public class DBRoom implements Room {
 
     @Override
     public void setFont(String font) {
+        if (font == null)
+            throw new IllegalArgumentException("Skrifttypen må ikke være null");
+
+        List<String> allowedFonts = List.of("Arial", "Comic Sans MS", "Times New Roman", "Courier New", "Brush Script MT");
+        if (!allowedFonts.contains(font))
+            throw new IllegalArgumentException("Skrifttypen er ikke gyldige");
+
         try (var connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("UPDATE room SET font=? WHERE id=?");
             statement.setString(1, font);

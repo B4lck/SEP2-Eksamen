@@ -696,4 +696,128 @@ class RoomsArrayListManagerTest {
     void deleteNicknameFromUserNotInRoom() {
         assertThrows(IllegalStateException.class, () -> room.removeNicknameFromUser(user2.getUserId()));
     }
+
+    /**
+     * Skift farve i et rum
+     */
+    @Test
+    void editColor() {
+        model.getRooms().editColor(room.getRoomId(), user1.getUserId(), "#1a7ba8");
+        assertEquals("#1a7ba8", room.getColor());
+    }
+
+    /**
+     * Skift farve i et rum der ikke findes
+     */
+    @Test
+    void editColorInNoExistingRoom() {
+        assertThrows(IllegalStateException.class, () -> model.getRooms().editColor(1234, user1.getUserId(), "#1a7ba8"));
+    }
+
+    /**
+     * Skift farve i et rum som en bruger der ikke findes
+     */
+    @Test
+    void editColorByNoneExistingUser() {
+        assertThrows(IllegalStateException.class, () -> model.getRooms().editColor(room.getRoomId(), 1234, "#1a7ba8"));
+        assertNotEquals("#1a7ba8", room.getColor());
+    }
+
+    /**
+     * Skift farve i et rum, som ikke medlem af et rum
+     */
+    @Test
+    void editColorByNotMember() {
+        assertThrows(IllegalStateException.class, () -> model.getRooms().editColor(room.getRoomId(), user2.getUserId(), "#1a7ba8"));
+        assertNotEquals("#1a7ba8", room.getColor());
+    }
+
+    /**
+     * Skift farve i et rum, til en tom String
+     */
+    @Test
+    void editColorToEmpty() {
+        assertThrows(IllegalArgumentException.class, () -> model.getRooms().editColor(room.getRoomId(), user1.getUserId(), ""));
+        assertEquals("#ffffff", room.getColor());
+    }
+
+    /**
+     * Skift farve til null
+     */
+    @Test
+    void editColorToNull() {
+        assertThrows(IllegalArgumentException.class, () -> model.getRooms().editColor(room.getRoomId(), user1.getUserId(), null));
+        assertEquals("#ffffff", room.getColor());
+    }
+
+    /**
+     * Skift farve til ikke hex kode
+     */
+    @Test
+    void editColorToNotHexa() {
+        assertThrows(IllegalArgumentException.class, () -> model.getRooms().editColor(room.getRoomId(), user1.getUserId(), "#12345g"));
+        assertEquals("#ffffff", room.getColor());
+    }
+
+    /**
+     * Skift skrifttypen i et chatrum
+     */
+    @Test
+    void editFont() {
+        model.getRooms().setFont(room.getRoomId(), user1.getUserId(), "Courier New");
+        assertEquals("Courier New", room.getFont());
+    }
+
+    /**
+     * Skift skrifttypen i et rum der ikke findes
+     */
+    @Test
+    void editFontInNoExistingRoom() {
+        assertThrows(IllegalStateException.class, () -> model.getRooms().setFont(1234, user1.getUserId(), "Courier New"));
+    }
+
+    /**
+     * Skift skrifttypen i rummet, som en brugere der ikke findes
+     */
+    @Test
+    void editFontByNoExistingUser() {
+        assertThrows(IllegalStateException.class, () -> model.getRooms().setFont(room.getRoomId(), 1234, "Courier New"));
+        assertEquals("Arial", room.getFont());
+    }
+
+    /**
+     * Skift skrifttypen i rummet, som en brugere der ikke medlem
+     */
+    @Test
+    void editFontByNotMember() {
+        assertThrows(IllegalStateException.class, () -> model.getRooms().setFont(room.getRoomId(), user2.getUserId(), "Courier New"));
+        assertEquals("Arial", room.getFont());
+    }
+
+    /**
+     * Skift skrifttypen i rummet, til en tom String
+     */
+    @Test
+    void editFontToEmpty() {
+        assertThrows(IllegalArgumentException.class, () -> model.getRooms().setFont(room.getRoomId(), user1.getUserId(), ""));
+        assertEquals("Arial", room.getFont());
+    }
+
+    /**
+     * Skift skrifttypen i rummet, til Null
+     */
+    @Test
+    void editFontToNull() {
+        assertThrows(IllegalArgumentException.class, () -> model.getRooms().setFont(room.getRoomId(), user1.getUserId(), null));
+        assertEquals("Arial", room.getFont());
+    }
+
+    /**
+     * Skift skrifttypen i rummet, til en type der ikke findes
+     */
+    @Test
+    void editFontToNotExistingFont() {
+        assertThrows(IllegalArgumentException.class, () -> model.getRooms().setFont(room.getRoomId(), user1.getUserId(), "Sans-serif"));
+        assertEquals("Arial", room.getFont());
+    }
 }
