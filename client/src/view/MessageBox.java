@@ -131,10 +131,10 @@ public class MessageBox extends HBox {
             reactionLabel.getStyleClass().add("message-reaction");
             reactionLabel.setText(reaction.getReaction());
             reactionBox.getChildren().add(reactionLabel);
-            if (reaction.getReactedByUsers().size() > 1) {
+            if (reaction.getReactedByMembers().size() > 1) {
                 Text reactionCountLabel = new Text();
                 reactionCountLabel.getStyleClass().add("message-reaction-count");
-                reactionCountLabel.setText(" %d".formatted(reaction.getReactedByUsers().size()));
+                reactionCountLabel.setText(" %d".formatted(reaction.getReactedByMembers().size()));
                 reactionBox.getChildren().add(reactionCountLabel);
             }
             reactionsBox.getChildren().add(reactionBox);

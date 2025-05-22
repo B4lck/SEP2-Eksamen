@@ -55,7 +55,7 @@ public interface Message {
     /**
      * Henter alle reaktioner
      */
-    List<Reaction> getReactions();
+    List<DBReaction> getReactions();
 
     /**
      * Redigere beskedens body, og giver den et mærkat som redigeret

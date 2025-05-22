@@ -11,7 +11,7 @@ import viewModel.ViewUser;
 
 import java.util.List;
 
-public class UserPickerController extends PopupViewController<List<Long>, UserPickerViewModel> {
+public class UserPickerViewController extends PopupViewController<List<Long>, UserPickerViewModel> {
     @FXML
     public TextField search;
     @FXML

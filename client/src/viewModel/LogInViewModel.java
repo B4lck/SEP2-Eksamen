@@ -5,15 +5,14 @@ import javafx.beans.property.StringProperty;
 import model.Model;
 import util.ServerError;
 
-public class LogInViewModel implements ViewModel {
+public class LogInViewModel extends ViewModel {
 
-    private StringProperty userNameInputProperty = new SimpleStringProperty();
-    private StringProperty passwordInputProperty = new SimpleStringProperty();
-    private StringProperty errorProperty = new SimpleStringProperty();
-    private Model model;
+    private final StringProperty userNameInputProperty = new SimpleStringProperty();
+    private final StringProperty passwordInputProperty = new SimpleStringProperty();
+    private final StringProperty errorProperty = new SimpleStringProperty();
 
     public LogInViewModel(Model model) {
-        this.model = model;
+        super(model);
     }
 
     public StringProperty getUserNameInputProperty() {

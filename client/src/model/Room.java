@@ -34,15 +34,15 @@ public class Room {
         this.font = room.font;
     }
 
-    public static Room fromData(DataMap message) {
+    public static Room fromData(DataMap data) {
         return new Room(
-                message.getString("name"),
-                message.getLong("roomId"),
-                message.getMapArray("membersIds").stream().map(RoomMember::fromData).toList(),
-                message.getLong("latestActivityTime"),
-                message.getLong("latestMessageId"),
-                message.getString("color"),
-                message.getString("font")
+                data.getString("name"),
+                data.getLong("roomId"),
+                data.getMapArray("membersIds").stream().map(RoomMember::fromData).toList(),
+                data.getLong("latestActivityTime"),
+                data.getLong("latestMessageId"),
+                data.getString("color"),
+                data.getString("font")
         );
     }
 

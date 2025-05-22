@@ -9,29 +9,28 @@ import model.Profile;
 import model.RoomMember;
 import util.ServerError;
 
-public class RoomMembersViewModel implements ViewModel {
-    private final Model model;
+public class RoomMembersViewModel extends ViewModel {
+    private final StringProperty errorProperty;
+    private final StringProperty titleProperty;
+    private final ObservableList<ViewRoomMember> membersProperty;
+
     private final ViewState viewState;
 
-    private final StringProperty errorText;
-    private final StringProperty titleText;
-    private ObservableList<ViewRoomMember> usersProperty;
-
     public RoomMembersViewModel(Model model, ViewState viewState) {
-        this.model = model;
+        super(model);
         this.viewState = viewState;
 
-        this.errorText = new SimpleStringProperty();
-        this.titleText = new SimpleStringProperty();
-        this.usersProperty = FXCollections.observableArrayList();
+        this.errorProperty = new SimpleStringProperty();
+        this.titleProperty = new SimpleStringProperty();
+        this.membersProperty = FXCollections.observableArrayList();
     }
 
     @Override
     public void reset() {
-        usersProperty.clear();
+        membersProperty.clear();
         try {
-            errorText.setValue("");
-            titleText.setValue(viewState.getCurrentChatRoomProperty().getName());
+            errorProperty.setValue("");
+            titleProperty.setValue(viewState.getCurrentChatRoomProperty().getName());
             var room = model.getRoomManager().getRoom(viewState.getCurrentChatRoom());
             for (RoomMember user : room.getMembers()) {
                 addMember(user);
@@ -41,16 +40,16 @@ public class RoomMembersViewModel implements ViewModel {
         }
     }
 
-    public StringProperty getErrorText() {
-        return errorText;
+    public StringProperty getErrorProperty() {
+        return errorProperty;
     }
 
-    public StringProperty getTitleText() {
-        return titleText;
+    public StringProperty getTitleProperty() {
+        return titleProperty;
     }
 
-    public ObservableList<ViewRoomMember> getUsersProperty() {
-        return usersProperty;
+    public ObservableList<ViewRoomMember> getMembersProperty() {
+        return membersProperty;
     }
 
     public void editNickname(long userId, String nickname) {
@@ -82,7 +81,7 @@ public class RoomMembersViewModel implements ViewModel {
                     userProfile.getLastActive(),
                     model.getProfileManager().isBlocked(user.getUserId())
             );
-            usersProperty.add(viewRoomMember);
+            membersProperty.add(viewRoomMember);
         } catch (ServerError e) {
             e.showAlert();
         }

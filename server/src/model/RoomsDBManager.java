@@ -158,7 +158,7 @@ public class RoomsDBManager implements Rooms {
     }
 
     @Override
-    public void editColor(long roomId, long userId, String color) {
+    public void setColor(long roomId, long userId, String color) {
         Profile user = model.getProfiles().getProfile(userId).orElseThrow(() -> new IllegalStateException("Admin findes ikke"));
 
         Room room = getRoom(roomId, userId);
@@ -288,7 +288,7 @@ public class RoomsDBManager implements Rooms {
                     request.respond("Brugeren har fået fjernet sit kaldenavn");
                     break;
                 case "EDIT_COLOR":
-                    editColor(request.getData().getLong("roomId"), request.getUser(), request.getData().getString("color"));
+                    setColor(request.getData().getLong("roomId"), request.getUser(), request.getData().getString("color"));
                     request.respond("Farven er blevet ændret");
                     break;
                 case "SET_FONT":

@@ -22,7 +22,6 @@ public class ChatClient implements PropertyChangeSubject {
     private PropertyChangeSupport property;
 
     private static ChatClient instance;
-    private static Object lock = new Object();
 
     private ChatClient(String host, int port) throws IOException {
         this.socket = new Socket(host, port);
@@ -103,7 +102,7 @@ public class ChatClient implements PropertyChangeSubject {
      * @param attachments - Liste af attachments (filer) der skal sendes til serveren
      * @throws ServerError Hvis serveren støder på en fejl
      */
-    public void sendMessageWithAttachments(ClientMessage message, List<Attachment> attachments) throws ServerError {
+    public void sendMessageWithAttachments(ClientMessage message, List<Attachment> attachments) {
         // Tilføj attachments til besked
         for (Attachment attachment : attachments) {
             message.addAttachment(attachment.getName());
@@ -125,7 +124,7 @@ public class ChatClient implements PropertyChangeSubject {
     /**
      *
      */
-    public synchronized File downloadFile(String fileId) throws ServerError {
+    public synchronized File downloadFile(String fileId) {
         try {
             sendMessage(new ClientMessage("DOWNLOAD_FILE", new DataMap()
                     .with("fileId", fileId)));

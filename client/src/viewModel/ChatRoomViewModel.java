@@ -20,7 +20,7 @@ import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
+public class ChatRoomViewModel extends ViewModel implements PropertyChangeListener {
 
     private final StringProperty greetingTextProperty; // Velkommen tekst / Nuværende brugernavn
     private final ObjectProperty<ViewRoom> roomProperty; // Nuværende rum
@@ -37,11 +37,10 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     private final ObservableList<ViewRoomMember> roomUsersProperty; // Brugere i det nuværende rum
     private final ObjectProperty<ViewRoomMember> currentRoomMemberProperty; // Den nuværende bruger i det nuværende rum
 
-    private final Model model;
     private final ViewState viewState;
 
     public ChatRoomViewModel(Model model, ViewState viewState) {
-        this.model = model;
+        super(model);
 
         this.greetingTextProperty = new SimpleStringProperty();
         this.roomProperty = new SimpleObjectProperty<>();
@@ -142,7 +141,7 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
     /**
      * Skift det nuværende chatrum i view staten
      */
-    public void setChatRoom(long roomId) {
+    public void setRoom(long roomId) {
         viewState.setCurrentChatRoom(roomId);
         // Der er en listener på currentChatRoom, som resetter rummet :)
     }
@@ -178,7 +177,8 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                         user.getNickname(),
                         user.getState(),
                         user.getLatestReadMessage(),
-                        profile.getLastActive()
+                        profile.getLastActive(),
+                        false
                 );
 
                 // Dette er RoomMember objektet til den nuværende bruger
@@ -215,58 +215,54 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
      * @param message Tilføj en besked
      */
     private void addMessage(Message message) {
-        try {
-            if (message.getRoomId() == viewState.getCurrentChatRoom()) {
-                List<File> files = new ArrayList<>();
-                // Download attachments
-                for (String attachmentName : message.getAttachments()) {
-                    File file = model.getUserFileManager().getFile(attachmentName);
-                    files.add(file);
-                }
-
-                // Fjern hvis det er en redigering
-                messagesProperty.removeIf(m -> m.messageId == message.getMessageId());
-
-                long myId = model.getProfileManager().getCurrentUserId();
-
-                // "Stak" reactions
-                Map<String, ViewReaction> messageReactions = new HashMap<>();
-                for (Reaction reaction : message.getReactions()) {
-                    if (messageReactions.containsKey(reaction.getReaction())) {
-                        messageReactions.get(reaction.getReaction()).addReactedBy(
-                                reaction.getReactedBy(),
-                                reaction.getReactedBy() == myId
-                        );
-                    } else {
-                        messageReactions.put(reaction.getReaction(), new ViewReaction(
-                                reaction.getReaction(),
-                                reaction.getReactedBy(),
-                                reaction.getReactedBy() == myId
-                        ));
-                    }
-                }
-
-                boolean isBlocked = model.getProfileManager().isBlocked(message.getSentBy());
-
-                // Tilføj besked
-                messagesProperty.add(new ViewMessage() {{
-                    sender = isBlocked ? "<<blokeret bruger>>" : roomUsersProperty.stream()
-                            .filter(u -> u.getUserId() == message.getSentBy()).findAny()
-                            .map(ViewRoomMember::getDisplayName).orElse("System");
-                    body = isBlocked ? "<<besked fra en blokeret bruger>>" : message.getBody();
-                    dateTime = LocalDateTime.ofEpochSecond(message.getDateTime() / 1000, (int) (message.getDateTime() % 1000 * 1000), ZoneOffset.UTC);
-                    messageId = message.getMessageId();
-                    isSystemMessage = message.getSentBy() == 0;
-                    isMyMessage = message.getSentBy() == myId;
-                    attachments = isBlocked ? List.of() : files;
-                    reactions = isBlocked ? List.of() : messageReactions.values().stream().toList();
-                }});
-
-                messagesProperty.sort(Comparator.comparing(o -> o.dateTime));
-                resetRooms();
+        if (message.getRoomId() == viewState.getCurrentChatRoom()) {
+            List<File> files = new ArrayList<>();
+            // Download attachments
+            for (String attachmentName : message.getAttachments()) {
+                File file = model.getUserFileManager().getFile(attachmentName);
+                files.add(file);
             }
-        } catch (ServerError e) {
-            e.showAlert();
+
+            // Fjern hvis det er en redigering
+            messagesProperty.removeIf(m -> m.messageId == message.getMessageId());
+
+            long myId = model.getProfileManager().getCurrentUserId();
+
+            // "Stak" reactions
+            Map<String, ViewReaction> messageReactions = new HashMap<>();
+            for (Reaction reaction : message.getReactions()) {
+                if (messageReactions.containsKey(reaction.getReaction())) {
+                    messageReactions.get(reaction.getReaction()).addReactedBy(
+                            reaction.getReactedBy(),
+                            reaction.getReactedBy() == myId
+                    );
+                } else {
+                    messageReactions.put(reaction.getReaction(), new ViewReaction(
+                            reaction.getReaction(),
+                            reaction.getReactedBy(),
+                            reaction.getReactedBy() == myId
+                    ));
+                }
+            }
+
+            boolean isBlocked = model.getProfileManager().isBlocked(message.getSentBy());
+
+            // Tilføj besked
+            messagesProperty.add(new ViewMessage() {{
+                sender = isBlocked ? "<<blokeret bruger>>" : roomUsersProperty.stream()
+                        .filter(u -> u.getUserId() == message.getSentBy()).findAny()
+                        .map(ViewRoomMember::getDisplayName).orElse("System");
+                body = isBlocked ? "<<besked fra en blokeret bruger>>" : message.getBody();
+                dateTime = LocalDateTime.ofEpochSecond(message.getDateTime() / 1000, (int) (message.getDateTime() % 1000 * 1000), ZoneOffset.UTC);
+                messageId = message.getMessageId();
+                isSystemMessage = message.getSentBy() == 0;
+                isMyMessage = message.getSentBy() == myId;
+                attachments = isBlocked ? List.of() : files;
+                reactions = isBlocked ? List.of() : messageReactions.values().stream().toList();
+            }});
+
+            messagesProperty.sort(Comparator.comparing(o -> o.dateTime));
+            resetRooms();
         }
     }
 
@@ -298,7 +294,8 @@ public class ChatRoomViewModel implements ViewModel, PropertyChangeListener {
                                 roomUser.getNickname(),
                                 roomUser.getState(),
                                 roomUser.getLatestReadMessage(),
-                                userProfile.getLastActive()
+                                userProfile.getLastActive(),
+                                false
                         ));
                         resetRooms();
                         break;

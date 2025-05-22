@@ -7,16 +7,12 @@ import viewModel.TextConfirmViewModel;
 
 public class TextConfirmViewController extends PopupViewController<String, TextConfirmViewModel>{
     @FXML
-    private Label errorLabel;
-    @FXML
     private TextField inputField;
     @FXML
     private Label title;
 
     @Override
     protected void init() {
-        errorLabel.textProperty().bind(getViewModel().getErrorProperty());
-        inputField.textProperty().bindBidirectional(getViewModel().getInputProperty());
         title.textProperty().bind(getViewModel().getTitleProperty());
     }
 

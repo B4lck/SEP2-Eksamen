@@ -127,7 +127,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
                 if (r.hasNewActivity()) roomButton.getStyleClass().add("new-activity");
                 if (currentRoom != null && currentRoom.getRoomId() == r.getRoomId())
                     roomButton.getStyleClass().add("active");
-                roomButton.addEventHandler(ActionEvent.ACTION, evt -> getViewModel().setChatRoom(r.getRoomId()));
+                roomButton.addEventHandler(ActionEvent.ACTION, evt -> getViewModel().setRoom(r.getRoomId()));
                 rooms.getChildren().add(roomButton);
             });
         });
@@ -284,7 +284,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
 
     @FXML
     public void createRoom() {
-        getViewModel().setChatRoom(-1);
+        getViewModel().setRoom(-1);
         getViewHandler().openView(ViewID.CREATE_EDIT_ROOM);
     }
 
@@ -294,7 +294,7 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
     }
 
     @FXML
-    public void editNicknames() {
+    public void editMembers() {
         getViewHandler().openView(ViewID.ROOM_MEMBERS);
     }
 
@@ -353,6 +353,6 @@ public class ChatRoomViewController extends ViewController<viewModel.ChatRoomVie
 
     @FXML
     public void quote(ActionEvent actionEvent) {
-        getViewModel().setChatRoom(-1);
+        getViewModel().setRoom(-1);
     }
 }

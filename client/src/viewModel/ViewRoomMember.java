@@ -20,16 +20,6 @@ public class ViewRoomMember {
         this.isBlocked = false;
     }
 
-    public ViewRoomMember(long userId, String name, String nickname, String state, long latestReadMessage, long lastActive) {
-        this.userId = userId;
-        this.name = name;
-        this.nickname = nickname;
-        this.state = state;
-        this.latestReadMessage = latestReadMessage;
-        this.lastActive = lastActive;
-        this.isBlocked = false;
-    }
-
     public ViewRoomMember(long userId, String name, String nickname, String state, long latestReadMessage, long lastActive, boolean isBlocked) {
         this.userId = userId;
         this.name = name;

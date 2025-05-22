@@ -8,30 +8,6 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-class Reaction {
-    private long reactedBy;
-    private String reaction;
-
-    public Reaction(long reactedBy, String reaction) {
-        this.reactedBy = reactedBy;
-        this.reaction = reaction;
-    }
-
-    public long getReactedBy() {
-        return reactedBy;
-    }
-
-    public String getReaction() {
-        return reaction;
-    }
-
-    public DataMap getData() {
-        return new DataMap()
-                .with("reactedBy", getReactedBy())
-                .with("reaction", getReaction());
-    }
-}
-
 public class DBMessage implements Message {
     private long messageId;
     private String body;
@@ -39,7 +15,7 @@ public class DBMessage implements Message {
     private long sentBy;
     private long roomId;
     private List<String> attachments;
-    private List<Reaction> reactions;
+    private List<DBReaction> reactions;
 
     public DBMessage(long messageId, long sentBy, String body, long dateTime, long roomId) {
         this.messageId = messageId;
@@ -78,7 +54,7 @@ public class DBMessage implements Message {
                 .with("messageId", getMessageId())
                 .with("roomId", getRoomId())
                 .with("attachments", getAttachments())
-                .with("reactions", getReactions().stream().map(Reaction::getData).toList());
+                .with("reactions", getReactions().stream().map(DBReaction::getData).toList());
     }
 
     @Override
@@ -106,7 +82,7 @@ public class DBMessage implements Message {
     }
 
     @Override
-    public List<Reaction> getReactions() {
+    public List<DBReaction> getReactions() {
         if (reactions != null) return reactions;
 
         try (Connection connection = Database.getConnection()) {
@@ -115,7 +91,7 @@ public class DBMessage implements Message {
             ResultSet res = statement.executeQuery();
             reactions = new ArrayList<>();
             while (res.next()) {
-                reactions.add(new Reaction(res.getLong("reacted_by"), res.getString("reaction")));
+                reactions.add(new DBReaction(res.getLong("reacted_by"), res.getString("reaction")));
             }
             return reactions;
         } catch (Exception e) {
@@ -195,7 +171,7 @@ public class DBMessage implements Message {
         if (reaction == null || reaction.isBlank()) throw new IllegalArgumentException("Reaction må ikke være null");
 
         try (Connection connection = Database.getConnection()) {
-            reactions.add(new Reaction(userId, reaction));
+            reactions.add(new DBReaction(userId, reaction));
 
             PreparedStatement statement = connection.prepareStatement("INSERT INTO reaction (message_id, reacted_by, reaction) VALUES (?,?,?)");
             statement.setLong(1, messageId);

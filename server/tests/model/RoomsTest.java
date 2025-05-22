@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class RoomsArrayListManagerTest {
+class RoomsTest {
 
     private Model model;
     private Profile user1;
@@ -702,7 +702,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void editColor() {
-        model.getRooms().editColor(room.getRoomId(), user1.getUserId(), "#1a7ba8");
+        model.getRooms().setColor(room.getRoomId(), user1.getUserId(), "#1a7ba8");
         assertEquals("#1a7ba8", room.getColor());
     }
 
@@ -711,7 +711,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void editColorInNoExistingRoom() {
-        assertThrows(IllegalStateException.class, () -> model.getRooms().editColor(1234, user1.getUserId(), "#1a7ba8"));
+        assertThrows(IllegalStateException.class, () -> model.getRooms().setColor(1234, user1.getUserId(), "#1a7ba8"));
     }
 
     /**
@@ -719,7 +719,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void editColorByNoneExistingUser() {
-        assertThrows(IllegalStateException.class, () -> model.getRooms().editColor(room.getRoomId(), 1234, "#1a7ba8"));
+        assertThrows(IllegalStateException.class, () -> model.getRooms().setColor(room.getRoomId(), 1234, "#1a7ba8"));
         assertNotEquals("#1a7ba8", room.getColor());
     }
 
@@ -728,7 +728,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void editColorByNotMember() {
-        assertThrows(IllegalStateException.class, () -> model.getRooms().editColor(room.getRoomId(), user2.getUserId(), "#1a7ba8"));
+        assertThrows(IllegalStateException.class, () -> model.getRooms().setColor(room.getRoomId(), user2.getUserId(), "#1a7ba8"));
         assertNotEquals("#1a7ba8", room.getColor());
     }
 
@@ -737,7 +737,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void editColorToEmpty() {
-        assertThrows(IllegalArgumentException.class, () -> model.getRooms().editColor(room.getRoomId(), user1.getUserId(), ""));
+        assertThrows(IllegalArgumentException.class, () -> model.getRooms().setColor(room.getRoomId(), user1.getUserId(), ""));
         assertEquals("#ffffff", room.getColor());
     }
 
@@ -746,7 +746,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void editColorToNull() {
-        assertThrows(IllegalArgumentException.class, () -> model.getRooms().editColor(room.getRoomId(), user1.getUserId(), null));
+        assertThrows(IllegalArgumentException.class, () -> model.getRooms().setColor(room.getRoomId(), user1.getUserId(), null));
         assertEquals("#ffffff", room.getColor());
     }
 
@@ -755,7 +755,7 @@ class RoomsArrayListManagerTest {
      */
     @Test
     void editColorToNotHexa() {
-        assertThrows(IllegalArgumentException.class, () -> model.getRooms().editColor(room.getRoomId(), user1.getUserId(), "#12345g"));
+        assertThrows(IllegalArgumentException.class, () -> model.getRooms().setColor(room.getRoomId(), user1.getUserId(), "#12345g"));
         assertEquals("#ffffff", room.getColor());
     }
 

@@ -3,7 +3,6 @@ package mediator;
 import utils.DataMap;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class ClientMessage {
@@ -12,15 +11,11 @@ public class ClientMessage {
     private Map<String, Object> data;
     private String authenticatedAsUser;
     private boolean broadcast = false;
-    private List<String> attachments = new ArrayList<>();
+    private ArrayList<String> attachments = new ArrayList<>();
 
     public ClientMessage(String type, DataMap data) {
         this.type = type;
         this.data = data;
-    }
-
-    public ClientMessage(String error) {
-        this.error = error;
     }
 
     public DataMap getData() {

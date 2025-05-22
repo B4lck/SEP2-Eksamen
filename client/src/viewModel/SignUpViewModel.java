@@ -5,16 +5,15 @@ import javafx.beans.property.StringProperty;
 import model.Model;
 import util.ServerError;
 
-public class SignUpViewModel implements ViewModel {
+public class SignUpViewModel extends ViewModel {
 
-    private StringProperty userNameInputProperty = new SimpleStringProperty();
-    private StringProperty passwordInputProperty = new SimpleStringProperty();
-    private StringProperty verifyPasswordInputProperty = new SimpleStringProperty();
-    private StringProperty errorProperty = new SimpleStringProperty();
-    private Model model;
+    private final StringProperty userNameInputProperty = new SimpleStringProperty();
+    private final StringProperty passwordInputProperty = new SimpleStringProperty();
+    private final StringProperty verifyPasswordInputProperty = new SimpleStringProperty();
+    private final StringProperty errorProperty = new SimpleStringProperty();
 
     public SignUpViewModel(Model model) {
-        this.model = model;
+        super(model);
     }
 
     public StringProperty getUserNameInputProperty() {

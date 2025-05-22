@@ -1,7 +1,6 @@
 package model;
 
 import mediator.ChatClient;
-import util.ServerError;
 
 import java.io.File;
 
@@ -20,7 +19,7 @@ public class UserFilesManager {
         return instance;
     }
 
-    public File getFile(String file) throws ServerError {
+    public File getFile(String file) {
         File f = new File(DOWNLOADS_DIRECTORY + "/" + file);
 
         // Send filen hvis den allerede er hentet

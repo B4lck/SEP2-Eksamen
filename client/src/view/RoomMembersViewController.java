@@ -20,9 +20,9 @@ public class RoomMembersViewController extends ViewController<RoomMembersViewMod
 
     @Override
     protected void init() {
-        errorLabel.textProperty().bind(getViewModel().getErrorText());
-        title.textProperty().bind(getViewModel().getTitleText());
-        users.setItems(getViewModel().getUsersProperty());
+        errorLabel.textProperty().bind(getViewModel().getErrorProperty());
+        title.textProperty().bind(getViewModel().getTitleProperty());
+        users.setItems(getViewModel().getMembersProperty());
 
         users.setCellFactory(cell -> new RoomMemberCell());
 

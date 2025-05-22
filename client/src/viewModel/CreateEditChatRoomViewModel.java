@@ -14,13 +14,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class CreateEditChatRoomViewModel implements ViewModel {
-    private StringProperty nameProperty;
-    private ObservableList<ViewRoomMember> membersProperty;
-    private StringProperty titleProperty;
-    private StringProperty errorProperty;
-    private Model model;
-    private ViewState viewState;
+public class CreateEditChatRoomViewModel extends ViewModel {
+    private final StringProperty nameProperty;
+    private final ObservableList<ViewRoomMember> membersProperty;
+    private final StringProperty titleProperty;
+    private final StringProperty errorProperty;
+
+    private final ViewState viewState;
 
     private boolean edit = false;
 
@@ -28,11 +28,11 @@ public class CreateEditChatRoomViewModel implements ViewModel {
     private String setFontTo = null;
 
     public CreateEditChatRoomViewModel(Model model, ViewState viewState) {
+        super(model);
         nameProperty = new SimpleStringProperty();
         errorProperty = new SimpleStringProperty();
         titleProperty = new SimpleStringProperty();
         membersProperty = FXCollections.observableArrayList();
-        this.model = model;
         this.viewState = viewState;
     }
 
@@ -200,7 +200,7 @@ public class CreateEditChatRoomViewModel implements ViewModel {
         setColorTo = color;
     }
 
-    public String getRoomColor() {
+    public String getColor() {
         if (viewState.getCurrentChatRoom() == -1)
             return "#ffffff";
         try {
@@ -211,8 +211,8 @@ public class CreateEditChatRoomViewModel implements ViewModel {
         }
     }
 
-    public void setFont(String newValue) {
-        setFontTo = newValue;
+    public void setFont(String font) {
+        setFontTo = font;
     }
 
     public String getFont() {

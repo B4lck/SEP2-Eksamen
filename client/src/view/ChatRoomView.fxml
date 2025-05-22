@@ -58,7 +58,7 @@
             <MenuButton mnemonicParsing="false" text="Menu">
                 <items>
                     <MenuItem mnemonicParsing="false" onAction="#editRoom" text="Administrer rum" />
-                    <MenuItem mnemonicParsing="false" onAction="#editNicknames" text="Kaldenavne" />
+                    <MenuItem mnemonicParsing="false" onAction="#editMembers" text="Medlemmer" />
                 </items>
                 <HBox.margin>
                     <Insets right="10.0" />

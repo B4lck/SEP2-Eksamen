@@ -127,7 +127,7 @@ public interface Rooms extends ServerRequestHandler, PropertyChangeSubject {
      * @param color  farve
      * @return true hvis den findes
      */
-    void editColor(long roomId, long userId, String color);
+    void setColor(long roomId, long userId, String color);
 
     void setFont(long roomId, long userId, String font);
 }

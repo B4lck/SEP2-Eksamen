@@ -97,7 +97,7 @@ public class CreateEditChatRoomViewController extends ViewController<CreateEditC
         muteButton.setDisable(true);
         unmuteButton.setDisable(true);
         removeMemberButton.setDisable(true);
-        colorButton.setValue(Color.web(getViewModel().getRoomColor()));
+        colorButton.setValue(Color.web(getViewModel().getColor()));
         fontButton.setValue(getViewModel().getFont());
         confirmButton.setText(getViewModel().isEdit() ? "Bekræft" : "Opret");
     }

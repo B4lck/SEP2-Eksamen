@@ -85,7 +85,7 @@ public class ViewHandler {
                 case SIGNUP -> getRoot(view, viewModelFactory.getSignUpViewModel(), this);
                 case CHATROOM -> getRoot(view, viewModelFactory.getChatRoomViewModel(), this);
                 case CREATE_EDIT_ROOM -> getRoot(view, viewModelFactory.getCreateEditChatRoomViewModel(), this);
-                case ROOM_MEMBERS -> getRoot(view, viewModelFactory.getEditNicknameViewModel(), this);
+                case ROOM_MEMBERS -> getRoot(view, viewModelFactory.getRoomMembersViewModel(), this);
             };
         } catch (IOException e) {
             throw new IllegalStateException("Kunne ikke indlæse siden :(");

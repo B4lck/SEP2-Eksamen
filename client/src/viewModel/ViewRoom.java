@@ -1,12 +1,12 @@
 package viewModel;
 
 public class ViewRoom {
-    private String name;
-    private long roomId;
-    private long latestActivity;
-    private String color;
-    private String font;
-    private boolean newActivity = false;
+    private final String name;
+    private final long roomId;
+    private final long latestActivity;
+    private final String color;
+    private final String font;
+    private final boolean newActivity;
 
     public ViewRoom(String name, long roomId, long latestActivity, String color, String font, boolean newActivity) {
         this.name = name;

@@ -8,7 +8,7 @@ public class ViewModelFactory {
     private SignUpViewModel signUpViewModel;
     private LogInViewModel logInViewModel;
     private CreateEditChatRoomViewModel createEditChatRoomViewModel;
-    private RoomMembersViewModel roomUsersViewModel;
+    private RoomMembersViewModel roomMembersViewModel;
 
     private ViewState viewState = new ViewState();
 
@@ -44,7 +44,7 @@ public class ViewModelFactory {
     }
 
     public ViewModel newTextConfirmViewModel() {
-        return new TextConfirmViewModel(model, viewState);
+        return new TextConfirmViewModel(model);
     }
 
     public ViewModel getCreateEditChatRoomViewModel() {
@@ -54,10 +54,10 @@ public class ViewModelFactory {
         return createEditChatRoomViewModel;
     }
 
-    public ViewModel getEditNicknameViewModel() {
-        if (roomUsersViewModel == null) {
-            roomUsersViewModel = new RoomMembersViewModel(model, viewState);
+    public ViewModel getRoomMembersViewModel() {
+        if (roomMembersViewModel == null) {
+            roomMembersViewModel = new RoomMembersViewModel(model, viewState);
         }
-        return roomUsersViewModel;
+        return roomMembersViewModel;
     }
 }

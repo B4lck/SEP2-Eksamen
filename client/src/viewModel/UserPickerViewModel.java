@@ -8,13 +8,14 @@ import model.Model;
 import model.Profile;
 import util.ServerError;
 
-public class UserPickerViewModel implements ViewModel {
+public class UserPickerViewModel extends ViewModel {
     private ObservableList<ViewUser> resultsProperty;
     private StringProperty searchProperty;
 
     private Model model;
 
     public UserPickerViewModel(Model model) {
+        super(model);
         this.resultsProperty = FXCollections.observableArrayList();
         this.searchProperty = new SimpleStringProperty();
         this.model = model;

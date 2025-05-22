@@ -5,21 +5,21 @@ import java.util.List;
 
 public class ViewReaction {
     private String reaction;
-    private List<Long> reactedByUsers;
+    private List<Long> reactedByMembers;
     private boolean isMyReaction;
 
     public ViewReaction(String reaction, long reactedBy, boolean isMyReaction) {
         this.reaction = reaction;
         this.isMyReaction = isMyReaction;
-        this.reactedByUsers = new ArrayList<>(List.of(reactedBy));
+        this.reactedByMembers = new ArrayList<>(List.of(reactedBy));
     }
 
     public String getReaction() {
         return reaction;
     }
 
-    public List<Long> getReactedByUsers() {
-        return List.copyOf(reactedByUsers);
+    public List<Long> getReactedByMembers() {
+        return List.copyOf(reactedByMembers);
     }
 
     public boolean isMyReaction() {
@@ -27,7 +27,7 @@ public class ViewReaction {
     }
 
     public void addReactedBy(long userId, boolean isMyReaction) {
-        reactedByUsers.add(userId);
+        reactedByMembers.add(userId);
         this.isMyReaction = this.isMyReaction || isMyReaction;
     }
 }

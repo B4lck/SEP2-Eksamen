@@ -10,14 +10,14 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class MessagesArrayListManagerTest {
+class MessagesTest {
     private Model model;
     private Profile user1;
     private Profile user2;
     private Room room;
     
     @BeforeEach
-    void init() throws SQLException {
+    void setUp() throws SQLException {
         Database.startTesting();
 
         model = new ChatModel();
@@ -142,23 +142,26 @@ class MessagesArrayListManagerTest {
     }
 
     @Test
-    void sendNormalMessage() {
+    void sendMessage_Regular() {
         assertDoesNotThrow(() -> model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user1.getUserId()));
+        assertEquals(2, model.getMessages().getMessages(room.getRoomId(), 10).size());
     }
 
     @Test
-    void sendMessageToNonExistentRoom() {
+    void sendMessageWithNonExistentRoom() {
         assertThrows(IllegalStateException.class, () -> model.getMessages().sendMessage(0, "test", new ArrayList<>(), user1.getUserId()));
     }
 
     @Test
-    void sendMessageToRoomMemberIsNotIn() {
+    void sendMessageWithNoAccess() {
         assertThrows(IllegalStateException.class, () -> model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user2.getUserId()));
+        assertEquals(1, model.getMessages().getMessages(room.getRoomId(), 10).size());
     }
 
     @Test
-    void sendMessageAsNonExistingUser() {
+    void sendMessageWithNonExistingUser() {
         assertThrows(IllegalStateException.class, () -> model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), 1));
+        assertEquals(1, model.getMessages().getMessages(room.getRoomId(), 10).size());
     }
 
     @Test
