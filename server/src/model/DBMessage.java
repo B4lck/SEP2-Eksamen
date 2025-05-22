@@ -82,7 +82,7 @@ public class DBMessage implements Message {
     }
 
     @Override
-    public List<DBReaction> getReactions() {
+    public List<Reaction> getReactions() {
         if (reactions != null) return reactions;
 
         try (Connection connection = Database.getConnection()) {
