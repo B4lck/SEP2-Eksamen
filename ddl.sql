@@ -28,8 +28,8 @@ CREATE TABLE message
     room_id    BIGINT,
     time       BIGINT,
 
-    FOREIGN KEY (sent_by_id) REFERENCES profile (id),
-    FOREIGN KEY (room_id) REFERENCES room (id)
+    FOREIGN KEY (sent_by_id) REFERENCES profile (id) ON DELETE CASCADE,
+    FOREIGN KEY (room_id) REFERENCES room (id) ON DELETE CASCADE
 );
 
 CREATE TABLE room_user
@@ -41,8 +41,8 @@ CREATE TABLE room_user
     latest_read_message BIGINT REFERENCES message (id),
 
     PRIMARY KEY (room_id, profile_id),
-    FOREIGN KEY (room_id) REFERENCES room (id),
-    FOREIGN KEY (profile_id) REFERENCES profile (id)
+    FOREIGN KEY (room_id) REFERENCES room (id) ON DELETE CASCADE,
+    FOREIGN KEY (profile_id) REFERENCES profile (id) ON DELETE CASCADE
 );
 
 CREATE TABLE attachment
@@ -51,13 +51,13 @@ CREATE TABLE attachment
     message_id BIGINT,
 
     PRIMARY KEY (file_name, message_id),
-    FOREIGN KEY (message_id) REFERENCES message (id)
+    FOREIGN KEY (message_id) REFERENCES message (id) ON DELETE CASCADE
 );
 
 CREATE TABLE reaction
 (
-    reacted_by BIGINT REFERENCES profile (id),
-    message_id BIGINT REFERENCES message (id),
+    reacted_by BIGINT REFERENCES profile (id) ON DELETE CASCADE,
+    message_id BIGINT REFERENCES message (id) ON DELETE CASCADE,
     reaction   TEXT,
 
     PRIMARY KEY (reacted_by, message_id, reaction)
@@ -65,8 +65,8 @@ CREATE TABLE reaction
 
 CREATE TABLE blocklist
 (
-    blocked_by BIGINT REFERENCES profile (id),
-    blocked    BIGINT REFERENCES profile (id),
+    blocked_by BIGINT REFERENCES profile (id) ON DELETE CASCADE,
+    blocked    BIGINT REFERENCES profile (id) ON DELETE CASCADE,
 
     PRIMARY KEY (blocked_by, blocked)
 );
