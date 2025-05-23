@@ -1,17 +1,12 @@
 package view;
 
-import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.Region;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import model.Message;
-import model.Model;
-import model.Reaction;
 import util.Callback;
-import util.ServerError;
 import viewModel.ViewModel;
 import viewModel.ViewModelFactory;
 
@@ -30,44 +25,9 @@ public class ViewHandler {
 
     private Map<String, ViewController> controllers = new HashMap<>();
 
-    public ViewHandler(ViewModelFactory viewModelFactory, Model model) {
+    public ViewHandler(ViewModelFactory viewModelFactory) {
         this.viewModelFactory = viewModelFactory;
         currentScene = new Scene(new Region());
-
-        // Notifikationer
-        model.getMessagesManager().addListener(evt -> {
-            // Hvis primary stage er i fokus, behøves notifikationer ikke
-            if (primaryStage != null && primaryStage.isFocused()) return;
-            // Lyt efter nye beskeder
-            if (evt.getPropertyName().equals("NEW_MESSAGE")) {
-                Message message = (Message) evt.getNewValue();
-                // Send ikke system beskeder, eller egne beskeder som notifikationer
-                if (message.getSentBy() == 0) return;
-                if (message.getSentBy() == model.getProfileManager().getCurrentUserId()) return;
-                if (model.getProfileManager().isBlocked(message.getSentBy())) return;
-                // Send notifikation
-                Platform.runLater(() -> {
-                    try {
-                        notificationManager.showNotification(model.getProfileManager().getProfile(message.getSentBy()).getUsername() + " har sendt dig en besked", message.getBody());
-                    } catch (ServerError e) {
-                        e.printStackTrace();
-                        e.showAlert();
-                    }
-                });
-            } else if (evt.getPropertyName().equals("NEW_REACTION")) {
-                Reaction reaction = (Reaction) evt.getNewValue();
-                if (model.getProfileManager().isBlocked(reaction.getReactedBy())) return;
-                // Send notifikation
-                Platform.runLater(() -> {
-                    try {
-                        notificationManager.showNotification(model.getProfileManager().getProfile(reaction.getReactedBy()).getUsername() + " reageret med " + reaction.getReaction() + " på din besked!", "");
-                    } catch (ServerError e) {
-                        e.printStackTrace();
-                        e.showAlert();
-                    }
-                });
-            }
-        });
     }
 
     public void start(Stage primaryStage) {
