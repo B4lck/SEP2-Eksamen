@@ -15,7 +15,7 @@ public class DBMessage implements Message {
     private long sentBy;
     private long roomId;
     private List<String> attachments;
-    private List<DBReaction> reactions;
+    private List<Reaction> reactions;
 
     public DBMessage(long messageId, long sentBy, String body, long dateTime, long roomId) {
         this.messageId = messageId;
@@ -54,7 +54,7 @@ public class DBMessage implements Message {
                 .with("messageId", getMessageId())
                 .with("roomId", getRoomId())
                 .with("attachments", getAttachments())
-                .with("reactions", getReactions().stream().map(DBReaction::getData).toList());
+                .with("reactions", getReactions().stream().map(Reaction::getData).toList());
     }
 
     @Override
