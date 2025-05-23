@@ -6,13 +6,16 @@ import java.sql.SQLException;
 
 public class Database {
 
-    private static Database instance;
+    private static boolean isDriverRegistered;
 
     private static boolean testing = false;
 
-    private Database() {
+    private synchronized static void init() {
         try {
-            DriverManager.registerDriver(new org.postgresql.Driver());
+            if (!isDriverRegistered) {
+                DriverManager.registerDriver(new org.postgresql.Driver());
+                isDriverRegistered = true;
+            }
         }
         catch (SQLException e) {
             throw new RuntimeException(e);
@@ -20,9 +23,7 @@ public class Database {
     }
 
     public static Connection getConnection() throws SQLException {
-        if (instance == null) {
-            instance = new Database();
-        }
+        if (!isDriverRegistered) init();
 
         var context = DriverManager.getConnection("jdbc:postgresql://localhost:5432/sep2_chat", "sep2_chat", "sep2_chat_kode");
         if (testing) context.setSchema("test");
