@@ -158,6 +158,11 @@ public class RoomsDBManager implements Rooms {
     }
 
     @Override
+    public boolean hasAccessTo(long roomId, long userId) {
+        return getRoom(roomId).isMember(userId);
+    }
+
+    @Override
     public void setColor(long roomId, long userId, String color) {
         Profile user = model.getProfiles().getProfile(userId).orElseThrow(() -> new IllegalStateException("Admin findes ikke"));
 

@@ -121,6 +121,8 @@ public interface Rooms extends ServerRequestHandler, PropertyChangeSubject {
      */
     boolean doesRoomExists(long roomId);
 
+    boolean hasAccessTo(long roomId, long userId);
+
     /**
      * @param roomId id'et på chatrummet
      * @param userId id'et på udførende

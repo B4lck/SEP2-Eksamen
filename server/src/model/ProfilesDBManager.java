@@ -17,6 +17,24 @@ public class ProfilesDBManager implements Profiles {
         model.addHandler(this);
     }
 
+    /**
+     * Finder en cached profil efter profilens brugernavn
+     * @param username Brugernavnet på den ønskede profil
+     * @throws IllegalArgumentException Hvis username er null
+     * @return En optional med profilen hvis den findes
+     */
+    private Optional<Profile> getCachedProfileByUsername(String username) {
+        if (username == null) throw new IllegalArgumentException("Brugernavn må ikke være null");
+
+        for (Profile profile : profiles.values()) {
+            if (username.equals(profile.getUsername())) {
+                return Optional.of(profile);
+            }
+        }
+
+        return Optional.empty();
+    }
+
     @Override
     public Optional<Profile> getProfile(long userId) {
         // Tjek om brugeren findes i cache
@@ -43,7 +61,7 @@ public class ProfilesDBManager implements Profiles {
         if (username == null) throw new IllegalArgumentException("Username må ikke være null");
 
         // Forsøg at hente brugeren fra cache
-        Optional<Profile> fromCache = profiles.values().stream().filter(profile -> username.equals(profile.getUsername())).findAny();
+        Optional<Profile> fromCache = getCachedProfileByUsername(username);
         if (fromCache.isPresent()) return fromCache;
 
         // Forsøg at finde brugeren i databasen
@@ -65,6 +83,9 @@ public class ProfilesDBManager implements Profiles {
     public Profile createProfile(String username, String password) {
         if (username == null) throw new IllegalArgumentException("Username må ikke være null");
         if (password == null) throw new IllegalArgumentException("Password må ikke være null");
+        if (username.length() < 2 || username.length() > 20) throw new IllegalArgumentException("Brugernavnet skal være imellem 2 til 20 tegn.");
+        if (!username.matches("/[A-ZÆØÅa-zæøå0-9.\\-_]/i")) throw new IllegalStateException("Brugernavnet må kun indeholde bogstaver, tal, bindestreg, punktum og understrege.");
+        if (password.length() < 8) throw new IllegalArgumentException("Adgangskoden skal være mindst 8 tegn.");
         if (getProfileByUsername(username).isPresent()) throw new IllegalStateException("Brugernavnet er taget");
         try (Connection connection = Database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("INSERT INTO profile (username, password) VALUES (?, ?)", PreparedStatement.RETURN_GENERATED_KEYS);
@@ -88,7 +109,7 @@ public class ProfilesDBManager implements Profiles {
     public List<Profile> searchProfiles(String query) {
         if (query == null) throw new IllegalArgumentException("Query må ikke være null");
         try (Connection connection = Database.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM profile WHERE username ILIKE ?");
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM profile WHERE username ILIKE ? AND id != 0");
             statement.setString(1, "%" + query + "%");
             ResultSet resultSet = statement.executeQuery();
             ArrayList<Profile> filtered = new ArrayList<>();

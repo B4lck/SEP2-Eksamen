@@ -83,13 +83,8 @@ public class MessagesDBManager implements Messages {
      */
     @Override
     public List<Message> getMessages(long roomId, int amount, long userId) {
-        if (amount <= 0) throw new IllegalArgumentException("Ikke nok beskeder");
-        if (!model.getRooms().doesRoomExists(roomId))
-            throw new IllegalStateException("Rummet findes ikke brormand");
-
-        // Tjekker om brugeren har adgang til rummet
-        // TODO: Lav en .hasAccessTo(chatroom, userId)
-        model.getRooms().getRoom(roomId, userId);
+        if (!model.getRooms().hasAccessTo(roomId, userId))
+            throw new IllegalStateException("Du har ikke adgang til rummet");
 
         return getMessages(roomId, amount);
     }
@@ -101,24 +96,35 @@ public class MessagesDBManager implements Messages {
      */
     @Override
     public List<Message> getMessages(long roomId, int amount) {
-        if (amount <= 0) throw new IllegalArgumentException("Ikke nok beskeder");
+        if (amount <= 0) throw new IllegalArgumentException("getMessages skal kaldes men en amount større end 0");
         if (!model.getRooms().doesRoomExists(roomId))
-            throw new IllegalStateException("Rummet findes ikke brormand");
+            throw new IllegalStateException("Rummet findes ikke");
 
+        // Hent beskeder i cache
+        ArrayList<Message> resMessages = new ArrayList<>(messages.values().stream()
+                .filter(msg -> msg.getRoomId() == roomId)
+                .sorted(Comparator.comparingLong(Message::getDateTime).reversed())
+                .limit(amount)
+                .toList());
+
+        // Blev nok beskeder hentet?
+        if (resMessages.size() == amount) return resMessages;
+
+        // Hent resterende beskeder fra databasen
         try (Connection connection = Database.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM message WHERE room_id = ? ORDER BY time DESC LIMIT ?;");
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM message WHERE room_id = ? ORDER BY time DESC LIMIT ? OFFSET ?;");
             statement.setLong(1, roomId);
-            statement.setInt(2, amount);
+            statement.setInt(2, amount - resMessages.size());
+            statement.setInt(3, resMessages.size());
             ResultSet res = statement.executeQuery();
-
-            List<Message> msgs = new ArrayList<>();
 
             while (res.next()) {
                 long id = res.getLong("id");
 
+                // Gem beskeder i cache
                 if (!messages.containsKey(id)) {
                     messages.put(id, new DBMessage(
-                            res.getLong("id"),
+                            id,
                             res.getLong("sent_by_id"),
                             res.getString("body"),
                             res.getLong("time"),
@@ -126,10 +132,12 @@ public class MessagesDBManager implements Messages {
                     ));
                 }
 
-                msgs.add(messages.get(id));
+                if (!resMessages.contains(messages.get(id)))
+                    resMessages.add(messages.get(id));
             }
 
-            return msgs;
+            // Returner beskeder
+            return resMessages;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -155,7 +163,7 @@ public class MessagesDBManager implements Messages {
                         && msg.getDateTime() <= beforeThis.getDateTime()
                         && msg != beforeThis)
                 .sorted(Comparator.comparingLong(Message::getDateTime).reversed())
-                .limit(10)
+                .limit(amount)
                 .toList());
 
         // Blev nok beskeder hentet?
