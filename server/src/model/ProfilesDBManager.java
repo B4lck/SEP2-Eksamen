@@ -8,6 +8,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ProfilesDBManager implements Profiles {
 
@@ -79,12 +81,14 @@ public class ProfilesDBManager implements Profiles {
         }
     }
 
+    Pattern usernameRegex = Pattern.compile("[^a-zæøå0-9.\\-_]", Pattern.CASE_INSENSITIVE);
+
     @Override
     public Profile createProfile(String username, String password) {
         if (username == null) throw new IllegalArgumentException("Username må ikke være null");
         if (password == null) throw new IllegalArgumentException("Password må ikke være null");
         if (username.length() < 2 || username.length() > 20) throw new IllegalArgumentException("Brugernavnet skal være imellem 2 til 20 tegn.");
-        if (!username.matches("/[A-ZÆØÅa-zæøå0-9.\\-_]/i")) throw new IllegalStateException("Brugernavnet må kun indeholde bogstaver, tal, bindestreg, punktum og understrege.");
+        if (usernameRegex.matcher(username).find()) throw new IllegalStateException("Brugernavnet må kun indeholde bogstaver, tal, bindestreg, punktum og understrege.");
         if (password.length() < 8) throw new IllegalArgumentException("Adgangskoden skal være mindst 8 tegn.");
         if (getProfileByUsername(username).isPresent()) throw new IllegalStateException("Brugernavnet er taget");
         try (Connection connection = Database.getConnection()) {
