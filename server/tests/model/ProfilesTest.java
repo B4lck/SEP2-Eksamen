@@ -28,7 +28,7 @@ class ProfilesTest {
 
     @Test
     void getProfile_Regular() {
-        var profile = profiles.createProfile("test", "1234");
+        var profile = profiles.createProfile("test", "12345678");
 
         assertEquals(profile, profiles.getProfile(profile.getUserId()).orElseThrow());
     }
@@ -40,7 +40,7 @@ class ProfilesTest {
 
     @Test
     void getProfileByUsername_Regular() {
-        var profile = profiles.createProfile("test", "1234");
+        var profile = profiles.createProfile("test", "12345678");
 
         assertEquals(profile, profiles.getProfileByUsername("test").orElseThrow());
     }
@@ -57,14 +57,14 @@ class ProfilesTest {
 
     @Test
     void createProfile_Regular() {
-        var profile = profiles.createProfile("test", "1234");
+        var profile = profiles.createProfile("test", "12345678");
 
         assertEquals(profile, profiles.getProfileByUsername("test").orElseThrow());
     }
 
     @Test
     void createProfile_NullUsername() {
-        assertThrows(IllegalArgumentException.class, () -> profiles.createProfile(null, "1234"));
+        assertThrows(IllegalArgumentException.class, () -> profiles.createProfile(null, "12345678"));
     }
 
     @Test
@@ -76,19 +76,19 @@ class ProfilesTest {
 
     @Test
     void createProfile_TakenUsername() {
-        var originalProfile = profiles.createProfile("test", "1234");
+        var originalProfile = profiles.createProfile("test", "12345678");
 
-        assertThrows(IllegalStateException.class, () -> profiles.createProfile("test", "1234"));
+        assertThrows(IllegalStateException.class, () -> profiles.createProfile("test", "12345678"));
 
         assertEquals(originalProfile, profiles.getProfileByUsername("test").orElseThrow());
     }
 
     @Test
     void searchProfiles_Regular() {
-        profiles.createProfile("test1", "1234");
-        profiles.createProfile("test2", "1234");
-        profiles.createProfile("test3", "1234");
-        profiles.createProfile("Steffen Steffensen", "1234");
+        profiles.createProfile("test1", "12345678");
+        profiles.createProfile("test2", "12345678");
+        profiles.createProfile("test3", "12345678");
+        profiles.createProfile("SteffenSteffensen", "12345678");
 
         assertEquals(3, profiles.searchProfiles("test").size());
     }
@@ -100,8 +100,8 @@ class ProfilesTest {
 
     @Test
     void getBlockedProfiles_Regular() {
-        profiles.createProfile("test1", "1234");
-        profiles.createProfile("test2", "1234");
+        profiles.createProfile("test1", "12345678");
+        profiles.createProfile("test2", "12345678");
 
         profiles.blockProfile(profiles.getProfileByUsername("test1").orElseThrow().getUserId(), profiles.getProfileByUsername("test2").orElseThrow().getUserId());
 
@@ -115,8 +115,8 @@ class ProfilesTest {
 
     @Test
     void blockProfile_Regular() {
-        profiles.createProfile("test1", "1234");
-        profiles.createProfile("test2", "1234");
+        profiles.createProfile("test1", "12345678");
+        profiles.createProfile("test2", "12345678");
 
         profiles.blockProfile(profiles.getProfileByUsername("test1").orElseThrow().getUserId(), profiles.getProfileByUsername("test2").orElseThrow().getUserId());
 
@@ -125,7 +125,7 @@ class ProfilesTest {
 
     @Test
     void blockProfile_BlockNonExisting() {
-        profiles.createProfile("test1", "1234");
+        profiles.createProfile("test1", "12345678");
 
         assertThrows(IllegalStateException.class, () -> profiles.blockProfile(-1, profiles.getProfileByUsername("test1").orElseThrow().getUserId()));
 
@@ -134,15 +134,15 @@ class ProfilesTest {
 
     @Test
     void blockProfile_BlockForNonExisting() {
-        profiles.createProfile("test1", "1234");
+        profiles.createProfile("test1", "12345678");
 
         assertThrows(IllegalStateException.class, () -> profiles.blockProfile(profiles.getProfileByUsername("test1").orElseThrow().getUserId(), -1));
     }
 
     @Test
     void blockProfile_AlreadyBlocked() {
-        profiles.createProfile("test1", "1234");
-        profiles.createProfile("test2", "1234");
+        profiles.createProfile("test1", "12345678");
+        profiles.createProfile("test2", "12345678");
 
         profiles.blockProfile(profiles.getProfileByUsername("test1").orElseThrow().getUserId(), profiles.getProfileByUsername("test2").orElseThrow().getUserId());
 
@@ -153,8 +153,8 @@ class ProfilesTest {
 
     @Test
     void unblockProfile_Regular() {
-        profiles.createProfile("test1", "1234");
-        profiles.createProfile("test2", "1234");
+        profiles.createProfile("test1", "12345678");
+        profiles.createProfile("test2", "12345678");
 
         profiles.blockProfile(profiles.getProfileByUsername("test1").orElseThrow().getUserId(), profiles.getProfileByUsername("test2").orElseThrow().getUserId());
 
@@ -165,7 +165,7 @@ class ProfilesTest {
 
     @Test
     void unblockProfile_BlockNonExisting() {
-        profiles.createProfile("test1", "1234");
+        profiles.createProfile("test1", "12345678");
 
         assertThrows(IllegalStateException.class, () -> profiles.unblockProfile(-1, profiles.getProfileByUsername("test1").orElseThrow().getUserId()));
 
@@ -174,15 +174,15 @@ class ProfilesTest {
 
     @Test
     void unblockProfile_BlockForNonExisting() {
-        profiles.createProfile("test1", "1234");
+        profiles.createProfile("test1", "12345678");
 
         assertThrows(IllegalStateException.class, () -> profiles.unblockProfile(profiles.getProfileByUsername("test1").orElseThrow().getUserId(), -1));
     }
 
     @Test
     void unblockProfile_NotAlreadyBlocked() {
-        profiles.createProfile("test1", "1234");
-        profiles.createProfile("test2", "1234");
+        profiles.createProfile("test1", "12345678");
+        profiles.createProfile("test2", "12345678");
 
         assertDoesNotThrow(() -> profiles.unblockProfile(profiles.getProfileByUsername("test1").orElseThrow().getUserId(), profiles.getProfileByUsername("test2").orElseThrow().getUserId()));
 

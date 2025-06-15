@@ -15,15 +15,15 @@ class MessagesTest {
     private Profile user1;
     private Profile user2;
     private Room room;
-    
+
     @BeforeEach
     void setUp() throws SQLException {
         Database.startTesting();
 
         model = new ChatModel();
 
-        user1 = model.getProfiles().createProfile("jens123", "123");
-        user2 = model.getProfiles().createProfile("karl123", "123");
+        user1 = model.getProfiles().createProfile("jens123", "12345678");
+        user2 = model.getProfiles().createProfile("karl123", "12345678");
         room = model.getRooms().createRoom("test", user1.getUserId());
     }
 
@@ -160,7 +160,17 @@ class MessagesTest {
 
     @Test
     void sendMessageWithNonExistingUser() {
-        assertThrows(IllegalStateException.class, () -> model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), 1));
+        // Tjekker om metoden faktisk thrower som forventet
+        assertThrows(IllegalStateException.class,
+                () -> model.getMessages().sendMessage(
+                        room.getRoomId(), // Gyldigt rum
+                        "test", // Gyldig body
+                        new ArrayList<>(), // Ingen attachments
+                        -1 // --- Et ugyldig bruger-id
+                )
+        );
+        // Tjekker om beskeden er blevet sendt, selvom metoden throwede
+        // Der er allerede en besked fra systemet, da systemet sender en besked når et rum oprettes
         assertEquals(1, model.getMessages().getMessages(room.getRoomId(), 10).size());
     }
 
@@ -196,7 +206,7 @@ class MessagesTest {
 
     @Test
     void sendMessageWithNullAttachment() {
-        assertThrows(NullPointerException.class ,() -> model.getMessages().sendMessage(room.getRoomId(), "", null, user1.getUserId()));
+        assertThrows(NullPointerException.class, () -> model.getMessages().sendMessage(room.getRoomId(), "", null, user1.getUserId()));
     }
 
     @Test
@@ -250,14 +260,14 @@ class MessagesTest {
 
     @Test
     void getMessagesBeforeExistingMessageWithZeroAmount() {
-        Message message = model.getMessages().sendMessage(room.getRoomId(),"test", new ArrayList<>(), user1.getUserId());
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user1.getUserId());
 
         assertThrows(IllegalArgumentException.class, () -> model.getMessages().getMessagesBefore(message.getMessageId(), 0, user1.getUserId()));
     }
 
     @Test
     void getMessagesBeforeExistingMessageWithNegativeAmount() {
-        Message message = model.getMessages().sendMessage(room.getRoomId(),"test", new ArrayList<>(), user1.getUserId());
+        Message message = model.getMessages().sendMessage(room.getRoomId(), "test", new ArrayList<>(), user1.getUserId());
 
         assertThrows(IllegalArgumentException.class, () -> model.getMessages().getMessagesBefore(message.getMessageId(), -1, user1.getUserId()));
     }

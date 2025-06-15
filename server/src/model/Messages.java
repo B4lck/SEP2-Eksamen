@@ -8,16 +8,17 @@ public interface Messages extends ServerRequestHandler, PropertyChangeSubject {
     /**
      * Send en besked i et chatrum.
      *
-     * @param roomId    Chatrummets id.
-     * @param messageBody Beskedens body.
-     * @param senderUserId    Id'et på brugeren som sender beskeden.
+     * @param roomId       Chatrummets id.
+     * @param messageBody  Beskedens body.
+     * @param senderUserId Id'et på brugeren som sender beskeden.
      * @return Message objekt for beskeden som er blevet sendt.
-     * @throws IllegalStateException Hvis rummet ikke findes.
-     * @throws IllegalStateException Hvis brugeren ikke findes.
-     * @throws IllegalStateException Hvis brugeren ikke har adgang til rummet.
-     * @throws IllegalStateException Hvis brugeren er muted.
-     * @throws IllegalStateException Hvis beskedens body er null.
-     * @throws IllegalStateException Hvis beskedens body er tom, og der ikke er vedhæftet bilag.
+     * @throws IllegalStateException    Hvis rummet ikke findes.
+     * @throws IllegalStateException    Hvis brugeren ikke findes.
+     * @throws IllegalStateException    Hvis brugeren ikke har adgang til rummet.
+     * @throws IllegalStateException    Hvis brugeren er muted.
+     * @throws IllegalArgumentException Hvis beskedens body er null.
+     * @throws IllegalArgumentException Hvis beskedens body er tom, og der ikke er vedhæftet bilag.
+     * @throws IllegalArgumentException Hvis attachments er null eller indeholder null strenge.
      */
     Message sendMessage(long roomId, String messageBody, List<String> attachments, long senderUserId);
 
@@ -25,7 +26,7 @@ public interface Messages extends ServerRequestHandler, PropertyChangeSubject {
      * Henter de nyeste beskeder i et chatrum.
      *
      * @param roomId Chatrummets id.
-     * @param amount   Antal beskeder.
+     * @param amount Antal beskeder.
      * @return Returnerer Message-objekter for de nyeste beskeder.
      * @throws IllegalArgumentException Hvis amount er 0 eller negativ.
      * @throws IllegalStateException    Hvis chatrummet ikke findes.
@@ -36,8 +37,8 @@ public interface Messages extends ServerRequestHandler, PropertyChangeSubject {
      * Henter de nyeste beskeder i et chatrum.
      *
      * @param roomId Chatrummets id.
-     * @param amount   Antal beskeder.
-     * @param userId   Id'et på brugeren som henter beskederne.
+     * @param amount Antal beskeder.
+     * @param userId Id'et på brugeren som henter beskederne.
      * @return Returnerer Message-objekter for de nyeste beskeder.
      * @throws IllegalArgumentException Hvis amount er 0 eller negativ.
      * @throws IllegalStateException    Hvis chatrummet ikke findes.
@@ -76,8 +77,8 @@ public interface Messages extends ServerRequestHandler, PropertyChangeSubject {
     /**
      * Sender en system besked til et chatrum.
      *
-     * @param roomId ID'et på chatrummet.
-     * @param message  Server-beskedens body.
+     * @param roomId  ID'et på chatrummet.
+     * @param message Server-beskedens body.
      * @throws IllegalStateException Hvis chatrummet ikke findes.
      */
     void sendSystemMessage(long roomId, String message);
@@ -86,7 +87,7 @@ public interface Messages extends ServerRequestHandler, PropertyChangeSubject {
      * Rediger en besked.
      *
      * @param messageId ID'et på beskeden.
-     * @param userId  ID'et på brugeren, som forsøger at redigere beskeden.
+     * @param userId    ID'et på brugeren, som forsøger at redigere beskeden.
      * @throws IllegalStateException Hvis brugeren ikke findes.
      * @throws IllegalStateException Hvis beskeden ikke findes.
      * @throws IllegalStateException Hvis brugeren ikke har adgang til beskedens chatrum.
@@ -98,7 +99,7 @@ public interface Messages extends ServerRequestHandler, PropertyChangeSubject {
      * Sletter en besked.
      *
      * @param messageId ID'et på beskeden.
-     * @param userId  ID'et på brugeren, som forsøger at slette beskeden.
+     * @param userId    ID'et på brugeren, som forsøger at slette beskeden.
      * @throws IllegalStateException Hvis brugeren ikke findes.
      * @throws IllegalStateException Hvis beskeden ikke findes.
      * @throws IllegalStateException Hvis brugeren ikke har adgang til beskedens chatrum.
@@ -136,7 +137,7 @@ public interface Messages extends ServerRequestHandler, PropertyChangeSubject {
      *
      * @param messageId ID'et på den nyeste besked som brugeren har læst.
      *                  Hvis brugeren tidligere har læst en besked i samme chatrum, og den besked er nyere, vil intet ske.
-     * @param userId      ID'et på brugeren som har læst beskeden.
+     * @param userId    ID'et på brugeren som har læst beskeden.
      * @throws IllegalStateException Hvis brugeren ikke findes.
      * @throws IllegalStateException Hvis beskeden ikke findes.
      * @throws IllegalStateException Hvis brugeren ikke har adgang til beskedens chatrum.

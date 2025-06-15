@@ -24,9 +24,9 @@ class RoomsTest {
         Database.startTesting();
 
         model = new ChatModel();
-        user1 = model.getProfiles().createProfile("Mazen", "1234");
-        user2 = model.getProfiles().createProfile("TykkeBalck", "6789");
-        user3 = model.getProfiles().createProfile("Malthe", "1234");
+        user1 = model.getProfiles().createProfile("Mazen", "12341234");
+        user2 = model.getProfiles().createProfile("TykkeBalck", "67891234");
+        user3 = model.getProfiles().createProfile("Malthe", "12341234");
         room = model.getRooms().createRoom("test", user1.getUserId());
     }
 
@@ -232,7 +232,7 @@ class RoomsTest {
     void removeUserNonAdmin() {
         model.getRooms().addMember(room.getRoomId(), user2.getUserId(), user1.getUserId());
 
-        var user3 = model.getProfiles().createProfile("jørn123", "456");
+        var user3 = model.getProfiles().createProfile("jørn123", "12345678");
         assertThrows(IllegalStateException.class, () -> model.getRooms().removeMember(room.getRoomId(), user2.getUserId(), user3.getUserId()));
 
         assertEquals(room.getMembers().size(), 2);
