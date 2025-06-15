@@ -5,7 +5,6 @@ public enum UserStateId {
     MUTED("Muted"),
     REGULAR("Regular");
 
-
     private final String stateId;
 
     private UserStateId(String stateId) {

@@ -2,6 +2,9 @@ package model.statemachine;
 
 import model.RoomMember;
 
+/**
+ * State over brugerens nuværende rolle i en gruppe
+ */
 public abstract class UserState {
     /**
      * Promoter user staten
