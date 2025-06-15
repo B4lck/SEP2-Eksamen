@@ -23,7 +23,7 @@ public class RoomMember {
      */
     public RoomMember(long userId, UserStateId state, long latestReadMessage, String nickname) {
         this.userId = userId;
-        this.state = UserState.stateFromString(state, this);
+        this.state = UserState.stateFromId(state, this);
         this.latestReadMessage = latestReadMessage;
         this.nickname = nickname;
     }
@@ -72,7 +72,7 @@ public class RoomMember {
     public DataMap getData() {
         return new DataMap()
                 .with("userId", userId)
-                .with("state", state.getStateAsString())
+                .with("state", state.toStateIdString())
                 .with("latestReadMessage", latestReadMessage)
                 .with("nickname", nickname);
     }

@@ -30,7 +30,7 @@ public class AdministratorState extends UserState {
     }
 
     @Override
-    public String getStateAsString() {
-        return "Admin";
+    public String toStateIdString() {
+        return UserStateId.ADMIN.toString();
     }
 }

@@ -27,24 +27,23 @@ public abstract class UserState {
     public abstract void unmute();
 
     /**
-     * Henter staten som String
-     * @return staten som String
+     * Returner statens ID som en streng
      */
-    public abstract String getStateAsString();
+    public abstract String toStateIdString();
 
     /**
-     * Opretter et user state, ud fra et user state id
+     * Opretter et UserState, ud fra et UserStateId
      *
-     * @param state User state id
+     * @param state UserStateId
      * @param user  RoomMember objektet af en profil i et chatrum
-     * @return User state objekt
+     * @return UserState
      */
-    public static UserState stateFromString(UserStateId state, RoomMember user) {
-        return switch (state.getStateId()) {
-            case "Regular" -> new RegularState(user);
-            case "Muted" -> new MutedUser(user);
-            case "Admin" -> new AdministratorState(user);
-            default -> throw new IllegalStateException("State does not exist");
-        };
+    public static UserState stateFromId(UserStateId state, RoomMember user) {
+        try {
+            // Opretter UserState klassen som er angivet i UserStateId'et
+            return state.getUserStateClass().getDeclaredConstructor(RoomMember.class).newInstance(user);
+        } catch (Exception e) {
+            throw new RuntimeException("Kunne ikke oprette UserState", e);
+        }
     }
 }

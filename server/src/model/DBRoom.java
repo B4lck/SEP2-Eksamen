@@ -1,7 +1,7 @@
 package model;
 
 import model.statemachine.AdministratorState;
-import model.statemachine.MutedUser;
+import model.statemachine.MutedState;
 import model.statemachine.UserStateId;
 import utils.DataMap;
 
@@ -78,7 +78,7 @@ public class DBRoom implements Room {
             PreparedStatement statement = connection.prepareStatement("INSERT INTO room_user (room_id, profile_id, state) VALUES (?,?,?)");
             statement.setLong(1, roomId);
             statement.setLong(2, addUserId);
-            statement.setString(3, UserStateId.REGULAR.getStateId());
+            statement.setString(3, UserStateId.REGULAR.toString());
             statement.executeUpdate();
 
             members.add(new RoomMember(addUserId, UserStateId.REGULAR, 0, null));
@@ -146,7 +146,7 @@ public class DBRoom implements Room {
             roomUser.getState().mute();
 
             PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET state=? WHERE profile_id=? AND room_id=?");
-            statement.setString(1, roomUser.getState().getStateAsString());
+            statement.setString(1, roomUser.getState().toStateIdString());
             statement.setLong(2, muteUserId);
             statement.setLong(3, roomId);
             statement.executeUpdate();
@@ -163,7 +163,7 @@ public class DBRoom implements Room {
             roomUser.getState().unmute();
 
             PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET state=? WHERE profile_id=? AND room_id=?");
-            statement.setString(1, roomUser.getState().getStateAsString());
+            statement.setString(1, roomUser.getState().toStateIdString());
             statement.setLong(2, unmuteUserId);
             statement.setLong(3, roomId);
             statement.executeUpdate();
@@ -174,7 +174,7 @@ public class DBRoom implements Room {
 
     @Override
     public boolean isMuted(long userId) {
-        return getMember(userId).getState() instanceof MutedUser;
+        return getMember(userId).getState() instanceof MutedState;
     }
 
     @Override
@@ -185,7 +185,7 @@ public class DBRoom implements Room {
             roomUser.getState().promote();
 
             PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET state=? WHERE profile_id=? AND room_id=?");
-            statement.setString(1, roomUser.getState().getStateAsString());
+            statement.setString(1, roomUser.getState().toStateIdString());
             statement.setLong(2, promoteUserId);
             statement.setLong(3, roomId);
             statement.executeUpdate();
@@ -202,7 +202,7 @@ public class DBRoom implements Room {
             roomUser.getState().demote();
 
             PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET state=? WHERE profile_id=? AND room_id=?");
-            statement.setString(1, roomUser.getState().getStateAsString());
+            statement.setString(1, roomUser.getState().toStateIdString());
             statement.setLong(2, demoteUserId);
             statement.setLong(3, roomId);
             statement.executeUpdate();
@@ -297,7 +297,7 @@ public class DBRoom implements Room {
             PreparedStatement statement = connection.prepareStatement("INSERT INTO room_user (room_id, profile_id, state) VALUES (?,?,?)");
             statement.setLong(1, roomId);
             statement.setLong(2, userId);
-            statement.setString(3, UserStateId.ADMIN.getStateId());
+            statement.setString(3, UserStateId.ADMIN.toString());
             statement.executeUpdate();
 
             members.add(new RoomMember(userId, UserStateId.ADMIN, 0, null));

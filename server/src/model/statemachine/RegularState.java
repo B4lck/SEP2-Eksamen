@@ -21,7 +21,7 @@ public class RegularState extends UserState {
 
     @Override
     public void mute() {
-        user.setState(new MutedUser(user));
+        user.setState(new MutedState(user));
     }
 
     @Override
@@ -30,7 +30,7 @@ public class RegularState extends UserState {
     }
 
     @Override
-    public String getStateAsString() {
-        return "Regular";
+    public String toStateIdString() {
+        return UserStateId.REGULAR.toString();
     }
 }

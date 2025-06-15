@@ -2,10 +2,10 @@ package model.statemachine;
 
 import model.RoomMember;
 
-public class MutedUser extends UserState {
+public class MutedState extends UserState {
     private RoomMember user;
 
-    public MutedUser(RoomMember user) {
+    public MutedState(RoomMember user) {
         this.user = user;
     }
 
@@ -30,7 +30,7 @@ public class MutedUser extends UserState {
     }
 
     @Override
-    public String getStateAsString() {
-        return "Muted";
+    public String toStateIdString() {
+        return UserStateId.MUTED.toString();
     }
 }
