@@ -27,9 +27,10 @@ public interface Profiles extends ServerRequestHandler {
      * @param username - Brugernavnet til profillen
      * @param password - Adgangskoden til profillen
      * @return Profilen der blev oprettet
-     * @throws IllegalArgumentException - Hvis brugernavnet er null
-     * @throws IllegalArgumentException - Hvis adgangskoden er null
-     * @throws IllegalStateException    - Se exceptions fra addProfile
+     * @throws IllegalArgumentException - Hvis brugernavnet er null, er under 2 tegn eller over 20 tegn,
+     *   eller hvis det indeholder andre tegn end bogstaver, tal, bindestrenge, punktum og understrenge.
+     * @throws IllegalArgumentException - Hvis adgangskoden er null, eller under 8 tegn.
+     * @throws IllegalStateException - Hvis brugernavnet er taget
      */
     Profile createProfile(String username, String password);
 

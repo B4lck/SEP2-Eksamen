@@ -26,10 +26,13 @@ public class ChatClient implements PropertyChangeSubject {
     private ChatClient(String host, int port) throws IOException {
         this.socket = new Socket(host, port);
         this.out = new PrintWriter(socket.getOutputStream(), true);
+
         this.receivedMessages = new ArrayList<>();
+
         this.receiver = new ChatClientReceiver(this, socket);
-        var recieverThread = new Thread(receiver);
+        Thread recieverThread = new Thread(receiver);
         recieverThread.start();
+
         this.gson = new Gson();
         this.property = new PropertyChangeSupport(this);
     }
@@ -38,12 +41,12 @@ public class ChatClient implements PropertyChangeSubject {
         if (instance != null) {
             throw new IllegalStateException("Client er allerede oprettet");
         }
-            try {
-                // Hent data fra MyApplication på en eller anden måde
-                return instance = new ChatClient(host, port);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        try {
+            // Hent data fra MyApplication på en eller anden måde
+            return instance = new ChatClient(host, port);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static ChatClient getInstance() {

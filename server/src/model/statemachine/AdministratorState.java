@@ -11,7 +11,7 @@ public class AdministratorState extends UserState {
 
     @Override
     public void promote() {
-        throw new IllegalStateException("User is already admin, therefor cannot promoted further");
+        throw new IllegalStateException("User is already admin, therefore cannot promoted further");
     }
 
     @Override

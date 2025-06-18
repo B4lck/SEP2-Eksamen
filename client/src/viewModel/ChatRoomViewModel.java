@@ -348,7 +348,8 @@ public class ChatRoomViewModel extends ViewModel implements PropertyChangeListen
      */
     public void sendMessage() {
         try {
-            model.getMessagesManager().sendMessage(viewState.getCurrentChatRoom(), composeMessageProperty.getValue(), attachmentsProperty);
+            model.getMessagesManager()
+                    .sendMessage(viewState.getCurrentChatRoom(), composeMessageProperty.getValue(), attachmentsProperty);
             attachmentsProperty.clear();
         } catch (ServerError e) {
             e.showAlert();

@@ -35,7 +35,6 @@ public class ChatClientReceiver implements Runnable {
                 String s = in.readLine();
                 System.out.println("FRA SERVER: " + s);
 
-                // Håndter downloads, når serveren vil sende en fil, sender den første FILE
                 if (s.equals("DOWNLOAD")) {
                     // Efterfulgt af navn og størrelse på filen
                     String fileName = in.readLine();

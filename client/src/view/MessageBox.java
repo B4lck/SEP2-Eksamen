@@ -158,8 +158,8 @@ public class MessageBox extends HBox {
 
             javafx.scene.control.Menu addReactionsMenu = new javafx.scene.control.Menu("Tilføj reaktion");
 
-            String[] testReactions = {"👍", "😂", "😮", "😢", "😡", "❤️", "🙌", "🤔", "💀"};
-            for (String reaction : testReactions) {
+            String[] reactions = {"👍", "😂", "😮", "😢", "😡", "❤️", "🙌", "🤔", "💀"};
+            for (String reaction : reactions) {
                 var reactionItem = new javafx.scene.control.MenuItem(reaction);
 
                 addReactionsMenu.getItems().add(reactionItem);

@@ -143,7 +143,7 @@ public class DBRoom implements Room {
         if (!isAdmin(adminUserId)) throw new IllegalStateException("Brugeren har ikke tilladelse til at mute brugere");
         try (var connection = Database.getConnection()) {
             RoomMember roomUser = getMember(muteUserId);
-            roomUser.getState().mute();
+            roomUser.mute();
 
             PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET state=? WHERE profile_id=? AND room_id=?");
             statement.setString(1, roomUser.getState().toStateIdString());
@@ -160,7 +160,7 @@ public class DBRoom implements Room {
         if (!isAdmin(adminUserId)) throw new IllegalStateException("Brugeren har ikke tilladelse til at mute brugere");
         try (var connection = Database.getConnection()) {
             RoomMember roomUser = getMember(unmuteUserId);
-            roomUser.getState().unmute();
+            roomUser.unmute();
 
             PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET state=? WHERE profile_id=? AND room_id=?");
             statement.setString(1, roomUser.getState().toStateIdString());
@@ -182,7 +182,7 @@ public class DBRoom implements Room {
         if (!isAdmin(adminUserId)) throw new IllegalStateException("Brugeren har ikke tilladelse forfremme brugere");
         try (var connection = Database.getConnection()) {
             RoomMember roomUser = getMember(promoteUserId);
-            roomUser.getState().promote();
+            roomUser.promote();
 
             PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET state=? WHERE profile_id=? AND room_id=?");
             statement.setString(1, roomUser.getState().toStateIdString());
@@ -199,7 +199,7 @@ public class DBRoom implements Room {
         if (!isAdmin(adminUserId)) throw new IllegalStateException("Brugeren har ikke tilladelse");
         try (var connection = Database.getConnection()) {
             RoomMember roomUser = getMember(demoteUserId);
-            roomUser.getState().demote();
+            roomUser.demote();
 
             PreparedStatement statement = connection.prepareStatement("UPDATE room_user SET state=? WHERE profile_id=? AND room_id=?");
             statement.setString(1, roomUser.getState().toStateIdString());

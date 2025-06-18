@@ -87,7 +87,7 @@ public class ProfilesDBManager implements Profiles {
         if (username == null) throw new IllegalArgumentException("Username må ikke være null");
         if (password == null) throw new IllegalArgumentException("Password må ikke være null");
         if (username.length() < 2 || username.length() > 20) throw new IllegalArgumentException("Brugernavnet skal være imellem 2 til 20 tegn.");
-        if (usernameRegex.matcher(username).find()) throw new IllegalStateException("Brugernavnet må kun indeholde bogstaver, tal, bindestreg, punktum og understrege.");
+        if (usernameRegex.matcher(username).find()) throw new IllegalArgumentException("Brugernavnet må kun indeholde bogstaver, tal, bindestreg, punktum og understrege.");
         if (password.length() < 8) throw new IllegalArgumentException("Adgangskoden skal være mindst 8 tegn.");
         if (getProfileByUsername(username).isPresent()) throw new IllegalStateException("Brugernavnet er taget");
         try (Connection connection = Database.getConnection()) {

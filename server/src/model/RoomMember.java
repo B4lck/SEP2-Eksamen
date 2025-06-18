@@ -53,6 +53,34 @@ public class RoomMember {
     }
 
     /**
+     * Promote
+     */
+    public void promote() {
+        state.promote();
+    }
+
+    /**
+     * Demote
+     */
+    public void demote() {
+        state.demote();
+    }
+
+    /**
+     * Mute
+     */
+    public void mute() {
+        state.mute();
+    }
+
+    /**
+     * Unmute
+     */
+    public void unmute() {
+        state.unmute();
+    }
+
+    /**
      * Henter brugerens kaldenavn i rummet
      */
     public String getNickname() {

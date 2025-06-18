@@ -16,7 +16,7 @@ public class RegularState extends UserState {
 
     @Override
     public void demote() {
-        throw new IllegalStateException("User is not admin, therefor cannot demote");
+        throw new IllegalStateException("User is not admin, therefore cannot demote");
     }
 
     @Override
@@ -26,7 +26,7 @@ public class RegularState extends UserState {
 
     @Override
     public void unmute() {
-        throw new IllegalStateException("User is not muted, therefor cannot be unmuted");
+        throw new IllegalStateException("User is not muted, therefore cannot be unmuted");
     }
 
     @Override
